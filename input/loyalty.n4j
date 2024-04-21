@@ -1,0 +1,63 @@
+:ID, firstname:string, familyname:string , age:integer
+jj23, "John", "Jones", 43
+uh12, "Umar", "Habib", 55
+gt2, "Guillaume", "Truffaut", 23
+jv9, "Jennifer", "Villeneuve", 49
+ab23, "Adam", "Baker", 22
+nj10, "Nigel", "Jackson", 16
+rw5, "Rebecca", "Watson", 15
+pp8, "Peter", "Potter", 17
+jd6, "Jing","Ding", 16
+rw11, "Ray","Wise", 66
+bk21, "Barbara","King",70
+mw3, "Mei","Wu",47
+as4, "Anika","Sharma",40
+cr2, "Connor","Flaherty",15 
+
+:ID, business:string, bonus:integer, :LABEL
+com1, "BarStucks", 10, Cafe
+com2, "NaffeCero", 15, Cafe
+com3, "CoffeeNumberTwo", 20, Cafe
+com4, "TreatyEats", 10, Delicatessen
+com5, "CrustInUs", 15, Pizzeria
+com6, "DoughReMe", 25, Pizzeria
+com7, "BaaBaaBlackSheep", 10, Barber
+com8, "TheAngryOnion", 30, Restaurant
+com9, "TheLaughingOnion", 25, Restaurant
+
+:START_ID, reward:integer, :END_ID, :TYPE
+jj23,72,com5,CustomerOf
+jj23,12,com2,CustomerOf
+jj23,5,com3,CustomerOf
+uh12,24,com8,CustomerOf
+uh12,24,com2,CustomerOf
+uh12,24,com5,CustomerOf
+gt2,12,com1,CustomerOf
+jv9,22,com9,CustomerOf
+jv9,0,com5,CustomerOf
+jd6,11,com1,CustomerOf
+ab23,23,com8,CustomerOf
+nj10,26,com3,CustomerOf
+rw5,2,com4,CustomerOf
+rw5,22,com3,CustomerOf
+pp8,86,com6,CustomerOf
+rw11,43,com7,CustomerOf
+bk21,62,com4,CustomerOf
+mw3,3,com2,CustomerOf
+as4,63,com1,CustomerOf
+cr2,50,com6,CustomerOf
+
+:START_ID, :END_ID, :TYPE
+jj23,rw5,  Recommended
+jj23,bk21, Recommended
+uh12,as4,  Recommended
+uh12,jv9,  Recommended
+gt2,jd6,   Recommended
+jv9,as4,   Recommended
+ab23,cr2,  Recommended
+nj10,jd6,  Recommended
+rw5,mw3,   Recommended
+bk21,rw11, Recommended
+as4,mw3,   Recommended
+cr2,gt2,   Recommended
+cr2,pp8,   Recommended

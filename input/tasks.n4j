@@ -1,0 +1,38 @@
+:ID, site:string, :LABEL
+loc1, "Garden",      Location
+loc2, "FrontRoom",   Location
+loc3, "Kitchen",     Location
+loc4, "MainBedroom", Location
+
+:ID, description:string, duration:integer, :LABEL
+task1, "Paving",   8,   Job
+task2, "Fencing",  12,  Job
+task3, "Wiring",   4,   Job
+task4, "Plumbing", 12,  Job
+task5, "Painting", 4,   Job
+
+:ID, name:string, :LABEL
+emp1, "Jane",   Staff
+emp2, "Bill",   Staff
+emp3, "Winona", Staff
+emp4, "Rajesh", Staff
+emp5, "Jakub",  Staff
+
+:START_ID, priority:integer, :END_ID, :TYPE
+loc1, 2,  task1,  ToComplete
+loc1, 4,  task2,  ToComplete 
+loc2, 9,  task3,  ToComplete
+loc2, 1,  task5,  ToComplete
+loc3, 8,  task3,  ToComplete
+loc3, 10, task4,  ToComplete
+loc4, 9,  task3,  ToComplete
+loc4, 1,  task5,  ToComplete
+
+:START_ID, available:boolean, :END_ID, :TYPE
+emp1, true, task1, CanDo
+emp1, true, task2, CanDo
+emp2, false, task1, CanDo
+emp3, true, task3, CanDo
+emp4, true, task2, CanDo
+emp4, true, task4, CanDo
+emp5, false, task4, CanDo

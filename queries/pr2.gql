@@ -1,0 +1,1 @@
+SELECT * CREATE EDGE FROM n1 TO n2 TYPE "PossiblyAllocated" WHERE (n2)-[r]->(n1) AND r.priority>=8 AND (n1)-[_]->(_) AND n1.LABEL="Staff" AND (n1)-[r2]->(n2) AND r2.available=true

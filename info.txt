@@ -1,0 +1,71 @@
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠛⢉⢉⠉⠉⠻⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⠟⠠⡰⣕⣗⣷⣧⣀⣅⠘⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⠃⣠⣳⣟⣿⣿⣷⣿⡿⣜⠄⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⡿⠁⠄⣳⢷⣿⣿⣿⣿⡿⣝⠖⠄⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⠃⠄⢢⡹⣿⢷⣯⢿⢷⡫⣗⠍⢰⣿⣿⣿⣿⣿
+⣿⣿⣿⡏⢀⢄⠤⣁⠋⠿⣗⣟⡯⡏⢎⠁⢸⣿⣿⣿⣿⣿
+⣿⣿⣿⠄⢔⢕⣯⣿⣿⡲⡤⡄⡤⠄⡀⢠⣿⣿⣿⣿⣿⣿
+⣿⣿⠇⠠⡳⣯⣿⣿⣾⢵⣫⢎⢎⠆⢀⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⠄⢨⣫⣿⣿⡿⣿⣻⢎⡗⡕⡅⢸⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⠄⢜⢾⣾⣿⣿⣟⣗⢯⡪⡳⡀⢸⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⠄⢸⢽⣿⣷⣿⣻⡮⡧⡳⡱⡁⢸⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⡄⢨⣻⣽⣿⣟⣿⣞⣗⡽⡸⡐⢸⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⡇⢀⢗⣿⣿⣿⣿⡿⣞⡵⡣⣊⢸⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⡀⡣⣗⣿⣿⣿⣿⣯⡯⡺⣼⠎⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣧⠐⡵⣻⣟⣯⣿⣷⣟⣝⢞⡿⢹⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⡆⢘⡺⣽⢿⣻⣿⣗⡷⣹⢩⢃⢿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣷⠄⠪⣯⣟⣿⢯⣿⣻⣜⢎⢆⠜⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⡆⠄⢣⣻⣽⣿⣿⣟⣾⡮⡺⡸⠸⣿⣿⣿⣿
+⣿⣿⡿⠛⠉⠁⠄⢕⡳⣽⡾⣿⢽⣯⡿⣮⢚⣅⠹⣿⣿⣿
+⡿⠋⠄⠄⠄⠄⢀⠒⠝⣞⢿⡿⣿⣽⢿⡽⣧⣳⡅⠌⠻⣿
+⠁⠄⠄⠄⠄⠄⠐⡐⠱⡱⣻⡻⣝⣮⣟⣿⣻⣟⣻⡺⣊⣿
+
+pr1.gql:
+-- Select nodes with age <= 25 or label "Visitor".
+-- Output ID, age, LABEL.
+
+pr2.gql:
+-- Select all properties.
+-- Create "PossiblyAllocated" edge from Staff nodes n1 to nodes n2 where n2 has an incoming edge with priority >= 8 and n1 has an outgoing edge with available=true.
+
+pr3.gql:
+-- Select ID and points of nodes n where there's a node n2 with n2-[:Beat]->n and a node n3 with n2<-[:DrewWith]-n3 and n3.points = n.points.
+
+pr4.gql:
+-- Select all properties of p1 and p2 where p1's firstName starts with "A", "B" or "C", p1-[:IsFriend]->p2, p2.age > p1.age and p2 doesn't work for a Cafe.
+
+pr5.gql:
+-- Select all properties.
+-- For p1 and p2 where p1-[:CustomerOf]->b and p1-[:Recommended]->p2-[:CustomerOf]->b, update reward of p1's and p2's CustomerOf edge by adding b.bonus.
+-- Delete all "Recommended" edges.
+
+Lexer.x:
+-- Defines tokens for keywords, operators, and literals used in the query language.
+-- Handles identifiers, strings, and integers.
+-- Ignores whitespace and single-line comments starting with "--".
+-- Treats "STARTS WITH" as a single token.
+-- Generates appropriate token types for each recognised token.
+-- Defines TokenType and Token data types.
+-- Provides tokenPosn function to get the position of a token for error reporting.
+
+Parser.y:
+-- Defines production rules for query types: SelectQuery, CreateEdgeQuery, UpdateQuery, DeleteQuery, and CreateRelationshipQuery.
+-- SelectQuery rule handles named property selections and SELECT *, with optional WHERE clause.
+-- CreateEdgeQuery rule parses CREATE EDGE syntax with FROM, TO, and TYPE clauses.
+-- UpdateQuery rule parses UPDATE syntax with node patterns and SET clause.
+-- DeleteQuery rule handles DELETE EDGE and DELETE node patterns cases, with optional WHERE clause.
+-- CreateRelationshipQuery rule parses CREATE RELATIONSHIP syntax with FROM, TO, and TYPE clauses.
+-- Handles property references, node patterns, edge patterns, and edge types.
+-- Condition rule covers logical operators (AND, OR, NOT), comparison operators (=, <, >, <=, >=, STARTS WITH), label checking (HAS), and edge pattern matching.
+-- Expression rule handles integer literals, string literals, and property references.
+-- Defines parseError function to handle parse errors.
+
+Syntax.hs:
+-- Defines Query data type representing all query types defined in the parser rules.
+-- Defines PropertyRef, EdgePattern, NodePattern, EdgeType, Condition, Expression, and PropertyUpdate data types as per problem file requirements.
+-- Condition data type includes ConditionHasLabel for label checking and ConditionEdge for edge pattern matching.
+-- Expression data type covers integer literals, string literals, boolean literals, null, and property references.
+-- PropertyUpdate data type represents an update to a property with a property reference and an expression.
+
+To Do:
+-- Implement undefined Main.hs functions
