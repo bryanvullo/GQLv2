@@ -7,6 +7,7 @@ data Query
     | UpdateQuery [NodePattern] [PropertyUpdate]
     | DeleteQuery [NodePattern] (Maybe Condition)
     | DeleteEdgeQuery EdgeType
+    | SelectFile String
     deriving (Show)
 
 data PropertyRef = PropertyRef String String

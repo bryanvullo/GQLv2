@@ -47,12 +47,20 @@ import Syntax
 
 %%
 
+Queries 
+  : Query                            { [$1] }
+  | Query Queries                    { $1 : $2 }
+
 Query
   : SelectQuery                      { $1 }
   | CreateEdgeQuery                  { $1 }
   | UpdateQuery                      { $1 }
   | DeleteQuery                      { $1 }
   | DeleteEdgeQuery                  { $1 }
+  | SelectFile                       { $1 }
+
+SelectFile
+  : FROM STRING                      { SelectFile $2 }
 
 SelectQuery
   : SELECT PropertyRefs FROM NodePatterns WHERE Condition  { SelectQuery $2 $4 (Just $6) }
