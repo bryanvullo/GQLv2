@@ -16310,3 +16310,6 @@ data Token = Tok AlexPosn TokenType
 
 tokenPosn :: Token -> String
 tokenPosn (Tok (AlexPn _ line column) _) = show line ++ ":" ++ show column
+
+lex :: String -> [Token]
+lex str = alexScanTokens str

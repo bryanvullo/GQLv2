@@ -121,5 +121,6 @@ Expression
 
 {
 parseError :: [Token] -> a
-parseError _ = error "Parse error"
+parseError tokens@(x:xs) = error $ "Parse error: " ++ tokenPosn (head tokens) ++ "\n" ++ show tokens
+parseError [] = error "Parse error: end of input"
 }
