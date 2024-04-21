@@ -26,18 +26,20 @@ import InputLexer (Token(..), TokenType(..), tokenPosn)
     ','                 { Tok _ TokComma }
     '"'                 { Tok _ TokQuoteMark }
 
+%left ','
+
 %%
-Tables : Table                                          { [$1] }
-       | Table Tables                                   { $1 : $2 }
+Tables : {- empty -}                                    { [] }
+       | Tables Table                                   { $2 : $1 }
 
 Table : Header Rows                                     { $1 : $2 }
                 
-Header : ':' id ',' Types                                  { Header $4 }
-       | ':' id ',' Types ',' ':' label                    { LabeledHeader $4 }
-       | ':' startId ',' Types ',' ':' endId ',' ':' type  { RelationshipHeader $4 }
+Header : ':' id Types                                   { Header $3 }
+       | ':' id Types ',' ':' label                     { LabeledHeader $3 }
+       | ':' startId Types ',' ':' endId ',' ':' type   { RelationshipHeader $3 }
 
-Types : Type                                            { [$1] }
-      | Type ',' Types                                  { $1 : $3 }
+Types : {- empty -}                                     { [] }
+      | Types ',' Type                                  { $3 : $1 }
 
 Type : string ':' stringType                            { StringType $1 }
      | alphanum ':' stringType                          { StringType $1 }
@@ -46,12 +48,12 @@ Type : string ':' stringType                            { StringType $1 }
      | string ':' boolType                              { BoolType $1 }
      | alphanum ':' boolType                            { BoolType $1 }      
 
-Rows : Row                                              { [$1] }
-     | Row Rows                                         { $1 : $2 }
+Rows : {- empty -}                                      { [] }
+     | Rows Row                                         { $2 : $1 }
 
-Row : ID ',' Values                                     { Data $1 $3 }
-    | ID ',' Values ',' Labels                          { LabeledData $1 $3 $5 }
-    | StartID ',' Values ',' EndID ',' Relationship     { RelationshipData $1 $3 $5 $7 }
+Row : ID Values                                         { Data $1 $2 }
+    | ID Values ',' Labels                              { LabeledData $1 $2 $4 }
+    | StartID Values ',' EndID ',' Relationship         { RelationshipData $1 $2 $4 $6 }
 
 ID : string                                             { Id $1 }
    | alphanum                                           { Id $1 }
@@ -63,12 +65,12 @@ EndID : string                                          { EndID $1 }
       | alphanum                                        { EndID $1 }
 
 Labels : string                                         { [$1] }
-       | string ';' Labels                              { $1 : $3 }
+       | Labels ';' string                              { $3 : $1 }
 
 Relationship : string                                   { $1 }
 
-Values : Value                                          { [$1] }
-       | Value ',' Values                               { $1 : $3 }
+Values : {- empty -}                                    { [] }
+       | Values ',' Value                               { $3 : $1 }
 
 Value : '"' string '"'                                  { StringValue $2 }
       | int                                             { IntValue $1 }
@@ -115,7 +117,6 @@ data Type =
 
 data Value =
     NullValue |
-    Labels [String] |
     StringValue String |
     IntValue Int |
     BoolValue Bool
