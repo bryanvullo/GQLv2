@@ -10,50 +10,50 @@ $alpha = [a-zA-Z]
 tokens :-
   $white+                           ;
   "--".*                            ;
-  $digit+                           { \p s -> Tok p (TokInt (read s :: Int)) }
-  FILE                              { \p _ -> Tok p TokFILE                  }
-  FIND                              { \p _ -> Tok p TokFIND                  }
-  OUT                               { \p _ -> Tok p TokOUT                   }
-  \"                                { \p _ -> Tok p TokDelimiter             }
-  "||"                              { \p _ -> Tok p TokOr                    }
-  "&&"                              { \p _ -> Tok p TokAnd                   }
-  \(                                { \p _ -> Tok p TokLParen }
-  \)                                { \p _ -> Tok p TokRParen }
-  Graph                             { \p _ -> Tok p TokGType }
-  Integer                           { \p _ -> Tok p TokIType }
-  String                            { \p _ -> Tok p TokSType }
-  Boolean                           { \p _ -> Tok p TokBType }
-  \{                                { \p _ -> Tok p TokLCurl }
-  \}                                { \p _ -> Tok p TokRCurl }
-  IF                                { \p _ -> Tok p TokIf }
-  ELSE                              { \p _ -> Tok p TokElse }
-  FOR                               { \p _ -> Tok p TokFor }
-  \:                                { \p _ -> Tok p TokColon }
-  [a-z]($alpha|$digit)*             { \p s -> Tok p (TokIdent s) }
-  ">="                              { \p _ -> Tok p TokGEQ }
-  "<="                              { \p _ -> Tok p TokLEQ }
-  \>                                { \p _ -> Tok p TokGT }
-  \<                                { \p _ -> Tok p TokLT }
-  \=                                { \p _ -> Tok p TokAssign }
-  "=="                              { \p _ -> Tok p TokEquals }
-  \[                                { \p _ -> Tok p TokLSQ }
-  \]                                { \p _ -> Tok p TokRSQ }
-  "<-"                              { \p _ -> Tok p TokLArrow }
-  "->"                              { \p _ -> Tok p TokRArrow }
-  \-                                { \p _ -> Tok p TokDash }
-  r\".*\"                           { \p s -> Tok p (TokRegex (drop 2 $ init s)) }
-  ADD                               { \p _ -> Tok p TokAdd }
-  \.                                { \p _ -> Tok p TokDot }
-  \:[A-Z]+                          { \p s -> Tok p (TokBigField (drop 1 s)) }
-  \'($alpha|$digit|\.)*\'           { \p s -> Tok p (TokString (drop 1 $ init s)) }
+  $digit+                           { \p s -> Tok p (TokInt (read s :: Int))             }
+  FILE                              { \p _ -> Tok p TokFILE                              }
+  FIND                              { \p _ -> Tok p TokFIND                              }
+  OUT                               { \p _ -> Tok p TokOUT                               }
+  \"                                { \p _ -> Tok p TokDelimiter                         }
+  "||"                              { \p _ -> Tok p TokOr                                }
+  "&&"                              { \p _ -> Tok p TokAnd                               }
+  \(                                { \p _ -> Tok p TokLParen                            }
+  \)                                { \p _ -> Tok p TokRParen                            }
+  Graph                             { \p _ -> Tok p TokGType                             }
+  Integer                           { \p _ -> Tok p TokIType                             }
+  String                            { \p _ -> Tok p TokSType                             }
+  Boolean                           { \p _ -> Tok p TokBType                             }
+  \{                                { \p _ -> Tok p TokLCurl                             }
+  \}                                { \p _ -> Tok p TokRCurl                             }
+  IF                                { \p _ -> Tok p TokIf                                }
+  ELSE                              { \p _ -> Tok p TokElse                              }
+  FOR                               { \p _ -> Tok p TokFor                               }
+  \:                                { \p _ -> Tok p TokColon                             }
+  [a-z]($alpha|$digit)*             { \p s -> Tok p (TokIdent s)                         }
+  ">="                              { \p _ -> Tok p TokGEQ                               }
+  "<="                              { \p _ -> Tok p TokLEQ                               }
+  \>                                { \p _ -> Tok p TokGT                                }
+  \<                                { \p _ -> Tok p TokLT                                }
+  \=                                { \p _ -> Tok p TokAssign                            }
+  "=="                              { \p _ -> Tok p TokEquals                            }
+  \[                                { \p _ -> Tok p TokLSQ                               }
+  \]                                { \p _ -> Tok p TokRSQ                               }
+  "<-"                              { \p _ -> Tok p TokLArrow                            }
+  "->"                              { \p _ -> Tok p TokRArrow                            }
+  \-                                { \p _ -> Tok p TokDash                              }
+  r\".*\"                           { \p s -> Tok p (TokRegex (drop 2 $ init s))         }
+  ADD                               { \p _ -> Tok p TokAdd                               }
+  \.                                { \p _ -> Tok p TokDot                               }
+  \:[A-Z]+                          { \p s -> Tok p (TokBigField (drop 1 s))             }
+  \'($alpha|$digit|\.)*\'           { \p s -> Tok p (TokString (drop 1 $ init s))        }
   \"($alpha*)+\"                    { \p s -> Tok p (TokStringLiteral (drop 1 $ init s)) }
-  True                              { \p _ -> Tok p TokTrue }
-  False                             { \p _ -> Tok p TokFalse }
-  \;                                { \p _ -> Tok p TokSemicolon }
-  \!=                               { \p _ -> Tok p TokNotEquals }
-  \,                                { \p _ -> Tok p TokComma }
-  Node                              { \p _ -> Tok p TokNType }
-  Relation                          { \p _ -> Tok p TokRType }
+  True                              { \p _ -> Tok p TokTrue                              }
+  False                             { \p _ -> Tok p TokFalse                             }
+  \;                                { \p _ -> Tok p TokSemicolon                         }
+  \!=                               { \p _ -> Tok p TokNotEquals                         }
+  \,                                { \p _ -> Tok p TokComma                             }
+  Node                              { \p _ -> Tok p TokNType                             }
+  Relation                          { \p _ -> Tok p TokRType                             }
 
 {
 data TokenType

@@ -49,8 +49,8 @@ import Lexer
   ';'                         { Tok _ TokSemicolon      }
   '!='                        { Tok _ TokNotEquals      }
   ','                         { Tok _ TokComma          }
-  NType                    { Tok _ TokNType       }
-  RType                { Tok _ TokRType   }
+  NType                       { Tok _ TokNType          }
+  RType                       { Tok _ TokRType          }
 
 %right '||'
 %right '&&'
