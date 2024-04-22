@@ -44,7 +44,7 @@ tokens :-
   r\".*\"                           { \p s -> Tok p (TokRegex (drop 2 $ init s))         }
   ADD                               { \p _ -> Tok p TokAdd                               }
   \.                                { \p _ -> Tok p TokDot                               }
-  \:[A-Z]+                          { \p s -> Tok p (TokBigField (drop 1 s))             }
+  \:[A-Z]+                          { \p s -> Tok p (TokFIdent (drop 1 s))               }
   \'($alpha|$digit|\.)*\'           { \p s -> Tok p (TokString (drop 1 $ init s))        }
   \"($alpha*)+\"                    { \p s -> Tok p (TokStringLiteral (drop 1 $ init s)) }
   True                              { \p _ -> Tok p TokTrue                              }
@@ -91,7 +91,7 @@ data TokenType
   | TokRegex String
   | TokAdd
   | TokDot
-  | TokBigField String
+  | TokFIdent String
   | TokString String
   | TokTrue
   | TokFalse

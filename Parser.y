@@ -42,7 +42,7 @@ import Lexer
   regex                       { Tok _ (TokRegex $$)     }
   ADD                         { Tok _ TokAdd            }
   '.'                         { Tok _ TokDot            }
-  bigField                    { Tok _ (TokBigField $$)  }
+  FIdent                      { Tok _ (TokFIdent $$)  }
   string                      { Tok _ (TokString $$)    }
   True                        { Tok _ TokTrue           }
   False                       { Tok _ TokFalse          }
@@ -72,7 +72,7 @@ Expr
   | Type var                                { Declare $1 $2        }
   | var                                     { Var $1               }
   | int                                     { Int $1               }
-  | bigField                                { Var $1               }
+  | FIdent                                  { Var $1               }
   | string                                  { String $1            }
   | var '.' FIND '(' var '->' BoolExpr ')'  { FINDQuery $1 $5 $7   }
   | var '.' ADD '(' NewNode ')'             { AddQuery $1 $5       }
@@ -80,7 +80,7 @@ Expr
   | OUT '(' var ')'                         { OUT $3               }
   | BoolExpr                                { BoolExpr $1          }
   | var '.' var                             { GetProperty $1 $3    }
-  | var '.' bigField                        { GetProperty $1 $3    }
+  | var '.' FIdent                          { GetProperty $1 $3    }
 
 BoolExpr
   : True                              { Bool True                }
@@ -97,7 +97,7 @@ BoolExpr
   | var '-' '[' BoolExpr ']' '->'     { StartRelationQuery $1 $4 }
   | '(' BoolExpr ')'                  { $2                       }
   | var '-' '[' BoolExpr ']' '->' var { RelationQuery $1 $4 $7   }
-  | var '.' bigField '==' string      { BigFieldEquals $1 $3 $5  }
+  | var '.' FIdent '==' string        { FIdentEquals $1 $3 $5    }
 
 NewNode
   : var                               { NodeCopy $1 }
@@ -109,7 +109,7 @@ NodeAssignments
 
 NodeAssignment
   : var '=' Expr                              { NodeAssignment $1 $3        }
-  | bigField '=' Expr                         { NodeAssignment $1 $3        }
+  | FIdent '=' Expr                           { NodeAssignment $1 $3        }
   | var '-' '[' NodeAssignments ']' '->' var  { RelationAssignment $1 $4 $7 }
 
 IfStatement
@@ -170,7 +170,7 @@ data BoolExpr
   | EndRelationQuery BoolExpr String
   | StartRelationQuery String BoolExpr
   | RelationQuery String BoolExpr String
-  | BigFieldEquals String String String
+  | FIdentEquals String String String
   deriving(Eq, Show)
   
 data Node
