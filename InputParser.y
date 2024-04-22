@@ -25,21 +25,20 @@ import InputLexer (Token(..), TokenType(..), tokenPosn)
     ';'                 { Tok _ TokSemiColon }
     ','                 { Tok _ TokComma }
     '"'                 { Tok _ TokQuoteMark }
-    '\n'                { Tok _ TokNL }
 
-%left ','
+%left ',' ':' ';'
 
 %%
 Tables : {- empty -}                                    { [] }
-       | Table '\n' Tables                              { $1 : $3 }
+       | Table Tables                                   { $1 : $2 }
 
-Table : Header '\n' Rows                                { Table $1 $3 }
+Table : Header Rows                                     { Table $1 $2 }
                 
 Header : ':' id ',' Types                               { Header $4 }
-       | ':' id ',' Types ',' ':' label                 { LabeledHeader $4 }
-       | ':' startId ',' Types ',' ':' endId ',' ':' type   { RelationshipHeader $4 }
+       | ':' id ',' Types ':' label                     { LabeledHeader $4 }
+       | ':' startId ',' Types ':' endId ',' ':' type   { RelationshipHeader $4 }
 
-Types : Type                                            { [$1] }
+Types : {- empty -}                                     { [] }
       | Type ',' Types                                  { $1 : $3 }
 
 Type : String ':' stringType                            { StringType $1 }
@@ -52,18 +51,13 @@ String : string                                         { $1 }
 Rows : {- empty -}                                      { [] }
      | Row Rows                                         { $1 : $2 }
 
-Row : ID Value '\n'                                     { Data $1 $2 }
-    | ID Value ',' Labels '\n'                          { LabeledData $1 $2 $4 }
-    | ID Value ',' ID ',' Relationship '\n'             { RelationshipData $1 $2 $4 $6 }
-
-ID : string                                             { Id $1 }
-   | alphanum                                           { Id $1 }
+Row : alphanum Value                                    { Data $1 $2 }
+    | alphanum Value ',' Labels                         { LabeledData $1 $2 $4 }
+    | alphanum Value ',' alphanum ',' string            { RelationshipData $1 $2 $4 $6 }
 
 Labels : {- empty -}                                    { [] }
        | string                                         { [$1] }
        | string ';' Labels                              { $1 : $3 }
-
-Relationship : string                                   { $1 }
 
 Value : ',' '"' string '"'                              { StringValue $3 }
       | ',' int                                         { IntValue $2 }
