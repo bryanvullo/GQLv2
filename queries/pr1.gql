@@ -1,4 +1,4 @@
 FROM "access.n4j"
-SELECT ID, age, LABEL 
-    WHERE 
-        age <= 25 OR LABEL = "Visitor"
+    SELECT ID, age, LABEL 
+        WHERE 
+            age <= 25 OR LABEL = "Visitor"
