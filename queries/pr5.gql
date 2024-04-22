@@ -1,2 +1,18 @@
-FROM "loyalty.n4j"
-SELECT * UPDATE p1,p2 SET p1.(p1-[:CustomerOf]->b).reward=p1.(p1-[:CustomerOf]->b).reward+b.bonus,p2.(p2-[:CustomerOf]->b).reward=p2.(p2-[:CustomerOf]->b).reward+b.bonus WHERE (p1)-[:CustomerOf]->(b) AND (p1)-[:Recommended]->(p2)-[:CustomerOf]->(b) DELETE EDGE TYPE "Recommended"
+Graph graph = READFILE "loyalty.n4j"
+
+FOR (Node p : graph) {
+    FOR (Node b : graph) {
+        IF (p-[:CustomerOf]->b) {
+            FOR (Node q : graph) {
+                IF (p-[:Recommended]->q && q-[:CustomerOf]->b) {
+                    Integer bonus = b.bonus
+                    REMOVE(p-[:Recommended]->q)
+                    p-[:CustomerOf{reward: reward + bonus}]->b
+                    q-[:CustomerOf{reward: reward + bonus}]->b
+                }
+            }
+        }
+    }
+}
+
+PRINT(graph)

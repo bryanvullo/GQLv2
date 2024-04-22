@@ -1,3 +1,19 @@
-FROM "table.n4j"
-SELECT ID, points 
-    WHERE (n2)-[:Beat]->(n) AND (n2)<-[:DrewWith]-(n3) AND (n3).points=(n).points
+Graph graph = READFILE "table.n4j"
+
+Graph result
+
+FOR (Node n : graph) {
+    IF (EXISTS(n<-[:Beat]-)) {
+        Node beater = STARTNODE(n<-[:Beat]-)
+        FOR (Node other : graph) {
+            IF ((other-[:DrewWith]->beater && beater-[:Beat]->n) || 
+                (beater-[:DrewWith]->other && beater-[:Beat]->n)) {
+                IF (other.points != null && other.points == n.points) {
+                    result.ADD(n{ID, points})
+                }
+            }
+        }
+    }
+}
+
+PRINT(result)

@@ -1,2 +1,21 @@
-FROM "network.n4j"
-SELECT p1.*,p2.* WHERE p1.firstName STARTS WITH "A" OR p1.firstName STARTS WITH "B" OR p1.firstName STARTS WITH "C" p1-[:IsFriend]->p2 AND p2.age>p1.age AND NOT (p2-[:WorksFor]->(:Cafe))
+Graph graph = READFILE "network.n4j"
+
+String regex = r"^[ABC].*"
+
+Graph result
+
+FOR (Node person : graph) {
+    IF (person.firstName MATCHES regex) {
+        FOR (Node friend : graph) {
+            IF (person-[:IsFriend]->friend && 
+                friend.age > person.age && 
+                NOT EXISTS(friend-[:WorksFor]->(:Cafe))) {
+                result.ADD(person)
+                result.ADD(friend)
+                result.ADD(person-[:IsFriend]->friend)
+            }
+        }
+    }
+}
+
+PRINT(result)

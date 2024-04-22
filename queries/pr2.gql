@@ -1,4 +1,17 @@
-FROM "tasks.n4j"
+Graph graph = READFILE "tasks.n4j"
 
-CREATE EDGE FROM n1 TO n2 TYPE "PossiblyAllocated" WHERE (n2)-[r]->(n1) AND r.priority>=8 AND (n1)-[_]->(_) AND n1.LABEL="Staff" AND (n1)-[r2]->(n2) AND r2.available=true
-SELECT * 
+Graph result = graph
+
+FOR (Relation rel : graph) {
+    IF (rel.priority >= 8) {
+        Node target = ENDNODE(rel)
+        FOR (Relation r : graph) {
+            IF (r.available == true && STARTNODE(r).:LABEL CONTAINS "Staff") {
+                Node source = STARTNODE(r)
+                result.ADD(source-[:PossiblyAllocated]->target)
+            }
+        }
+    }
+}
+
+PRINT(result)

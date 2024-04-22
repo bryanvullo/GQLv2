@@ -1,4 +1,7 @@
-FROM "access.n4j"
-    SELECT ID, age, LABEL 
-        WHERE 
-            age <= 25 OR LABEL = "Visitor"
+Graph graph = READFILE 'access.n4j'
+
+Graph result = graph.MATCH(node ->
+    node.age <= 25 || "Visitor" IN node.:LABEL
+)
+
+PRINT(result)
