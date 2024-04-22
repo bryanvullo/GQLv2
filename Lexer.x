@@ -52,8 +52,8 @@ tokens :-
   \;                                { \p _ -> Tok p TokSemicolon }
   \!=                               { \p _ -> Tok p TokNotEquals }
   \,                                { \p _ -> Tok p TokComma }
-  Node                              { \p _ -> Tok p TokNodeType }
-  Relation                          { \p _ -> Tok p TokRelationType }
+  Node                              { \p _ -> Tok p TokNType }
+  Relation                          { \p _ -> Tok p TokRType }
 
 {
 data TokenType
@@ -99,8 +99,8 @@ data TokenType
   | TokNotEquals
   | TokComma
   | TokInt Int
-  | TokNodeType
-  | TokRelationType
+  | TokNType
+  | TokRType
   deriving (Eq, Show)
 
 data Token = Tok AlexPosn TokenType

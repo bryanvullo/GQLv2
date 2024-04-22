@@ -49,8 +49,8 @@ import Lexer
   ';'                         { Tok _ TokSemicolon      }
   '!='                        { Tok _ TokNotEquals      }
   ','                         { Tok _ TokComma          }
-  NodeType                    { Tok _ TokNodeType       }
-  RelationType                { Tok _ TokRelationType   }
+  NType                    { Tok _ TokNType       }
+  RType                { Tok _ TokRType   }
 
 %right '||'
 %right '&&'
@@ -124,8 +124,8 @@ Type
   | IType       { Type $1 }
   | SType        { Type $1 }
   | BType       { Type $1 }
-  | NodeType          { Type $1 }
-  | RelationType      { Type $1 }
+  | NType          { Type $1 }
+  | RType      { Type $1 }
 
 {
 parseError :: [Token] -> a
