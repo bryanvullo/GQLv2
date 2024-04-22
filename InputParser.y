@@ -25,22 +25,22 @@ import InputLexer (Token(..), TokenType(..), tokenPosn)
     ';'                 { Tok _ TokSemiColon }
     ','                 { Tok _ TokComma }
     '"'                 { Tok _ TokQuoteMark }
-    '\n'                  { Tok _ TokNL }
+    '\n'                { Tok _ TokNL }
 
 %left ','
 
 %%
 Tables : {- empty -}                                    { [] }
-       | Table NewLines Tables                          { $1 : $3 }
+       | Table '\n' Tables                              { $1 : $3 }
 
 Table : Header '\n' Rows                                { Table $1 $3 }
                 
-Header : ':' id Types                                   { Header $3 }
-       | ':' id Types ',' ':' label                     { LabeledHeader $3 }
-       | ':' startId Types ',' ':' endId ',' ':' type   { RelationshipHeader $3 }
+Header : ':' id ',' Types                               { Header $4 }
+       | ':' id ',' Types ',' ':' label                 { LabeledHeader $4 }
+       | ':' startId ',' Types ',' ':' endId ',' ':' type   { RelationshipHeader $4 }
 
-Types : {- empty -}                                     { [] }
-      | ',' Type Types                                  { $2 : $3 }
+Types : Type                                            { [$1] }
+      | Type ',' Types                                  { $1 : $3 }
 
 Type : String ':' stringType                            { StringType $1 }
      | String ':' intType                               { IntType $1 }
@@ -52,18 +52,12 @@ String : string                                         { $1 }
 Rows : {- empty -}                                      { [] }
      | Row Rows                                         { $1 : $2 }
 
-Row : ID Values '\n'                                    { Data $1 $2 }
-    | ID Values ',' Labels '\n'                         { LabeledData $1 $2 $4 }
-    | StartID Values ',' EndID ',' Relationship '\n'    { RelationshipData $1 $2 $4 $6 }
+Row : ID Value '\n'                                     { Data $1 $2 }
+    | ID Value ',' Labels '\n'                          { LabeledData $1 $2 $4 }
+    | ID Value ',' ID ',' Relationship '\n'             { RelationshipData $1 $2 $4 $6 }
 
 ID : string                                             { Id $1 }
    | alphanum                                           { Id $1 }
-
-StartID : string                                        { StartID $1 }
-        | alphanum                                      { StartID $1 }
-
-EndID : string                                          { EndID $1 }
-      | alphanum                                        { EndID $1 }
 
 Labels : {- empty -}                                    { [] }
        | string                                         { [$1] }
@@ -71,23 +65,15 @@ Labels : {- empty -}                                    { [] }
 
 Relationship : string                                   { $1 }
 
-Values : {- empty -}                                    { [] }
-    --    | ',' Value                                      { [ $2 ] }
-       | ',' Value Values                               { $2 : $3 }
-
-Value : '"' string '"'                                  { StringValue $2 }
-      | int                                             { IntValue $1 }
-      | bool                                            { BoolValue $1 }
-      | null                                            { NullValue }
-
-NewLines : {- empty -}                                  {}
-         | '\n' NewLines                                  {}
+Value : ',' '"' string '"'                              { StringValue $3 }
+      | ',' int                                         { IntValue $2 }
+      | ',' bool                                        { BoolValue $2 }
+      | ',' null                                        { NullValue }
 
 {
 
 parseError :: [Token] -> a
-parseError tokens@(x:xs) = error $ "Parse error: " ++ tokenPosn (head tokens) ++ "\n" ++ show tokens
-parseError [] = error "Parse error: end of input"
+parseError tokens = error $ "Parse error: " ++ tokenPosn (head tokens) ++ "\n" ++ show tokens
 
 type Tables = [Table]
 
@@ -96,11 +82,7 @@ data Table = Table Header [Row]
 
 type Types = [Type]
 
-type Values = [Value]
-
 data ID = Id String 
-        | StartID String 
-        | EndID String
         deriving (Eq,Show)
 
 type Relationship = String
@@ -114,9 +96,9 @@ data Header =
     deriving (Eq,Show)
 
 data Row = 
-    Data ID Values |
-    LabeledData ID Values Labels |
-    RelationshipData ID Values ID Relationship
+    Data ID Value |
+    LabeledData ID Value Labels |
+    RelationshipData ID Value ID Relationship
     deriving (Eq,Show)
 
 data Type = 
