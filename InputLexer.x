@@ -16,11 +16,11 @@ tokens :-
   "boolean"                         { \p _ -> Tok p TokBoolType }
   "null"                            { \p _ -> Tok p TokNull }
 
-  "ID"                              { \p _ -> Tok p TokId }     
-  "START_ID"                        { \p _ -> Tok p TokStartId }      
-  "END_ID"                          { \p _ -> Tok p TokEndId }        
-  "TYPE"                            { \p _ -> Tok p TokType }   
-  "LABEL"                           { \p _ -> Tok p TokLabel }
+  ":ID"                              { \p _ -> Tok p TokId }     
+  ":START_ID"                        { \p _ -> Tok p TokStartId }      
+  ":END_ID"                          { \p _ -> Tok p TokEndId }        
+  ":TYPE"                            { \p _ -> Tok p TokType }   
+  ":LABEL"                           { \p _ -> Tok p TokLabel }
 
   [\+ \-]? $digit+                  { \p s -> Tok p (TokInt (read s)) }
   "false"                           { \p _ -> Tok p (TokBool False) }
