@@ -1,1 +1,3 @@
-SELECT n.ID,n.points WHERE (n2)-[:Beat]->(n) AND (n2)<-[:DrewWith]-(n3) AND (n3).points=(n).points
+FROM "table.n4j"
+SELECT ID, points 
+    WHERE (n2)-[:Beat]->(n) AND (n2)<-[:DrewWith]-(n3) AND (n3).points=(n).points
