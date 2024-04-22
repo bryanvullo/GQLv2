@@ -51,9 +51,9 @@ Name : string                                           { $1 }
 Rows : {- empty -}                                      { [] }
      | Row Rows                                         { $1 : $2 }
 
-Row : alphanum Values                                   { Data $1 $2 }
-    | alphanum Values ',' Labels                        { LabeledData $1 $2 $4 }
-    | alphanum Values ',' alphanum ',' string           { RelationshipData $1 $2 $4 $6 }
+Row : alphanum Values                                   { Data (Id $1) $2 }
+    | alphanum Values ',' Labels                        { LabeledData (Id $1) $2 $4 }
+    | alphanum Values ',' alphanum ',' string           { RelationshipData (Id $1) $2 (Id $4) $6 }
 
 Labels : {- empty -}                                    { [] }
        | string                                         { [$1] }
@@ -93,9 +93,9 @@ data Header =
     deriving (Eq,Show)
 
 data Row = 
-    Data ID Value |
-    LabeledData ID Value Labels |
-    RelationshipData ID Value ID Relationship
+    Data ID [Value] |
+    LabeledData ID [Value] Labels |
+    RelationshipData ID [Value] ID Relationship
     deriving (Eq,Show)
 
 data Type = 
