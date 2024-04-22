@@ -9,26 +9,35 @@ import Lexer
 %error { parseError }
 
 %token
-  int                         { Tok _ (TokInt $$)       }
   FILE                        { Tok _ TokFILE           }
   FIND                        { Tok _ TokFIND           }
   OUT                         { Tok _ TokOUT            }
+  IF                          { Tok _ TokIf             }
+  ELSE                        { Tok _ TokElse           }
+  FOR                         { Tok _ TokFor            }
+  ADD                         { Tok _ TokAdd            }
+  GType                       { Tok _ TokGType          }
+  IType                       { Tok _ TokIType          }
+  SType                       { Tok _ TokSType          }
+  BType                       { Tok _ TokBType          }
+  FIdent                      { Tok _ (TokFIdent $$)    }
+  NType                       { Tok _ TokNType          }
+  RType                       { Tok _ TokRType          }
+  True                        { Tok _ TokTrue           }
+  False                       { Tok _ TokFalse          }
+  var                         { Tok _ (TokIdent $$)     }
+  int                         { Tok _ (TokInt $$)       }
+  string                      { Tok _ (TokString $$)    }
+  regex                       { Tok _ (TokRegex $$)     }
   '"'                         { Tok _ TokDelimiter      }
   '&&'                        { Tok _ TokAnd            }
   '||'                        { Tok _ TokOr             }
   '('                         { Tok _ TokLParen         }
   ')'                         { Tok _ TokRParen         }
-  GType                       { Tok _ TokGType          }
-  IType                       { Tok _ TokIType          }
-  SType                       { Tok _ TokSType          }
-  BType                       { Tok _ TokBType          }
-  '{'                         { Tok _ TokLCurl          }
-  '}'                         { Tok _ TokRCurl          }
-  IF                          { Tok _ TokIf             }
-  ELSE                        { Tok _ TokElse           }
-  FOR                         { Tok _ TokFor            }
-  ':'                         { Tok _ TokColon          }
-  var                         { Tok _ (TokIdent $$)     }
+  ';'                         { Tok _ TokSemicolon      }
+  '!='                        { Tok _ TokNotEquals      }
+  ','                         { Tok _ TokComma          }
+  '.'                         { Tok _ TokDot            }
   '>='                        { Tok _ TokGEQ            }
   '<='                        { Tok _ TokLEQ            }
   '>'                         { Tok _ TokGT             }
@@ -39,18 +48,9 @@ import Lexer
   ']'                         { Tok _ TokRSQ            }
   '->'                        { Tok _ TokRArrow         }
   '-'                         { Tok _ TokDash           }
-  regex                       { Tok _ (TokRegex $$)     }
-  ADD                         { Tok _ TokAdd            }
-  '.'                         { Tok _ TokDot            }
-  FIdent                      { Tok _ (TokFIdent $$)  }
-  string                      { Tok _ (TokString $$)    }
-  True                        { Tok _ TokTrue           }
-  False                       { Tok _ TokFalse          }
-  ';'                         { Tok _ TokSemicolon      }
-  '!='                        { Tok _ TokNotEquals      }
-  ','                         { Tok _ TokComma          }
-  NType                       { Tok _ TokNType          }
-  RType                       { Tok _ TokRType          }
+  ':'                         { Tok _ TokColon          }
+  '{'                         { Tok _ TokLCurl          }
+  '}'                         { Tok _ TokRCurl          }
 
 %right '||'
 %right '&&'
