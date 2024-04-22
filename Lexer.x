@@ -11,18 +11,18 @@ tokens :-
   $white+                           ;
   "--".*                            ;
   $digit+                           { \p s -> Tok p (TokInt (read s :: Int)) }
-  FILE                          { \p _ -> Tok p TokFILE }
-  FIND                             { \p _ -> Tok p TokFIND }
-  OUT                             { \p _ -> Tok p TokOUT }
-  \"                                { \p _ -> Tok p TokDelimiter }
-  "||"                              { \p _ -> Tok p TokOr }
-  "&&"                              { \p _ -> Tok p TokAnd }
+  FILE                              { \p _ -> Tok p TokFILE                  }
+  FIND                              { \p _ -> Tok p TokFIND                  }
+  OUT                               { \p _ -> Tok p TokOUT                   }
+  \"                                { \p _ -> Tok p TokDelimiter             }
+  "||"                              { \p _ -> Tok p TokOr                    }
+  "&&"                              { \p _ -> Tok p TokAnd                   }
   \(                                { \p _ -> Tok p TokLParen }
   \)                                { \p _ -> Tok p TokRParen }
-  Graph                             { \p _ -> Tok p TokGraphType }
-  Integer                           { \p _ -> Tok p TokIntegerType }
-  String                            { \p _ -> Tok p TokStringType }
-  Boolean                           { \p _ -> Tok p TokBooleanType }
+  Graph                             { \p _ -> Tok p TokGType }
+  Integer                           { \p _ -> Tok p TokIType }
+  String                            { \p _ -> Tok p TokSType }
+  Boolean                           { \p _ -> Tok p TokBType }
   \{                                { \p _ -> Tok p TokLCurl }
   \}                                { \p _ -> Tok p TokRCurl }
   IF                                { \p _ -> Tok p TokIf }
@@ -65,11 +65,11 @@ data TokenType
   | TokAnd
   | TokLParen
   | TokRParen
-  | TokGraphType
-  | TokIntegerType
-  | TokStringType
+  | TokGType
+  | TokIType
+  | TokSType
   | TokStringLiteral String
-  | TokBooleanType
+  | TokBType
   | TokLCurl
   | TokRCurl
   | TokIf

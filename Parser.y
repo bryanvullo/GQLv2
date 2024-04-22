@@ -18,10 +18,10 @@ import Lexer
   '||'                        { Tok _ TokOr             }
   '('                         { Tok _ TokLParen         }
   ')'                         { Tok _ TokRParen         }
-  GraphType                   { Tok _ TokGraphType      }
-  IntegerType                 { Tok _ TokIntegerType    }
-  StringType                  { Tok _ TokStringType     }
-  BooleanType                 { Tok _ TokBooleanType    }
+  GType                       { Tok _ TokGType          }
+  IType                       { Tok _ TokIType    }
+  SType                  { Tok _ TokSType     }
+  BType                 { Tok _ TokBType    }
   '{'                         { Tok _ TokLCurl          }
   '}'                         { Tok _ TokRCurl          }
   IF                          { Tok _ TokIf             }
@@ -120,10 +120,10 @@ ForStatement
   : FOR '(' Type var ':' var ')' '{' Program '}'         { ForBlock $3 $4 $6 $9 }
 
 Type
-  : GraphType         { Type $1 }
-  | IntegerType       { Type $1 }
-  | StringType        { Type $1 }
-  | BooleanType       { Type $1 }
+  : GType         { Type $1 }
+  | IType       { Type $1 }
+  | SType        { Type $1 }
+  | BType       { Type $1 }
   | NodeType          { Type $1 }
   | RelationType      { Type $1 }
 
