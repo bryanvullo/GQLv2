@@ -10,7 +10,7 @@ $alpha = [a-zA-Z]
 tokens :-
   $white+                           ;
   "--".*                            ;
-  $digit+                           { \p s -> Tok p (TokInt (read s :: Integer)) }
+  $digit+                           { \p s -> Tok p (TokInt (read s :: Int)) }
   READFILE                          { \p _ -> Tok p TokReadFile }
   MATCH                             { \p _ -> Tok p TokMatch }
   PRINT                             { \p _ -> Tok p TokPrint }
@@ -96,7 +96,7 @@ data TokenType
   | TokSemicolon
   | TokNotEquals
   | TokComma
-  | TokInt Integer
+  | TokInt Int
   | TokNodeType
   | TokRelationType
   deriving (Eq, Show)

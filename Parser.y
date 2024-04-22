@@ -1,5 +1,5 @@
 {
-module Parser where
+module Parser (parser, Program) where
 import Lexer
 }
 
@@ -9,48 +9,48 @@ import Lexer
 %error { parseError }
 
 %token
-  int                         { Tok _ (TokInt $$)       _ }
-  READFILE                    { Tok _ TokReadFile       _ }
-  MATCH                       { Tok _ TokMatch          _ }
-  PRINT                       { Tok _ TokPrint          _ }
-  '"'                         { Tok _ TokDelimiter      _ }
-  '&&'                        { Tok _ TokAnd            _ }
-  '||'                        { Tok _ TokOr             _ }
-  '('                         { Tok _ TokLParen         _ }
-  ')'                         { Tok _ TokRParen         _ }
-  GraphType                   { Tok _ TokGraphType      _ }
-  IntegerType                 { Tok _ TokIntegerType    _ }
-  StringType                  { Tok _ TokStringType     _ }
-  BooleanType                 { Tok _ TokBooleanType    _ }
-  '{'                         { Tok _ TokLCurl          _ }
-  '}'                         { Tok _ TokRCurl          _ }
-  IF                          { Tok _ TokIf             _ }
-  ELSE                        { Tok _ TokElse           _ }
-  FOR                         { Tok _ TokFor            _ }
-  ':'                         { Tok _ TokColon          _ }
-  var                         { Tok _ (TokIdent $$)     _ }
-  '>='                        { Tok _ TokGEQ            _ }
-  '<='                        { Tok _ TokLEQ            _ }
-  '>'                         { Tok _ TokGT             _ }
-  '<'                         { Tok _ TokLT             _ }
-  '='                         { Tok _ TokAssign         _ }
-  '=='                        { Tok _ TokEquals         _ }
-  '['                         { Tok _ TokLSQ            _ }
-  ']'                         { Tok _ TokRSQ            _ }
-  '->'                        { Tok _ TokRArrow         _ }
-  '-'                         { Tok _ TokDash           _ }
-  regex                       { Tok _ (TokRegex $$)     _ }
-  ADD                         { Tok _ TokAdd            _ }
-  '.'                         { Tok _ TokDot            _ }
-  bigField                    { Tok _ (TokBigField $$)  _ }
-  string                      { Tok _ (TokString $$)    _ }
-  True                        { Tok _ TokTrue           _ }
-  False                       { Tok _ TokFalse          _ }
-  ';'                         { Tok _ TokSemicolon      _ }
-  '!='                        { Tok _ TokNotEquals      _ }
-  ','                         { Tok _ TokComma          _ }
-  NodeType                    { Tok _ TokNodeType       _ }
-  RelationType                { Tok _ TokRelationType   _ }
+  int                         { Tok _ (TokInt $$)       }
+  READFILE                    { Tok _ TokReadFile       }
+  MATCH                       { Tok _ TokMatch          }
+  PRINT                       { Tok _ TokPrint          }
+  '"'                         { Tok _ TokDelimiter      }
+  '&&'                        { Tok _ TokAnd            }
+  '||'                        { Tok _ TokOr             }
+  '('                         { Tok _ TokLParen         }
+  ')'                         { Tok _ TokRParen         }
+  GraphType                   { Tok _ TokGraphType      }
+  IntegerType                 { Tok _ TokIntegerType    }
+  StringType                  { Tok _ TokStringType     }
+  BooleanType                 { Tok _ TokBooleanType    }
+  '{'                         { Tok _ TokLCurl          }
+  '}'                         { Tok _ TokRCurl          }
+  IF                          { Tok _ TokIf             }
+  ELSE                        { Tok _ TokElse           }
+  FOR                         { Tok _ TokFor            }
+  ':'                         { Tok _ TokColon          }
+  var                         { Tok _ (TokIdent $$)     }
+  '>='                        { Tok _ TokGEQ            }
+  '<='                        { Tok _ TokLEQ            }
+  '>'                         { Tok _ TokGT             }
+  '<'                         { Tok _ TokLT             }
+  '='                         { Tok _ TokAssign         }
+  '=='                        { Tok _ TokEquals         }
+  '['                         { Tok _ TokLSQ            }
+  ']'                         { Tok _ TokRSQ            }
+  '->'                        { Tok _ TokRArrow         }
+  '-'                         { Tok _ TokDash           }
+  regex                       { Tok _ (TokRegex $$)     }
+  ADD                         { Tok _ TokAdd            }
+  '.'                         { Tok _ TokDot            }
+  bigField                    { Tok _ (TokBigField $$)  }
+  string                      { Tok _ (TokString $$)    }
+  True                        { Tok _ TokTrue           }
+  False                       { Tok _ TokFalse          }
+  ';'                         { Tok _ TokSemicolon      }
+  '!='                        { Tok _ TokNotEquals      }
+  ','                         { Tok _ TokComma          }
+  NodeType                    { Tok _ TokNodeType       }
+  RelationType                { Tok _ TokRelationType   }
 
 %right '||'
 %right '&&'

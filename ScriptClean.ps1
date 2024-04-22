@@ -17,6 +17,7 @@ Remove-Item -Path .\Lexer.o -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\Parser.o -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\InputLexer.o -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\InputParser.o -Force -ErrorAction SilentlyContinue
+Remove-Item -Path .\GQL.o -Force -ErrorAction SilentlyContinue
 Write-Host "Generated object files removed." -ForegroundColor Yellow
 
 # Remove other generated files (if any)
@@ -25,6 +26,8 @@ Remove-Item -Path .\Lexer.hi -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\Parser.hi -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\InputLexer.hi -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\InputParser.hi -Force -ErrorAction SilentlyContinue
+Remove-Item -Path .\GQL.hi -Force -ErrorAction SilentlyContinue
+Remove-Item -Path .\GQL.exe -Force -ErrorAction SilentlyContinue
 Write-Host "Other generated files removed." -ForegroundColor Yellow
 
 # Print a footer
