@@ -87,6 +87,7 @@ PropertyRefs
 
 PropertyRef
   : IDENT '.' IDENT                   { PropertyRef $1 $3 }
+  | IDENT                             { PropertyRef  $1 }
 
 NodePatterns
   : NodePattern                       { [$1] }

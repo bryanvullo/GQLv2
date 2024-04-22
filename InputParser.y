@@ -30,26 +30,26 @@ import InputLexer (Token(..), TokenType(..), tokenPosn)
 
 %%
 Tables : {- empty -}                                    { [] }
-       | Tables Table                                   { $2 : $1 }
+       | Table Tables                                   { $1 : $2 }
 
-Table : Header Rows                                     { $1 : $2 }
+Table : Header Rows                                     { Table $1 $2 }
                 
 Header : ':' id Types                                   { Header $3 }
        | ':' id Types ',' ':' label                     { LabeledHeader $3 }
        | ':' startId Types ',' ':' endId ',' ':' type   { RelationshipHeader $3 }
 
 Types : {- empty -}                                     { [] }
-      | Types ',' Type                                  { $3 : $1 }
+      | ',' Type Types                                  { $2 : $3 }
 
-Type : string ':' stringType                            { StringType $1 }
-     | alphanum ':' stringType                          { StringType $1 }
-     | string ':' intType                               { IntType $1 }
-     | alphanum ':' intType                             { IntType $1 }
-     | string ':' boolType                              { BoolType $1 }
-     | alphanum ':' boolType                            { BoolType $1 }      
+Type : String ':' stringType                            { StringType $1 }
+     | String ':' intType                               { IntType $1 }
+     | String ':' boolType                              { BoolType $1 }  
+
+String : string                                         { $1 }
+       | alphanum                                       { $1 }    
 
 Rows : {- empty -}                                      { [] }
-     | Rows Row                                         { $2 : $1 }
+     | Row Rows                                         { $1 : $2 }
 
 Row : ID Values                                         { Data $1 $2 }
     | ID Values ',' Labels                              { LabeledData $1 $2 $4 }
@@ -64,13 +64,15 @@ StartID : string                                        { StartID $1 }
 EndID : string                                          { EndID $1 }
       | alphanum                                        { EndID $1 }
 
-Labels : string                                         { [$1] }
-       | Labels ';' string                              { $3 : $1 }
+Labels : {- empty -}                                    { [] }
+       | string                                         { [$1] }
+       | string ';' Labels                              { $1 : $3 }
 
 Relationship : string                                   { $1 }
 
 Values : {- empty -}                                    { [] }
-       | Values ',' Value                               { $3 : $1 }
+       | Value                                          { [ $1 ] }
+       | Value ',' Values                               { $1 : $3 }
 
 Value : '"' string '"'                                  { StringValue $2 }
       | int                                             { IntValue $1 }
@@ -85,7 +87,8 @@ parseError [] = error "Parse error: end of input"
 
 type Tables = [Table]
 
-type Table = [Row]
+data Table = Table Header [Row]
+    deriving (Eq,Show)
 
 type Types = [Type]
 
@@ -100,10 +103,13 @@ type Relationship = String
 
 type Labels = [String]
 
-data Row = 
+data Header = 
     Header Types |
     LabeledHeader Types |
-    RelationshipHeader Types |
+    RelationshipHeader Types
+    deriving (Eq,Show)
+
+data Row = 
     Data ID Values |
     LabeledData ID Values Labels |
     RelationshipData ID Values ID Relationship
