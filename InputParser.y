@@ -25,14 +25,15 @@ import InputLexer (Token(..), TokenType(..), tokenPosn)
     ';'                 { Tok _ TokSemiColon }
     ','                 { Tok _ TokComma }
     '"'                 { Tok _ TokQuoteMark }
+    '\n'                  { Tok _ TokNL }
 
 %left ','
 
 %%
 Tables : {- empty -}                                    { [] }
-       | Table Tables                                   { $1 : $2 }
+       | Table NewLines Tables                          { $1 : $3 }
 
-Table : Header Rows                                     { Table $1 $2 }
+Table : Header '\n' Rows                                { Table $1 $3 }
                 
 Header : ':' id Types                                   { Header $3 }
        | ':' id Types ',' ':' label                     { LabeledHeader $3 }
@@ -51,9 +52,9 @@ String : string                                         { $1 }
 Rows : {- empty -}                                      { [] }
      | Row Rows                                         { $1 : $2 }
 
-Row : ID Values                                         { Data $1 $2 }
-    | ID Values ',' Labels                              { LabeledData $1 $2 $4 }
-    | StartID Values ',' EndID ',' Relationship         { RelationshipData $1 $2 $4 $6 }
+Row : ID Values '\n'                                    { Data $1 $2 }
+    | ID Values ',' Labels '\n'                         { LabeledData $1 $2 $4 }
+    | StartID Values ',' EndID ',' Relationship '\n'    { RelationshipData $1 $2 $4 $6 }
 
 ID : string                                             { Id $1 }
    | alphanum                                           { Id $1 }
@@ -71,13 +72,16 @@ Labels : {- empty -}                                    { [] }
 Relationship : string                                   { $1 }
 
 Values : {- empty -}                                    { [] }
-       | Value                                          { [ $1 ] }
-       | Value ',' Values                               { $1 : $3 }
+    --    | ',' Value                                      { [ $2 ] }
+       | ',' Value Values                               { $2 : $3 }
 
 Value : '"' string '"'                                  { StringValue $2 }
       | int                                             { IntValue $1 }
       | bool                                            { BoolValue $1 }
       | null                                            { NullValue }
+
+NewLines : {- empty -}                                  {}
+         | '\n' NewLines                                  {}
 
 {
 

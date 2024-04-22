@@ -1,0 +1,2 @@
+:ID, firstname:string, familyname:string , age:integer, :LABEL 
+jj23, "John", "Jones", 43, Male
