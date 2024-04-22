@@ -32,14 +32,14 @@ import InputLexer (Token(..), TokenType(..), tokenPosn)
 Tables : {- empty -}                                    { [] }
        | Table Tables                                   { $1 : $2 }
 
-Table : Header Rows                                     { Table $1 $2 }
+Table : Header Rows                                     { $1 : $2 }
                 
-Header : id ',' Types                                   { Header $3 }
-       | id ',' Types label                             { LabeledHeader $3 }
-       | startId ',' Types endId ',' type               { RelationshipHeader $3 }
+Header : id Types                                       { Header $2 }
+       | id Types ',' label                             { LabeledHeader $2 }
+       | startId Types ',' endId ',' type               { RelationshipHeader $2 }
 
 Types : {- empty -}                                     { [] }
-      | Type ',' Types                                  { $1 : $3 }
+      | ',' Type Types                                  { $2 : $3 }
 
 Type : Name ':' stringType                              { StringType $1 }
      | Name ':' intType                                 { IntType $1 }
@@ -74,8 +74,10 @@ parseError tokens = error $ "Parse error: " ++ tokenPosn (head tokens) ++ "\n" +
 
 type Tables = [Table]
 
-data Table = Table Header [Row]
-    deriving (Eq,Show)
+type Table = [Row]
+
+-- data Table = Table Header [Row]
+--     deriving (Eq,Show)
 
 type Types = [Type]
 
@@ -86,13 +88,16 @@ type Relationship = String
 
 type Labels = [String]
 
-data Header = 
-    Header Types |
-    LabeledHeader Types |
-    RelationshipHeader Types
-    deriving (Eq,Show)
+-- data Header = 
+--     Header Types |
+--     LabeledHeader Types |
+--     RelationshipHeader Types
+--     deriving (Eq,Show)
 
 data Row = 
+    Header Types |
+    LabeledHeader Types |
+    RelationshipHeader Types |
     Data ID [Value] |
     LabeledData ID [Value] Labels |
     RelationshipData ID [Value] ID Relationship
