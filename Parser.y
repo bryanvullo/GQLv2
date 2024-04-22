@@ -19,9 +19,9 @@ import Lexer
   '('                         { Tok _ TokLParen         }
   ')'                         { Tok _ TokRParen         }
   GType                       { Tok _ TokGType          }
-  IType                       { Tok _ TokIType    }
-  SType                  { Tok _ TokSType     }
-  BType                 { Tok _ TokBType    }
+  IType                       { Tok _ TokIType          }
+  SType                       { Tok _ TokSType          }
+  BType                       { Tok _ TokBType          }
   '{'                         { Tok _ TokLCurl          }
   '}'                         { Tok _ TokRCurl          }
   IF                          { Tok _ TokIf             }
