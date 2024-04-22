@@ -45,7 +45,7 @@ tokens :-
   ADD                               { \p _ -> Tok p TokAdd }
   \.                                { \p _ -> Tok p TokDot }
   \:[A-Z]+                          { \p s -> Tok p (TokBigField (drop 1 s)) }
-  \'($alpha*)+\'                    { \p s -> Tok p (TokString (drop 1 $ init s)) }
+  \'($alpha|$digit|\.)*\'           { \p s -> Tok p (TokString (drop 1 $ init s)) }
   \"($alpha*)+\"                    { \p s -> Tok p (TokStringLiteral (drop 1 $ init s)) }
   True                              { \p _ -> Tok p TokTrue }
   False                             { \p _ -> Tok p TokFalse }

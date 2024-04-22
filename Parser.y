@@ -74,7 +74,7 @@ Expr
   | int                             { Int $1 }
   | bigField                        { Var $1 }
   | string                          { String $1 }
-  | var '.' MATCH '(' BoolExpr ')'  { MatchQuery $1 $5 }
+  | var '.' MATCH '(' var '->' BoolExpr ')'  { MatchQuery $1 $5 $7 }
   | var '.' ADD '(' NewNode ')'     { AddQuery $1 $5 }
   | READFILE string                 { ReadFile $2 }
   | PRINT '(' var ')'               { Print $3 }
@@ -97,6 +97,7 @@ BoolExpr
   | var '-' '[' BoolExpr ']' '->'     { StartRelationQuery $1 $4 }
   | '(' BoolExpr ')'                  { $2 }
   | var '-' '[' BoolExpr ']' '->' var { RelationQuery $1 $4 $7}
+  | var '.' bigField '==' string      { BigFieldEquals $1 $3 $5 }
 
 NewNode
   : var                               { NodeCopy $1 }
@@ -148,7 +149,7 @@ data Expr
   | Var String
   | Int Int
   | String String
-  | MatchQuery String BoolExpr
+  | MatchQuery String String BoolExpr
   | AddQuery String Node
   | ReadFile String
   | Print String
@@ -169,6 +170,7 @@ data BoolExpr
   | EndRelationQuery BoolExpr String
   | StartRelationQuery String BoolExpr
   | RelationQuery String BoolExpr String
+  | BigFieldEquals String String String
   deriving(Eq, Show)
   
 data Node

@@ -1,7 +1,7 @@
 Graph graph = READFILE 'access.n4j'
 
-Graph result = graph.MATCH(node ->
-    node.age <= 25 || "Visitor" IN node.:LABEL
+Graph result = graph.MATCH(node -> 
+    node.age <= 25 || node.:LABEL == "Visitor"
 )
 
 PRINT(result)
