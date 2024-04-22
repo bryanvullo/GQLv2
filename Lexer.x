@@ -11,9 +11,9 @@ tokens :-
   $white+                           ;
   "--".*                            ;
   $digit+                           { \p s -> Tok p (TokInt (read s :: Int)) }
-  READFILE                          { \p _ -> Tok p TokReadFile }
-  MATCH                             { \p _ -> Tok p TokMatch }
-  PRINT                             { \p _ -> Tok p TokPrint }
+  FILE                          { \p _ -> Tok p TokFILE }
+  FIND                             { \p _ -> Tok p TokFIND }
+  OUT                             { \p _ -> Tok p TokOUT }
   \"                                { \p _ -> Tok p TokDelimiter }
   "||"                              { \p _ -> Tok p TokOr }
   "&&"                              { \p _ -> Tok p TokAnd }
@@ -57,9 +57,9 @@ tokens :-
 
 {
 data TokenType
-  = TokReadFile
-  | TokMatch
-  | TokPrint
+  = TokFILE
+  | TokFIND
+  | TokOUT
   | TokDelimiter
   | TokOr
   | TokAnd

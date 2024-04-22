@@ -10,9 +10,9 @@ import Lexer
 
 %token
   int                         { Tok _ (TokInt $$)       }
-  READFILE                    { Tok _ TokReadFile       }
-  MATCH                       { Tok _ TokMatch          }
-  PRINT                       { Tok _ TokPrint          }
+  FILE                        { Tok _ TokFILE           }
+  FIND                        { Tok _ TokFIND           }
+  OUT                         { Tok _ TokOUT            }
   '"'                         { Tok _ TokDelimiter      }
   '&&'                        { Tok _ TokAnd            }
   '||'                        { Tok _ TokOr             }
@@ -74,10 +74,10 @@ Expr
   | int                             { Int $1 }
   | bigField                        { Var $1 }
   | string                          { String $1 }
-  | var '.' MATCH '(' var '->' BoolExpr ')'  { MatchQuery $1 $5 $7 }
+  | var '.' FIND '(' var '->' BoolExpr ')'  { FINDQuery $1 $5 $7 }
   | var '.' ADD '(' NewNode ')'     { AddQuery $1 $5 }
-  | READFILE string                 { ReadFile $2 }
-  | PRINT '(' var ')'               { Print $3 }
+  | FILE string                 { FILE $2 }
+  | OUT '(' var ')'               { OUT $3 }
   | BoolExpr                        { BoolExpr $1 }
   | var '.' var                     { GetProperty $1 $3 }
   | var '.' bigField                { GetProperty $1 $3 }
@@ -149,10 +149,10 @@ data Expr
   | Var String
   | Int Int
   | String String
-  | MatchQuery String String BoolExpr
+  | FINDQuery String String BoolExpr
   | AddQuery String Node
-  | ReadFile String
-  | Print String
+  | FILE String
+  | OUT String
   | BoolExpr BoolExpr
   | GetProperty String String
   deriving(Eq, Show)
