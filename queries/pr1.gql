@@ -1,7 +1,8 @@
-Graph graph = READFILE 'access.n4j'
+Graph graph = READFILE 'access.n4j';
 
-Graph result = graph.MATCH(node -> 
-    node.age <= 25 || node.:LABEL == "Visitor"
-)
+Graph result;
+result = graph.MATCH(node -> 
+    node.age <= 25 || node.:LABEL == 'Visitor'
+);
 
-PRINT(result)
+PRINT(result);
