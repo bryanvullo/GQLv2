@@ -1,6 +1,6 @@
 {
-module Parser where
-import Lexer
+module Parsing.Grammar where
+import Lexing.Tokens
 }
 
 %name parser
@@ -9,48 +9,48 @@ import Lexer
 %error { parseError }
 
 %token
-  int                         { Tok _ (TokInt $$)       _ }
-  READFILE                    { Tok _ TokReadFile       _ }
-  MATCH                       { Tok _ TokMatch          _ }
-  PRINT                       { Tok _ TokPrint          _ }
-  '"'                         { Tok _ TokDelimiter      _ }
-  '&&'                        { Tok _ TokAnd            _ }
-  '||'                        { Tok _ TokOr             _ }
-  '('                         { Tok _ TokLParen         _ }
-  ')'                         { Tok _ TokRParen         _ }
-  GraphType                   { Tok _ TokGraphType      _ }
-  IntegerType                 { Tok _ TokIntegerType    _ }
-  StringType                  { Tok _ TokStringType     _ }
-  BooleanType                 { Tok _ TokBooleanType    _ }
-  '{'                         { Tok _ TokLCurl          _ }
-  '}'                         { Tok _ TokRCurl          _ }
-  IF                          { Tok _ TokIf             _ }
-  ELSE                        { Tok _ TokElse           _ }
-  FOR                         { Tok _ TokFor            _ }
-  ':'                         { Tok _ TokColon          _ }
-  var                         { Tok _ (TokIdent $$)     _ }
-  '>='                        { Tok _ TokGEQ            _ }
-  '<='                        { Tok _ TokLEQ            _ }
-  '>'                         { Tok _ TokGT             _ }
-  '<'                         { Tok _ TokLT             _ }
-  '='                         { Tok _ TokAssign         _ }
-  '=='                        { Tok _ TokEquals         _ }
-  '['                         { Tok _ TokLSQ            _ }
-  ']'                         { Tok _ TokRSQ            _ }
-  '->'                        { Tok _ TokRArrow         _ }
-  '-'                         { Tok _ TokDash           _ }
-  regex                       { Tok _ (TokRegex $$)     _ }
-  ADD                         { Tok _ TokAdd            _ }
-  '.'                         { Tok _ TokDot            _ }
-  bigField                    { Tok _ (TokBigField $$)  _ }
-  string                      { Tok _ (TokString $$)    _ }
-  True                        { Tok _ TokTrue           _ }
-  False                       { Tok _ TokFalse          _ }
-  ';'                         { Tok _ TokSemicolon      _ }
-  '!='                        { Tok _ TokNotEquals      _ }
-  ','                         { Tok _ TokComma          _ }
-  NodeType                    { Tok _ TokNodeType       _ }
-  RelationType                { Tok _ TokRelationType   _ }
+  int                         { Tn (TokenInt $$)       _ }
+  READFILE                    { Tn (TokenReadFile)     _ }
+  MATCH                       { Tn (TokenMatch)        _ }
+  PRINT                       { Tn (TokenPrint)        _ }
+  '"'                         { Tn (TokenDelimiter)    _ }
+  '&&'                        { Tn (TokenAnd)          _ }
+  '||'                        { Tn (TokenOr)           _ }
+  '('                         { Tn (TokenLParen)       _ }
+  ')'                         { Tn (TokenRParen)       _ }
+  GraphType                   { Tn (TokenGraphType)    _ }
+  IntegerType                 { Tn (TokenIntegerType)  _ }
+  StringType                  { Tn (TokenStringType)   _ }
+  BooleanType                 { Tn (TokenBooleanType)  _ }
+  '{'                         { Tn (TokenLCurl)        _ }
+  '}'                         { Tn (TokenRCurl)        _ }
+  IF                          { Tn (TokenIf)           _ }
+  ELSE                        { Tn (TokenElse)         _ }
+  FOR                         { Tn (TokenFor)          _ }
+  ':'                         { Tn (TokenColon)        _ }
+  var                         { Tn (TokenVar $$)       _ }
+  '>='                        { Tn (TokenGEQ)          _ }
+  '<='                        { Tn (TokenLEQ)          _ }
+  '>'                         { Tn (TokenGT)           _ }
+  '<'                         { Tn (TokenLT)           _ }
+  '='                         { Tn (TokenAssign)       _ }
+  '=='                        { Tn (TokenEquals)       _ }
+  '['                         { Tn (TokenLSQ)          _ }
+  ']'                         { Tn (TokenRSQ)          _ }
+  '->'                        { Tn (TokenRArrow)       _ }
+  '-'                         { Tn (TokenDash)         _ }
+  regex                       { Tn (TokenRegex $$)     _ }
+  ADD                         { Tn (TokenAdd)          _ }
+  '.'                         { Tn (TokenDot)          _ }
+  bigField                    { Tn (TokenBigField $$)  _ }
+  string                      { Tn (TokenString $$)    _ }
+  True                        { Tn (TokenTrue)         _ }
+  False                       { Tn (TokenFalse)        _ }
+  ';'                         { Tn (TokenSemicolon)    _ }
+  '!='                        { Tn (TokenNotEquals)    _ }
+  ','                         { Tn (TokenComma)        _ }
+  NodeType                    { Tn (TokenNodeType)     _ }
+  RelationType                { Tn (TokenRelationType) _ }
 
 %right '||'
 %right '&&'
@@ -129,7 +129,7 @@ Type
 {
 parseError :: [Token] -> a
 parseError [] = error "Should not be erroring on no Tokens"
-parseError (Tok (AlexPn _ r c) t : _) = error $ "Parse error on token: " ++ show t ++ ", at: " ++ show r ++ ":" ++ show c ++ "\n"
+parseError (Tn t (AlexPn _ r c) : _) = error $ "Parse error on token: " ++ show t ++ ", at: " ++ show r ++ ":" ++ show c ++ "\n"
 
 type Program
   = [Statement]

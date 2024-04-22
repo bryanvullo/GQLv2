@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-unused-binds -fno-warn-missing-signatures #-}
 {-# LANGUAGE CPP #-}
-{-# LINE 1 "InputLexer.x" #-}
+{-# LINE 1 ".\InputLexer.x" #-}
 module InputLexer (alexScanTokens, Token(..), TokenType(..), lexInput, tokenPosn) where
 #if __GLASGOW_HASKELL__ >= 603
 #include "ghcconfig.h"
@@ -11537,7 +11537,7 @@ alexRightContext IBOX(sc) user__ _ _ input__ =
         -- match when checking the right context, just
         -- the first match will do.
 #endif
-{-# LINE 40 "InputLexer.x" #-}
+{-# LINE 40 ".\InputLexer.x" #-}
 data TokenType
   = TokNL
   | TokColon --punctuation

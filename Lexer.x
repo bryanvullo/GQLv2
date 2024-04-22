@@ -5,88 +5,100 @@ module Lexer where
 %wrapper "posn"
 
 $digit = 0-9
-$lower = [a-z]
-$upper = [A-Z]
-$alpha = [$lower $upper]
-$alphanum = [$alpha $digit]
+$alpha = [a-zA-Z]
 
 tokens :-
-
   $white+                           ;
   "--".*                            ;
-
-  "SELECT"                          { \p _ -> Tok p TokSelect }
-  "FROM"                            { \p _ -> Tok p TokFrom }
-  "WHERE"                           { \p _ -> Tok p TokWhere }
-  "AND"                             { \p _ -> Tok p TokAnd }
-  "OR"                              { \p _ -> Tok p TokOr }
-  "LIMIT"                           { \p _ -> Tok p TokLimit }
-  "CREATE"                          { \p _ -> Tok p TokCreate }
-  "EDGE"                            { \p _ -> Tok p TokEdge }
-  "TO"                              { \p _ -> Tok p TokTo }
-  "TYPE"                            { \p _ -> Tok p TokType }
-  "STARTS WITH"                     { \p _ -> Tok p TokStartsWith }
-  "NOT"                             { \p _ -> Tok p TokNot }
-  "UPDATE"                          { \p _ -> Tok p TokUpdate }
-  "SET"                             { \p _ -> Tok p TokSet }
-  "DELETE"                          { \p _ -> Tok p TokDelete }
-  ","                               { \p _ -> Tok p TokComma }
-  "="                               { \p _ -> Tok p TokEqual }
-  "<"                               { \p _ -> Tok p TokLT }
-  ">"                               { \p _ -> Tok p TokGT }
-  "<="                              { \p _ -> Tok p TokLTE }
-  ">="                              { \p _ -> Tok p TokGTE }
-  "("                               { \p _ -> Tok p TokLParen }
-  ")"                               { \p _ -> Tok p TokRParen }
-  "."                               { \p _ -> Tok p TokPeriod }
-  ":"                               { \p _ -> Tok p TokColon }
-  "*"                               { \p _ -> Tok p TokAsterisk }
-  "->"                              { \p _ -> Tok p TokArrow }
-  "["                               { \p _ -> Tok p TokLBracket }
-  "]"                               { \p _ -> Tok p TokRBracket }
-  "-"                               { \p _ -> Tok p TokMinus }
-  "HAS"                             { \p _ -> Tok p TokHas }
-
   $digit+                           { \p s -> Tok p (TokInt (read s :: Integer)) }
-  \" ([^\\\"]|\\.)*\"               { \p s -> Tok p (TokString s) }
-  $alpha [$alpha $digit \_ \']*     { \p s -> Tok p (TokIdent s) }
+  READFILE                          { \p _ -> Tok p TokReadFile }
+  MATCH                             { \p _ -> Tok p TokMatch }
+  PRINT                             { \p _ -> Tok p TokPrint }
+  \"                                { \p _ -> Tok p TokDelimiter }
+  "||"                              { \p _ -> Tok p TokOr }
+  "&&"                              { \p _ -> Tok p TokAnd }
+  \(                                { \p _ -> Tok p TokLParen }
+  \)                                { \p _ -> Tok p TokRParen }
+  Graph                             { \p _ -> Tok p TokGraphType }
+  Integer                           { \p _ -> Tok p TokIntegerType }
+  String                            { \p _ -> Tok p TokStringType }
+  Boolean                           { \p _ -> Tok p TokBooleanType }
+  \{                                { \p _ -> Tok p TokLCurl }
+  \}                                { \p _ -> Tok p TokRCurl }
+  IF                                { \p _ -> Tok p TokIf }
+  ELSE                              { \p _ -> Tok p TokElse }
+  FOR                               { \p _ -> Tok p TokFor }
+  \:                                { \p _ -> Tok p TokColon }
+  [a-z]($alpha|$digit)*             { \p s -> Tok p (TokIdent s) }
+  ">="                              { \p _ -> Tok p TokGEQ }
+  "<="                              { \p _ -> Tok p TokLEQ }
+  \>                                { \p _ -> Tok p TokGT }
+  \<                                { \p _ -> Tok p TokLT }
+  \=                                { \p _ -> Tok p TokAssign }
+  "=="                              { \p _ -> Tok p TokEquals }
+  \[                                { \p _ -> Tok p TokLSQ }
+  \]                                { \p _ -> Tok p TokRSQ }
+  "<-"                              { \p _ -> Tok p TokLArrow }
+  "->"                              { \p _ -> Tok p TokRArrow }
+  \-                                { \p _ -> Tok p TokDash }
+  r\".*\"                           { \p s -> Tok p (TokRegex (drop 2 $ init s)) }
+  ADD                               { \p _ -> Tok p TokAdd }
+  \.                                { \p _ -> Tok p TokDot }
+  \:[A-Z]+                          { \p s -> Tok p (TokBigField (drop 1 s)) }
+  \"($alpha*)+\"                    { \p s -> Tok p (TokString (drop 1 $ init s)) }
+  True                              { \p _ -> Tok p TokTrue }
+  False                             { \p _ -> Tok p TokFalse }
+  \;                                { \p _ -> Tok p TokSemicolon }
+  \!=                               { \p _ -> Tok p TokNotEquals }
+  \,                                { \p _ -> Tok p TokComma }
+  Node                              { \p _ -> Tok p TokNodeType }
+  Relation                          { \p _ -> Tok p TokRelationType }
 
 {
 data TokenType
-  = TokSelect
-  | TokFrom
-  | TokWhere
-  | TokAnd
+  = TokReadFile
+  | TokMatch
+  | TokPrint
+  | TokDelimiter
   | TokOr
-  | TokLimit
-  | TokCreate
-  | TokEdge
-  | TokTo
-  | TokType
-  | TokStartsWith
-  | TokNot
-  | TokUpdate
-  | TokSet
-  | TokDelete
-  | TokComma
-  | TokEqual
-  | TokLT
-  | TokGT
-  | TokLTE
-  | TokGTE
+  | TokAnd
   | TokLParen
   | TokRParen
-  | TokPeriod
+  | TokGraphType
+  | TokIntegerType
+  | TokStringType
+  | TokBooleanType
+  | TokLCurl
+  | TokRCurl
+  | TokIf
+  | TokElse
+  | TokFor
   | TokColon
-  | TokAsterisk
-  | TokArrow
-  | TokLBracket
-  | TokRBracket
-  | TokMinus
-  | TokHas
   | TokIdent String
+  | TokGEQ
+  | TokLEQ
+  | TokGT
+  | TokLT
+  | TokAssign
+  | TokEquals
+  | TokLSQ
+  | TokRSQ
+  | TokLArrow
+  | TokRArrow
+  | TokDash
+  | TokRegex String
+  | TokAdd
+  | TokDot
+  | TokBigField String
   | TokString String
+  | TokTrue
+  | TokFalse
+  | TokSemicolon
+  | TokNotEquals
+  | TokComma
   | TokInt Integer
+  | TokNodeType
+  | TokRelationType
   deriving (Eq, Show)
 
 data Token = Tok AlexPosn TokenType
