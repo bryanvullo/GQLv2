@@ -33,15 +33,13 @@ tokens :-
   \,                                { \p _ -> Tok p TokComma }
   \"                                { \p _ -> Tok p TokQuoteMark }
 
-  \n                                { \p _ -> Tok p TokNL}
   $white+                           ;
   "--".*                            ;
   
 {
 
 data TokenType
-  = TokNL
-  | TokColon --punctuation
+  = TokColon --punctuation
   | TokSemiColon
   | TokComma
   | TokQuoteMark
