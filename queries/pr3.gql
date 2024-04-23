@@ -4,20 +4,19 @@ Gr out;
 
 Gr n_prime = gr.FIND(relationship -> relationship.:TYPE == 'Beat');
 
-LOOPF (Gr r : n_prime) {
-    Gr n = r - [:TYPE == 'Beat'] ->_;
+LOOPF (Gr n : n_prime) {
+    Gr n_prime_source = n - [:TYPE == 'Beat'] ->_;
     
-    Gr n_prime_prime = gr.FIND(relationship ->
-        relationship.ARITH(:START_ID = r.:START_ID) &&
+    Gr n_double_prime = gr.FIND(relationship ->
+        relationship.:STARTID == n.:STARTID &&
         relationship.:TYPE == 'DrewWith'
     );
     
-    LOOPF (Gr r_prime : n_prime_prime) {
-        Gr n_prime_prime_id = r_prime - [:TYPE == 'DrewWith'] ->_;
+    LOOPF (Gr r : n_double_prime) {
+        Gr n_double_prime_node = r - [:TYPE == 'DrewWith'] ->_;
         
-        CONDITION (n.points != null && n.points == n_prime_prime_id.points) {
-            GrN new_node = n.ARITH(:ID = :ID, points = points);
-            out = out.ARITH(new_node);
+        CONDITION (n_prime_source.points != null && n_double_prime_node.points == n_prime_source.points) {
+            out = out.ARITH(:ID = n_double_prime_node.:ID, points = n_double_prime_node.points);
         }
     }
 }
