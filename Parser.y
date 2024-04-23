@@ -62,41 +62,41 @@ XX
   | X XX               { ($1 : $2) }
 
 X
-  : E ';'                        { E $1 }
+  : Y ';'                        { Y $1 }
   | ConditionX                     { $1      }
   | LoopFX                    { $1      }
 
-E
-  : Class ident '=' E                       { IdentCl $1 $2 $4 }
-  | ident '=' E                            { Ident $1 $3         }
+Y
+  : Class ident '=' Y                       { IdentCl $1 $2 $4 }
+  | ident '=' Y                            { Ident $1 $3         }
   | Class ident                                { IdentFin $1 $2        }
-  | ident                                     { Var $1               }
+  | ident                                     { IdentT $1               }
   | num                                     { Int $1               }
-  | FIdent                                  { Var $1               }
+  | FIdent                                  { IdentT $1               }
   | chars                                  { String $1            }
-  | ident '.' FIND '(' ident '->' BoolE ')'  { FINDCall $1 $5 $7   }
+  | ident '.' FIND '(' ident '->' YBool ')'  { FINDCall $1 $5 $7   }
   | ident '.' ARITH '(' NewGrNode ')'             { ArithCall $1 $5       }
   | ACCESS chars                             { ACCESS $2              }
   | OUT '(' ident ')'                         { OUT $3               }
-  | BoolE                                { BoolE $1          }
+  | YBool                                { YBool $1          }
   | ident '.' ident                             { IdentChar $1 $3    }
   | ident '.' FIdent                          { IdentChar $1 $3    }
 
-BoolE
+YBool
   : True                              { Bool True                }
   | False                             { Bool False               }
-  | E '==' E                    { Exact $1 $3             }
-  | E '!=' E                    { Ineq $1 $3          }
-  | E '<' E                     { LessThan $1 $3           }
-  | E '>' E                     { GreaterThan $1 $3        }
-  | E '<=' E                    { LTExact $1 $3           }
-  | E '>=' E                    { GTExact $1 $3           }
-  | BoolE '&&' BoolE            { And $1 $3                }
-  | BoolE '||' BoolE            { Or $1 $3                 }
-  | '-' '[' BoolE ']' '->' ident     { RelCallFin $3 $6   }
-  | ident '-' '[' BoolE ']' '->'     { RelCallNew $1 $4 }
-  | '(' BoolE ')'                  { $2                       }
-  | ident '-' '[' BoolE ']' '->' ident { RelCall $1 $4 $7   }
+  | Y '==' Y                    { Exact $1 $3             }
+  | Y '!=' Y                    { Ineq $1 $3          }
+  | Y '<' Y                     { EqualityL $1 $3           }
+  | Y '>' Y                     { EqualityG $1 $3        }
+  | Y '<=' Y                    { EqualityEqL $1 $3           }
+  | Y '>=' Y                    { EqualityEqG $1 $3           }
+  | YBool '&&' YBool            { And $1 $3                }
+  | YBool '||' YBool            { Or $1 $3                 }
+  | '-' '[' YBool ']' '->' ident     { RelCallFin $3 $6   }
+  | ident '-' '[' YBool ']' '->'     { RelCallNew $1 $4 }
+  | '(' YBool ')'                  { $2                       }
+  | ident '-' '[' YBool ']' '->' ident { RelCall $1 $4 $7   }
   | ident '.' FIdent '==' chars        { FIdentExact $1 $3 $5    }
 
 NewGrNode
@@ -108,13 +108,13 @@ GrNodeSetNT
   | GrNodeSet ',' GrNodeSetNT  { ($1 : $3) }
 
 GrNodeSet
-  : ident '=' E                              { GrNodeSet $1 $3        }
-  | FIdent '=' E                           { GrNodeSet $1 $3        }
+  : ident '=' Y                              { GrNodeSet $1 $3        }
+  | FIdent '=' Y                           { GrNodeSet $1 $3        }
   | ident '-' '[' GrNodeSetNT ']' '->' ident  { RelSet $1 $4 $7 }
 
 ConditionX
-  : CONDITION '(' BoolE ')' '{' XX '}'                         { ConditionBXX $3 $6         }
-  | CONDITION '(' BoolE ')' '{' XX '}' ELSE '{' XX '}'    { ConditionBXXEXX $3 $6 $10 }
+  : CONDITION '(' YBool ')' '{' XX '}'                         { ConditionBXX $3 $6         }
+  | CONDITION '(' YBool ')' '{' XX '}' ELSE '{' XX '}'    { ConditionBXXEXX $3 $6 $10 }
 
 LoopFX
   : LOOPF '(' Class ident ':' ident ')' '{' XX '}'         { LoopFBlock $3 $4 $6 $9 }
@@ -136,40 +136,40 @@ type XX
   = [X]
 
 data X
-  = E E
-  | ConditionBXX BoolE XX
-  | ConditionBXXEXX BoolE XX XX
+  = Y Y
+  | ConditionBXX YBool XX
+  | ConditionBXXEXX YBool XX XX
   | LoopFBlock Class String String XX
   deriving(Eq, Show)
 
-data E
-  = IdentCl Class String E
-  | Ident String E
+data Y
+  = IdentCl Class String Y
+  | Ident String Y
   | IdentFin Class String
-  | Var String
+  | IdentT String
   | Int Int
   | String String
-  | FINDCall String String BoolE
+  | FINDCall String String YBool
   | ArithCall String GrNode
   | ACCESS String
   | OUT String
-  | BoolE BoolE
+  | YBool YBool
   | IdentChar String String
   deriving(Eq, Show)
 
-data BoolE
+data YBool
   = Bool Bool
-  | Exact E E
-  | Ineq E E
-  | LessThan E E
-  | GreaterThan E E
-  | LTExact E E
-  | GTExact E E
-  | And BoolE BoolE
-  | Or BoolE BoolE
-  | RelCallFin BoolE String
-  | RelCallNew String BoolE
-  | RelCall String BoolE String
+  | Exact Y Y
+  | Ineq Y Y
+  | EqualityL Y Y
+  | EqualityG Y Y
+  | EqualityEqL Y Y
+  | EqualityEqG Y Y
+  | And YBool YBool
+  | Or YBool YBool
+  | RelCallFin YBool String
+  | RelCallNew String YBool
+  | RelCall String YBool String
   | FIdentExact String String String
   deriving(Eq, Show)
   
@@ -179,7 +179,7 @@ data GrNode
   deriving(Eq, Show)
 
 data GrNodeSet
-  = GrNodeSet String E
+  = GrNodeSet String Y
   | RelSet String [GrNodeSet] String
   deriving(Eq, Show)
 
