@@ -1,6 +1,7 @@
-Gr gr = FILE 'access.n4j';
+Gr gr = ACCESS 'access.n4j';
 
 Gr out;
+
 out = gr.FIND(node -> 
     node.age <= 25 || node.:LABEL == 'Visitor'
 );

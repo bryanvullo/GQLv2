@@ -8,12 +8,12 @@ $digit = 0-9
 $alpha = [a-zA-Z]
 
 tokens :-
-  FILE                              { \p _ -> Tok p TokFILE                              }
+  ACCESS                              { \p _ -> Tok p TokACCESS                              }
   FIND                              { \p _ -> Tok p TokFIND                              }
   OUT                               { \p _ -> Tok p TokOUT                               }
   IF                                { \p _ -> Tok p TokCond                              }
   ELSE                              { \p _ -> Tok p TokCondE                              }
-  FOR                               { \p _ -> Tok p TokLoopF                               }
+  LOOPF                               { \p _ -> Tok p TokLoopF                               }
   ADD                               { \p _ -> Tok p TokArith                               }
   Gr                             { \p _ -> Tok p TokGr                             }
   Integer                           { \p _ -> Tok p TokNum                             }
@@ -57,7 +57,7 @@ tokens :-
 
 {
 data TokenType
-  = TokFILE
+  = TokACCESS
   | TokFIND
   | TokOUT
   | TokDelimiter

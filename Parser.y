@@ -9,12 +9,12 @@ import Lexer
 %error { parseError }
 
 %token
-  FILE                        { Tok _ TokFILE           }
+  ACCESS                        { Tok _ TokACCESS           }
   FIND                        { Tok _ TokFIND           }
   OUT                         { Tok _ TokOUT            }
   IF                          { Tok _ TokCond           }
   ELSE                        { Tok _ TokCondE          }
-  FOR                         { Tok _ TokLoopF          }
+  LOOPF                         { Tok _ TokLoopF          }
   ADD                         { Tok _ TokArith          }
   GType                       { Tok _ TokGr             }
   Num                         { Tok _ TokNum            }
@@ -64,7 +64,7 @@ Program
 Statement
   : E ';'                        { E $1 }
   | IfStatement                     { $1      }
-  | ForStatement                    { $1      }
+  | LoopFStatement                    { $1      }
 
 E
   : Type ident '=' E                       { TypedAssign $1 $2 $4 }
@@ -76,7 +76,7 @@ E
   | string                                  { String $1            }
   | ident '.' FIND '(' ident '->' BoolE ')'  { FINDQuery $1 $5 $7   }
   | ident '.' ADD '(' NewGrNode ')'             { AddQuery $1 $5       }
-  | FILE string                             { FILE $2              }
+  | ACCESS string                             { ACCESS $2              }
   | OUT '(' ident ')'                         { OUT $3               }
   | BoolE                                { BoolE $1          }
   | ident '.' ident                             { GetProperty $1 $3    }
@@ -116,8 +116,8 @@ IfStatement
   : IF '(' BoolE ')' '{' Program '}'                         { IfBlock $3 $6         }
   | IF '(' BoolE ')' '{' Program '}' ELSE '{' Program '}'    { IfElseBlock $3 $6 $10 }
 
-ForStatement
-  : FOR '(' Type ident ':' ident ')' '{' Program '}'         { ForBlock $3 $4 $6 $9 }
+LoopFStatement
+  : LOOPF '(' Type ident ':' ident ')' '{' Program '}'         { LoopFBlock $3 $4 $6 $9 }
 
 Type
   : GType         { Type $1 }
@@ -139,7 +139,7 @@ data Statement
   = E E
   | IfBlock BoolE Program
   | IfElseBlock BoolE Program Program
-  | ForBlock Type String String Program
+  | LoopFBlock Type String String Program
   deriving(Eq, Show)
 
 data E
@@ -151,7 +151,7 @@ data E
   | String String
   | FINDQuery String String BoolE
   | AddQuery String GrNode
-  | FILE String
+  | ACCESS String
   | OUT String
   | BoolE BoolE
   | GetProperty String String
