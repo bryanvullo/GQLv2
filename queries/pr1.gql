@@ -1,8 +1,8 @@
-Graph graph = FILE 'access.n4j';
+Gr gr = FILE 'access.n4j';
 
-Graph result;
-result = graph.FIND(node -> 
+Gr out;
+out = gr.FIND(node -> 
     node.age <= 25 || node.:LABEL == 'Visitor'
 );
 
-OUT(result);
+OUT(out);

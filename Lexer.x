@@ -15,13 +15,13 @@ tokens :-
   ELSE                              { \p _ -> Tok p TokCondE                              }
   FOR                               { \p _ -> Tok p TokLoopF                               }
   ADD                               { \p _ -> Tok p TokArith                               }
-  Graph                             { \p _ -> Tok p TokGr                             }
+  Gr                             { \p _ -> Tok p TokGr                             }
   Integer                           { \p _ -> Tok p TokNum                             }
   String                            { \p _ -> Tok p TokChars                             }
   Boolean                           { \p _ -> Tok p TokB                             }
   True                              { \p _ -> Tok p TokBT                              }
   False                             { \p _ -> Tok p TokBF                             }
-  GraphNode                         { \p _ -> Tok p TokGrN                             }
+  GrNode                         { \p _ -> Tok p TokGrN                             }
   Rel                               { \p _ -> Tok p TokRel                             }
   ">="                              { \p _ -> Tok p TokEqualityEqG                               }
   "<="                              { \p _ -> Tok p TokEqualityEqL                               }

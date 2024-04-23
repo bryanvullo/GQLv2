@@ -75,7 +75,7 @@ E
   | FIdent                                  { Var $1               }
   | string                                  { String $1            }
   | ident '.' FIND '(' ident '->' BoolE ')'  { FINDQuery $1 $5 $7   }
-  | ident '.' ADD '(' NewGraphNode ')'             { AddQuery $1 $5       }
+  | ident '.' ADD '(' NewGrNode ')'             { AddQuery $1 $5       }
   | FILE string                             { FILE $2              }
   | OUT '(' ident ')'                         { OUT $3               }
   | BoolE                                { BoolE $1          }
@@ -99,18 +99,18 @@ BoolE
   | ident '-' '[' BoolE ']' '->' ident { RelQuery $1 $4 $7   }
   | ident '.' FIdent '==' string        { FIdentEquals $1 $3 $5    }
 
-NewGraphNode
-  : ident                               { GraphNodeCopy $1 }
-  | GraphNodeSetNT                   { NewGraphNode $1  }
+NewGrNode
+  : ident                               { GrNodeCopy $1 }
+  | GrNodeSetNT                   { NewGrNode $1  }
 
-GraphNodeSetNT
-  : GraphNodeSet                      { [$1]      }
-  | GraphNodeSet ',' GraphNodeSetNT  { ($1 : $3) }
+GrNodeSetNT
+  : GrNodeSet                      { [$1]      }
+  | GrNodeSet ',' GrNodeSetNT  { ($1 : $3) }
 
-GraphNodeSet
-  : ident '=' E                              { GraphNodeSet $1 $3        }
-  | FIdent '=' E                           { GraphNodeSet $1 $3        }
-  | ident '-' '[' GraphNodeSetNT ']' '->' ident  { RelSet $1 $4 $7 }
+GrNodeSet
+  : ident '=' E                              { GrNodeSet $1 $3        }
+  | FIdent '=' E                           { GrNodeSet $1 $3        }
+  | ident '-' '[' GrNodeSetNT ']' '->' ident  { RelSet $1 $4 $7 }
 
 IfStatement
   : IF '(' BoolE ')' '{' Program '}'                         { IfBlock $3 $6         }
@@ -150,7 +150,7 @@ data E
   | Int Int
   | String String
   | FINDQuery String String BoolE
-  | AddQuery String GraphNode
+  | AddQuery String GrNode
   | FILE String
   | OUT String
   | BoolE BoolE
@@ -173,14 +173,14 @@ data BoolE
   | FIdentEquals String String String
   deriving(Eq, Show)
   
-data GraphNode
-  = GraphNodeCopy String
-  | NewGraphNode [GraphNodeSet]
+data GrNode
+  = GrNodeCopy String
+  | NewGrNode [GrNodeSet]
   deriving(Eq, Show)
 
-data GraphNodeSet
-  = GraphNodeSet String E
-  | RelSet String [GraphNodeSet] String
+data GrNodeSet
+  = GrNodeSet String E
+  | RelSet String [GrNodeSet] String
   deriving(Eq, Show)
 
 data Type
