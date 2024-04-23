@@ -21,11 +21,11 @@ import Lexer
   Chars                       { Tok _ TokChars          }
   B                           { Tok _ TokB          }
   FIdent                      { Tok _ (TokFIdent $$)    }
-  GrN                       { Tok _ TokGrN          }
+  GrN                         { Tok _ TokGrN          }
   RType                       { Tok _ TokRType          }
   True                        { Tok _ TokBT             }
   False                       { Tok _ TokBF             }
-  var                         { Tok _ (TokIdent $$)     }
+  ident                         { Tok _ (TokIdent $$)     }
   int                         { Tok _ (TokInt $$)       }
   string                      { Tok _ (TokString $$)    }
   rgx                         { Tok _ (Tokrgx $$)       }
@@ -67,20 +67,20 @@ Statement
   | ForStatement                    { $1      }
 
 Expr
-  : Type var '=' Expr                       { TypedAssign $1 $2 $4 }
-  | var '=' Expr                            { Assign $1 $3         }
-  | Type var                                { Declare $1 $2        }
-  | var                                     { Var $1               }
+  : Type ident '=' Expr                       { TypedAssign $1 $2 $4 }
+  | ident '=' Expr                            { Assign $1 $3         }
+  | Type ident                                { Declare $1 $2        }
+  | ident                                     { Var $1               }
   | int                                     { Int $1               }
   | FIdent                                  { Var $1               }
   | string                                  { String $1            }
-  | var '.' FIND '(' var '->' BoolExpr ')'  { FINDQuery $1 $5 $7   }
-  | var '.' ADD '(' NewNode ')'             { AddQuery $1 $5       }
+  | ident '.' FIND '(' ident '->' BoolExpr ')'  { FINDQuery $1 $5 $7   }
+  | ident '.' ADD '(' NewGraphNode ')'             { AddQuery $1 $5       }
   | FILE string                             { FILE $2              }
-  | OUT '(' var ')'                         { OUT $3               }
+  | OUT '(' ident ')'                         { OUT $3               }
   | BoolExpr                                { BoolExpr $1          }
-  | var '.' var                             { GetProperty $1 $3    }
-  | var '.' FIdent                          { GetProperty $1 $3    }
+  | ident '.' ident                             { GetProperty $1 $3    }
+  | ident '.' FIdent                          { GetProperty $1 $3    }
 
 BoolExpr
   : True                              { Bool True                }
@@ -93,31 +93,31 @@ BoolExpr
   | Expr '>=' Expr                    { GTEquals $1 $3           }
   | BoolExpr '&&' BoolExpr            { And $1 $3                }
   | BoolExpr '||' BoolExpr            { Or $1 $3                 }
-  | '-' '[' BoolExpr ']' '->' var     { EndRelationQuery $3 $6   }
-  | var '-' '[' BoolExpr ']' '->'     { StartRelationQuery $1 $4 }
+  | '-' '[' BoolExpr ']' '->' ident     { EndRelationQuery $3 $6   }
+  | ident '-' '[' BoolExpr ']' '->'     { StartRelationQuery $1 $4 }
   | '(' BoolExpr ')'                  { $2                       }
-  | var '-' '[' BoolExpr ']' '->' var { RelationQuery $1 $4 $7   }
-  | var '.' FIdent '==' string        { FIdentEquals $1 $3 $5    }
+  | ident '-' '[' BoolExpr ']' '->' ident { RelationQuery $1 $4 $7   }
+  | ident '.' FIdent '==' string        { FIdentEquals $1 $3 $5    }
 
-NewNode
-  : var                               { NodeCopy $1 }
-  | NodeAssignments                   { NewNode $1  }
+NewGraphNode
+  : ident                               { GraphNodeCopy $1 }
+  | GraphNodeSetNT                   { NewGraphNode $1  }
 
-NodeAssignments
-  : NodeAssignment                      { [$1]      }
-  | NodeAssignment ',' NodeAssignments  { ($1 : $3) }
+GraphNodeSetNT
+  : GraphNodeSet                      { [$1]      }
+  | GraphNodeSet ',' GraphNodeSetNT  { ($1 : $3) }
 
-NodeAssignment
-  : var '=' Expr                              { NodeAssignment $1 $3        }
-  | FIdent '=' Expr                           { NodeAssignment $1 $3        }
-  | var '-' '[' NodeAssignments ']' '->' var  { RelationAssignment $1 $4 $7 }
+GraphNodeSet
+  : ident '=' Expr                              { GraphNodeSet $1 $3        }
+  | FIdent '=' Expr                           { GraphNodeSet $1 $3        }
+  | ident '-' '[' GraphNodeSetNT ']' '->' ident  { RelationSet $1 $4 $7 }
 
 IfStatement
   : IF '(' BoolExpr ')' '{' Program '}'                         { IfBlock $3 $6         }
   | IF '(' BoolExpr ')' '{' Program '}' ELSE '{' Program '}'    { IfElseBlock $3 $6 $10 }
 
 ForStatement
-  : FOR '(' Type var ':' var ')' '{' Program '}'         { ForBlock $3 $4 $6 $9 }
+  : FOR '(' Type ident ':' ident ')' '{' Program '}'         { ForBlock $3 $4 $6 $9 }
 
 Type
   : GType         { Type $1 }
@@ -150,7 +150,7 @@ data Expr
   | Int Int
   | String String
   | FINDQuery String String BoolExpr
-  | AddQuery String Node
+  | AddQuery String GraphNode
   | FILE String
   | OUT String
   | BoolExpr BoolExpr
@@ -173,14 +173,14 @@ data BoolExpr
   | FIdentEquals String String String
   deriving(Eq, Show)
   
-data Node
-  = NodeCopy String
-  | NewNode [NodeAssignment]
+data GraphNode
+  = GraphNodeCopy String
+  | NewGraphNode [GraphNodeSet]
   deriving(Eq, Show)
 
-data NodeAssignment
-  = NodeAssignment String Expr
-  | RelationAssignment String [NodeAssignment] String
+data GraphNodeSet
+  = GraphNodeSet String Expr
+  | RelationSet String [GraphNodeSet] String
   deriving(Eq, Show)
 
 data Type

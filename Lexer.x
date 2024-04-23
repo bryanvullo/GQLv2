@@ -21,7 +21,7 @@ tokens :-
   Boolean                           { \p _ -> Tok p TokB                             }
   True                              { \p _ -> Tok p TokBT                              }
   False                             { \p _ -> Tok p TokBF                             }
-  Node                              { \p _ -> Tok p TokGrN                             }
+  GraphNode                              { \p _ -> Tok p TokGrN                             }
   Relation                          { \p _ -> Tok p TokRType                             }
   ">="                              { \p _ -> Tok p TokEqualityG                               }
   "<="                              { \p _ -> Tok p TokEqualityL                               }
