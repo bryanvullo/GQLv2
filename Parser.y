@@ -1,5 +1,5 @@
 {
-module Parser (parser, Program) where
+module Parser (parser, XX) where
 import Lexer
 }
 
@@ -16,18 +16,18 @@ import Lexer
   ELSE                        { Tok _ TokCondE          }
   LOOPF                         { Tok _ TokLoopF          }
   ARITH                         { Tok _ TokArith          }
-  GType                       { Tok _ TokGr             }
+  Gr                       { Tok _ TokGr             }
   Num                         { Tok _ TokNum            }
   Chars                       { Tok _ TokChars          }
   B                           { Tok _ TokB              }
   FIdent                      { Tok _ (TokFIdent $$)    }
   GrN                         { Tok _ TokGrN            }
-  RType                       { Tok _ TokRel          }
+  Rel                       { Tok _ TokRel          }
   True                        { Tok _ TokBT             }
   False                       { Tok _ TokBF             }
   ident                       { Tok _ (TokIdent $$)     }
   num                         { Tok _ (TokInt $$)       }
-  string                      { Tok _ (TokString $$)    }
+  chars                      { Tok _ (TokString $$)    }
   Reg                         { Tok _ (TokReg $$)       }
   '"'                         { Tok _ TokQuote      }
   '&&'                        { Tok _ TokConj           }
@@ -57,14 +57,14 @@ import Lexer
 
 %%
 
-Program
-  : Statement                       { [$1]      }
-  | Statement Program               { ($1 : $2) }
+XX
+  : X                       { [$1]      }
+  | X XX               { ($1 : $2) }
 
-Statement
+X
   : E ';'                        { E $1 }
-  | ConditionStatement                     { $1      }
-  | LoopFStatement                    { $1      }
+  | ConditionX                     { $1      }
+  | LoopFX                    { $1      }
 
 E
   : Type ident '=' E                       { TypedAssign $1 $2 $4 }
@@ -73,10 +73,10 @@ E
   | ident                                     { Var $1               }
   | num                                     { Int $1               }
   | FIdent                                  { Var $1               }
-  | string                                  { String $1            }
+  | chars                                  { String $1            }
   | ident '.' FIND '(' ident '->' BoolE ')'  { FINDCall $1 $5 $7   }
   | ident '.' ARITH '(' NewGrNode ')'             { ArithCall $1 $5       }
-  | ACCESS string                             { ACCESS $2              }
+  | ACCESS chars                             { ACCESS $2              }
   | OUT '(' ident ')'                         { OUT $3               }
   | BoolE                                { BoolE $1          }
   | ident '.' ident                             { GetProperty $1 $3    }
@@ -97,7 +97,7 @@ BoolE
   | ident '-' '[' BoolE ']' '->'     { StartRelCall $1 $4 }
   | '(' BoolE ')'                  { $2                       }
   | ident '-' '[' BoolE ']' '->' ident { RelCall $1 $4 $7   }
-  | ident '.' FIdent '==' string        { FIdentEquals $1 $3 $5    }
+  | ident '.' FIdent '==' chars        { FIdentEquals $1 $3 $5    }
 
 NewGrNode
   : ident                               { GrNodeCopy $1 }
@@ -112,34 +112,34 @@ GrNodeSet
   | FIdent '=' E                           { GrNodeSet $1 $3        }
   | ident '-' '[' GrNodeSetNT ']' '->' ident  { RelSet $1 $4 $7 }
 
-ConditionStatement
-  : CONDITION '(' BoolE ')' '{' Program '}'                         { ConditionBlock $3 $6         }
-  | CONDITION '(' BoolE ')' '{' Program '}' ELSE '{' Program '}'    { ConditionElseBlock $3 $6 $10 }
+ConditionX
+  : CONDITION '(' BoolE ')' '{' XX '}'                         { ConditionBlock $3 $6         }
+  | CONDITION '(' BoolE ')' '{' XX '}' ELSE '{' XX '}'    { ConditionElseBlock $3 $6 $10 }
 
-LoopFStatement
-  : LOOPF '(' Type ident ':' ident ')' '{' Program '}'         { LoopFBlock $3 $4 $6 $9 }
+LoopFX
+  : LOOPF '(' Type ident ':' ident ')' '{' XX '}'         { LoopFBlock $3 $4 $6 $9 }
 
 Type
-  : GType         { Type $1 }
+  : Gr         { Type $1 }
   | Num         { Type $1 }
   | Chars         { Type $1 }
   | B         { Type $1 }
   | GrN         { Type $1 }
-  | RType         { Type $1 }
+  | Rel         { Type $1 }
 
 {
 parseError :: [Token] -> a
 parseError [] = error "Should not be erroring on no Tokens"
 parseError (Tok (AlexPn _ r c) t : _) = error $ "Parse error on token: " ++ show t ++ ", at: " ++ show r ++ ":" ++ show c ++ "\n"
 
-type Program
-  = [Statement]
+type XX
+  = [X]
 
-data Statement
+data X
   = E E
-  | ConditionBlock BoolE Program
-  | ConditionElseBlock BoolE Program Program
-  | LoopFBlock Type String String Program
+  | ConditionBlock BoolE XX
+  | ConditionElseBlock BoolE XX XX
+  | LoopFBlock Type String String XX
   deriving(Eq, Show)
 
 data E
