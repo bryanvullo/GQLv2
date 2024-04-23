@@ -26,6 +26,7 @@ Remove-Item -Path .\Lexer.hi -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\Parser.hi -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\InputLexer.hi -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\InputParser.hi -Force -ErrorAction SilentlyContinue
+Remove-Item -Path .\InputParser.info -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\GQL.hi -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\GQL.exe -Force -ErrorAction SilentlyContinue
 Write-Host "Other generated files removed." -ForegroundColor Yellow

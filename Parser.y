@@ -28,11 +28,11 @@ import Lexer
   var                         { Tok _ (TokIdent $$)     }
   int                         { Tok _ (TokInt $$)       }
   string                      { Tok _ (TokString $$)    }
-  regex                       { Tok _ (TokRegex $$)     }
+  rgx                         { Tok _ (Tokrgx $$)       }
   '"'                         { Tok _ TokDelimiter      }
   '&&'                        { Tok _ TokAnd            }
   '||'                        { Tok _ TokOr             }
-  '('                         { Tok _ TokLParen         }
+  '('                         { Tok _ TokBracketLeft         }
   ')'                         { Tok _ TokRParen         }
   ';'                         { Tok _ TokSemicolon      }
   '!='                        { Tok _ TokNotEquals      }

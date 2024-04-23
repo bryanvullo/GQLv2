@@ -34,7 +34,7 @@ tokens :-
   "<-"                              { \p _ -> Tok p TokLArrow                            }
   "->"                              { \p _ -> Tok p TokRArrow                            }
   \-                                { \p _ -> Tok p TokDash                              }
-  r\".*\"                           { \p s -> Tok p (TokRegex (drop 2 $ init s))         }
+  r\".*\"                           { \p s -> Tok p (Tokrgx (drop 2 $ init s))           }
   \;                                { \p _ -> Tok p TokSemicolon                         }
   \!=                               { \p _ -> Tok p TokNotEquals                         }
   \,                                { \p _ -> Tok p TokComma                             }
@@ -45,7 +45,7 @@ tokens :-
   \"                                { \p _ -> Tok p TokDelimiter                         }
   "||"                              { \p _ -> Tok p TokOr                                }
   "&&"                              { \p _ -> Tok p TokAnd                               }
-  \(                                { \p _ -> Tok p TokLParen                            }
+  \(                                { \p _ -> Tok p TokBracketLeft                            }
   \)                                { \p _ -> Tok p TokRParen                            }
   \{                                { \p _ -> Tok p TokLCurl                             }
   \}                                { \p _ -> Tok p TokRCurl                             }
@@ -63,7 +63,7 @@ data TokenType
   | TokDelimiter
   | TokOr
   | TokAnd
-  | TokLParen
+  | TokBracketLeft
   | TokRParen
   | TokGType
   | TokIType
@@ -88,7 +88,7 @@ data TokenType
   | TokLArrow
   | TokRArrow
   | TokDash
-  | TokRegex String
+  | Tokrgx String
   | TokAdd
   | TokDot
   | TokFIdent String
