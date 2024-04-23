@@ -92,7 +92,7 @@ YBool
   | Y '<=' Y                    { EqualityEqL $1 $3           }
   | Y '>=' Y                    { EqualityEqG $1 $3           }
   | YBool '&&' YBool            { And $1 $3                }
-  | YBool '||' YBool            { Or $1 $3                 }
+  | YBool '||' YBool            { LogO $1 $3                 }
   | '-' '[' YBool ']' '->' ident     { RelCallFin $3 $6   }
   | ident '-' '[' YBool ']' '->'     { RelCallNew $1 $4 }
   | '(' YBool ')'                  { $2                       }
@@ -166,7 +166,7 @@ data YBool
   | EqualityEqL Y Y
   | EqualityEqG Y Y
   | And YBool YBool
-  | Or YBool YBool
+  | LogO YBool YBool
   | RelCallFin YBool String
   | RelCallNew String YBool
   | RelCall String YBool String
