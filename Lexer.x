@@ -11,16 +11,16 @@ tokens :-
   FILE                              { \p _ -> Tok p TokFILE                              }
   FIND                              { \p _ -> Tok p TokFIND                              }
   OUT                               { \p _ -> Tok p TokOUT                               }
-  IF                                { \p _ -> Tok p TokIf                                }
+  IF                                { \p _ -> Tok p TokCond                              }
   ELSE                              { \p _ -> Tok p TokElse                              }
   FOR                               { \p _ -> Tok p TokFor                               }
-  ADD                               { \p _ -> Tok p TokAdd                               }
+  ADD                               { \p _ -> Tok p TokArith                               }
   Graph                             { \p _ -> Tok p TokGType                             }
   Integer                           { \p _ -> Tok p TokIType                             }
   String                            { \p _ -> Tok p TokSType                             }
   Boolean                           { \p _ -> Tok p TokBType                             }
-  True                              { \p _ -> Tok p TokTrue                              }
-  False                             { \p _ -> Tok p TokFalse                             }
+  True                              { \p _ -> Tok p TokBT                              }
+  False                             { \p _ -> Tok p TokBF                             }
   Node                              { \p _ -> Tok p TokNType                             }
   Relation                          { \p _ -> Tok p TokRType                             }
   ">="                              { \p _ -> Tok p TokGEQ                               }
@@ -36,7 +36,7 @@ tokens :-
   \-                                { \p _ -> Tok p TokDash                              }
   r\".*\"                           { \p s -> Tok p (Tokrgx (drop 2 $ init s))           }
   \;                                { \p _ -> Tok p TokSemicolon                         }
-  \!=                               { \p _ -> Tok p TokNotEquals                         }
+  \!=                               { \p _ -> Tok p TokIneq                         }
   \,                                { \p _ -> Tok p TokComma                             }
   \.                                { \p _ -> Tok p TokDot                               }
   \:[A-Z]+                          { \p s -> Tok p (TokFIdent (drop 1 s))               }
@@ -44,9 +44,9 @@ tokens :-
   \"($alpha*)+\"                    { \p s -> Tok p (TokStringLiteral (drop 1 $ init s)) }
   \"                                { \p _ -> Tok p TokDelimiter                         }
   "||"                              { \p _ -> Tok p TokOr                                }
-  "&&"                              { \p _ -> Tok p TokAnd                               }
+  "&&"                              { \p _ -> Tok p TokConjunction                               }
   \(                                { \p _ -> Tok p TokBracketLeft                            }
-  \)                                { \p _ -> Tok p TokRParen                            }
+  \)                                { \p _ -> Tok p TokBracketRight                            }
   \{                                { \p _ -> Tok p TokLCurl                             }
   \}                                { \p _ -> Tok p TokRCurl                             }
   \:                                { \p _ -> Tok p TokColon                             }
@@ -62,9 +62,9 @@ data TokenType
   | TokOUT
   | TokDelimiter
   | TokOr
-  | TokAnd
+  | TokConjunction
   | TokBracketLeft
-  | TokRParen
+  | TokBracketRight
   | TokGType
   | TokIType
   | TokSType
@@ -72,7 +72,7 @@ data TokenType
   | TokBType
   | TokLCurl
   | TokRCurl
-  | TokIf
+  | TokCond
   | TokElse
   | TokFor
   | TokColon
@@ -89,14 +89,14 @@ data TokenType
   | TokRArrow
   | TokDash
   | Tokrgx String
-  | TokAdd
+  | TokArith
   | TokDot
   | TokFIdent String
   | TokString String
-  | TokTrue
-  | TokFalse
+  | TokBT
+  | TokBF
   | TokSemicolon
-  | TokNotEquals
+  | TokIneq
   | TokComma
   | TokInt Int
   | TokNType

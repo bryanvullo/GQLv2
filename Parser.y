@@ -12,10 +12,10 @@ import Lexer
   FILE                        { Tok _ TokFILE           }
   FIND                        { Tok _ TokFIND           }
   OUT                         { Tok _ TokOUT            }
-  IF                          { Tok _ TokIf             }
+  IF                          { Tok _ TokCond           }
   ELSE                        { Tok _ TokElse           }
   FOR                         { Tok _ TokFor            }
-  ADD                         { Tok _ TokAdd            }
+  ADD                         { Tok _ TokArith          }
   GType                       { Tok _ TokGType          }
   IType                       { Tok _ TokIType          }
   SType                       { Tok _ TokSType          }
@@ -23,19 +23,19 @@ import Lexer
   FIdent                      { Tok _ (TokFIdent $$)    }
   NType                       { Tok _ TokNType          }
   RType                       { Tok _ TokRType          }
-  True                        { Tok _ TokTrue           }
-  False                       { Tok _ TokFalse          }
+  True                        { Tok _ TokBT             }
+  False                       { Tok _ TokBF             }
   var                         { Tok _ (TokIdent $$)     }
   int                         { Tok _ (TokInt $$)       }
   string                      { Tok _ (TokString $$)    }
   rgx                         { Tok _ (Tokrgx $$)       }
   '"'                         { Tok _ TokDelimiter      }
-  '&&'                        { Tok _ TokAnd            }
+  '&&'                        { Tok _ TokConjunction    }
   '||'                        { Tok _ TokOr             }
-  '('                         { Tok _ TokBracketLeft         }
-  ')'                         { Tok _ TokRParen         }
+  '('                         { Tok _ TokBracketLeft    }
+  ')'                         { Tok _ TokBracketRight   }
   ';'                         { Tok _ TokSemicolon      }
-  '!='                        { Tok _ TokNotEquals      }
+  '!='                        { Tok _ TokIneq           }
   ','                         { Tok _ TokComma          }
   '.'                         { Tok _ TokDot            }
   '>='                        { Tok _ TokGEQ            }
@@ -86,7 +86,7 @@ BoolExpr
   : True                              { Bool True                }
   | False                             { Bool False               }
   | Expr '==' Expr                    { Equals $1 $3             }
-  | Expr '!=' Expr                    { NotEquals $1 $3          }
+  | Expr '!=' Expr                    { Ineq $1 $3          }
   | Expr '<' Expr                     { LessThan $1 $3           }
   | Expr '>' Expr                     { GreaterThan $1 $3        }
   | Expr '<=' Expr                    { LTEquals $1 $3           }
@@ -160,7 +160,7 @@ data Expr
 data BoolExpr
   = Bool Bool
   | Equals Expr Expr
-  | NotEquals Expr Expr
+  | Ineq Expr Expr
   | LessThan Expr Expr
   | GreaterThan Expr Expr
   | LTEquals Expr Expr
