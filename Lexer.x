@@ -13,7 +13,7 @@ tokens :-
   OUT                               { \p _ -> Tok p TokOUT                               }
   IF                                { \p _ -> Tok p TokCond                              }
   ELSE                              { \p _ -> Tok p TokCondE                              }
-  FOR                               { \p _ -> Tok p TokFor                               }
+  FOR                               { \p _ -> Tok p TokLoopF                               }
   ADD                               { \p _ -> Tok p TokArith                               }
   Graph                             { \p _ -> Tok p TokGr                             }
   Integer                           { \p _ -> Tok p TokNum                             }
@@ -74,7 +74,7 @@ data TokenType
   | TokBracketRightC
   | TokCond
   | TokCondE
-  | TokFor
+  | TokLoopF
   | TokNCol
   | TokIdent String
   | TokEqualityG

@@ -14,7 +14,7 @@ import Lexer
   OUT                         { Tok _ TokOUT            }
   IF                          { Tok _ TokCond           }
   ELSE                        { Tok _ TokCondE          }
-  FOR                         { Tok _ TokFor            }
+  FOR                         { Tok _ TokLoopF          }
   ADD                         { Tok _ TokArith          }
   GType                       { Tok _ TokGr             }
   Num                         { Tok _ TokNum            }
@@ -62,41 +62,41 @@ Program
   | Statement Program               { ($1 : $2) }
 
 Statement
-  : Expr ';'                        { Expr $1 }
+  : E ';'                        { E $1 }
   | IfStatement                     { $1      }
   | ForStatement                    { $1      }
 
-Expr
-  : Type ident '=' Expr                       { TypedAssign $1 $2 $4 }
-  | ident '=' Expr                            { Assign $1 $3         }
+E
+  : Type ident '=' E                       { TypedAssign $1 $2 $4 }
+  | ident '=' E                            { Assign $1 $3         }
   | Type ident                                { Declare $1 $2        }
   | ident                                     { Var $1               }
   | int                                     { Int $1               }
   | FIdent                                  { Var $1               }
   | string                                  { String $1            }
-  | ident '.' FIND '(' ident '->' BoolExpr ')'  { FINDQuery $1 $5 $7   }
+  | ident '.' FIND '(' ident '->' BoolE ')'  { FINDQuery $1 $5 $7   }
   | ident '.' ADD '(' NewGraphNode ')'             { AddQuery $1 $5       }
   | FILE string                             { FILE $2              }
   | OUT '(' ident ')'                         { OUT $3               }
-  | BoolExpr                                { BoolExpr $1          }
+  | BoolE                                { BoolE $1          }
   | ident '.' ident                             { GetProperty $1 $3    }
   | ident '.' FIdent                          { GetProperty $1 $3    }
 
-BoolExpr
+BoolE
   : True                              { Bool True                }
   | False                             { Bool False               }
-  | Expr '==' Expr                    { Equals $1 $3             }
-  | Expr '!=' Expr                    { Ineq $1 $3          }
-  | Expr '<' Expr                     { LessThan $1 $3           }
-  | Expr '>' Expr                     { GreaterThan $1 $3        }
-  | Expr '<=' Expr                    { LTEquals $1 $3           }
-  | Expr '>=' Expr                    { GTEquals $1 $3           }
-  | BoolExpr '&&' BoolExpr            { And $1 $3                }
-  | BoolExpr '||' BoolExpr            { Or $1 $3                 }
-  | '-' '[' BoolExpr ']' '->' ident     { EndRelQuery $3 $6   }
-  | ident '-' '[' BoolExpr ']' '->'     { StartRelQuery $1 $4 }
-  | '(' BoolExpr ')'                  { $2                       }
-  | ident '-' '[' BoolExpr ']' '->' ident { RelQuery $1 $4 $7   }
+  | E '==' E                    { Equals $1 $3             }
+  | E '!=' E                    { Ineq $1 $3          }
+  | E '<' E                     { LessThan $1 $3           }
+  | E '>' E                     { GreaterThan $1 $3        }
+  | E '<=' E                    { LTEquals $1 $3           }
+  | E '>=' E                    { GTEquals $1 $3           }
+  | BoolE '&&' BoolE            { And $1 $3                }
+  | BoolE '||' BoolE            { Or $1 $3                 }
+  | '-' '[' BoolE ']' '->' ident     { EndRelQuery $3 $6   }
+  | ident '-' '[' BoolE ']' '->'     { StartRelQuery $1 $4 }
+  | '(' BoolE ')'                  { $2                       }
+  | ident '-' '[' BoolE ']' '->' ident { RelQuery $1 $4 $7   }
   | ident '.' FIdent '==' string        { FIdentEquals $1 $3 $5    }
 
 NewGraphNode
@@ -108,13 +108,13 @@ GraphNodeSetNT
   | GraphNodeSet ',' GraphNodeSetNT  { ($1 : $3) }
 
 GraphNodeSet
-  : ident '=' Expr                              { GraphNodeSet $1 $3        }
-  | FIdent '=' Expr                           { GraphNodeSet $1 $3        }
+  : ident '=' E                              { GraphNodeSet $1 $3        }
+  | FIdent '=' E                           { GraphNodeSet $1 $3        }
   | ident '-' '[' GraphNodeSetNT ']' '->' ident  { RelSet $1 $4 $7 }
 
 IfStatement
-  : IF '(' BoolExpr ')' '{' Program '}'                         { IfBlock $3 $6         }
-  | IF '(' BoolExpr ')' '{' Program '}' ELSE '{' Program '}'    { IfElseBlock $3 $6 $10 }
+  : IF '(' BoolE ')' '{' Program '}'                         { IfBlock $3 $6         }
+  | IF '(' BoolE ')' '{' Program '}' ELSE '{' Program '}'    { IfElseBlock $3 $6 $10 }
 
 ForStatement
   : FOR '(' Type ident ':' ident ')' '{' Program '}'         { ForBlock $3 $4 $6 $9 }
@@ -136,40 +136,40 @@ type Program
   = [Statement]
 
 data Statement
-  = Expr Expr
-  | IfBlock BoolExpr Program
-  | IfElseBlock BoolExpr Program Program
+  = E E
+  | IfBlock BoolE Program
+  | IfElseBlock BoolE Program Program
   | ForBlock Type String String Program
   deriving(Eq, Show)
 
-data Expr
-  = TypedAssign Type String Expr
-  | Assign String Expr
+data E
+  = TypedAssign Type String E
+  | Assign String E
   | Declare Type String
   | Var String
   | Int Int
   | String String
-  | FINDQuery String String BoolExpr
+  | FINDQuery String String BoolE
   | AddQuery String GraphNode
   | FILE String
   | OUT String
-  | BoolExpr BoolExpr
+  | BoolE BoolE
   | GetProperty String String
   deriving(Eq, Show)
 
-data BoolExpr
+data BoolE
   = Bool Bool
-  | Equals Expr Expr
-  | Ineq Expr Expr
-  | LessThan Expr Expr
-  | GreaterThan Expr Expr
-  | LTEquals Expr Expr
-  | GTEquals Expr Expr
-  | And BoolExpr BoolExpr
-  | Or BoolExpr BoolExpr
-  | EndRelQuery BoolExpr String
-  | StartRelQuery String BoolExpr
-  | RelQuery String BoolExpr String
+  | Equals E E
+  | Ineq E E
+  | LessThan E E
+  | GreaterThan E E
+  | LTEquals E E
+  | GTEquals E E
+  | And BoolE BoolE
+  | Or BoolE BoolE
+  | EndRelQuery BoolE String
+  | StartRelQuery String BoolE
+  | RelQuery String BoolE String
   | FIdentEquals String String String
   deriving(Eq, Show)
   
@@ -179,7 +179,7 @@ data GraphNode
   deriving(Eq, Show)
 
 data GraphNodeSet
-  = GraphNodeSet String Expr
+  = GraphNodeSet String E
   | RelSet String [GraphNodeSet] String
   deriving(Eq, Show)
 
