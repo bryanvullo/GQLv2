@@ -85,19 +85,19 @@ E
 BoolE
   : True                              { Bool True                }
   | False                             { Bool False               }
-  | E '==' E                    { Equals $1 $3             }
+  | E '==' E                    { Exact $1 $3             }
   | E '!=' E                    { Ineq $1 $3          }
   | E '<' E                     { LessThan $1 $3           }
   | E '>' E                     { GreaterThan $1 $3        }
-  | E '<=' E                    { LTEquals $1 $3           }
-  | E '>=' E                    { GTEquals $1 $3           }
+  | E '<=' E                    { LTExact $1 $3           }
+  | E '>=' E                    { GTExact $1 $3           }
   | BoolE '&&' BoolE            { And $1 $3                }
   | BoolE '||' BoolE            { Or $1 $3                 }
-  | '-' '[' BoolE ']' '->' ident     { EndRelCall $3 $6   }
-  | ident '-' '[' BoolE ']' '->'     { StartRelCall $1 $4 }
+  | '-' '[' BoolE ']' '->' ident     { RelCallFin $3 $6   }
+  | ident '-' '[' BoolE ']' '->'     { RelCallNew $1 $4 }
   | '(' BoolE ')'                  { $2                       }
   | ident '-' '[' BoolE ']' '->' ident { RelCall $1 $4 $7   }
-  | ident '.' FIdent '==' chars        { FIdentEquals $1 $3 $5    }
+  | ident '.' FIdent '==' chars        { FIdentExact $1 $3 $5    }
 
 NewGrNode
   : ident                               { GrNodeCopy $1 }
@@ -113,8 +113,8 @@ GrNodeSet
   | ident '-' '[' GrNodeSetNT ']' '->' ident  { RelSet $1 $4 $7 }
 
 ConditionX
-  : CONDITION '(' BoolE ')' '{' XX '}'                         { ConditionBlock $3 $6         }
-  | CONDITION '(' BoolE ')' '{' XX '}' ELSE '{' XX '}'    { ConditionElseBlock $3 $6 $10 }
+  : CONDITION '(' BoolE ')' '{' XX '}'                         { ConditionBXX $3 $6         }
+  | CONDITION '(' BoolE ')' '{' XX '}' ELSE '{' XX '}'    { ConditionBXXEXX $3 $6 $10 }
 
 LoopFX
   : LOOPF '(' Class ident ':' ident ')' '{' XX '}'         { LoopFBlock $3 $4 $6 $9 }
@@ -137,8 +137,8 @@ type XX
 
 data X
   = E E
-  | ConditionBlock BoolE XX
-  | ConditionElseBlock BoolE XX XX
+  | ConditionBXX BoolE XX
+  | ConditionBXXEXX BoolE XX XX
   | LoopFBlock Class String String XX
   deriving(Eq, Show)
 
@@ -159,18 +159,18 @@ data E
 
 data BoolE
   = Bool Bool
-  | Equals E E
+  | Exact E E
   | Ineq E E
   | LessThan E E
   | GreaterThan E E
-  | LTEquals E E
-  | GTEquals E E
+  | LTExact E E
+  | GTExact E E
   | And BoolE BoolE
   | Or BoolE BoolE
-  | EndRelCall BoolE String
-  | StartRelCall String BoolE
+  | RelCallFin BoolE String
+  | RelCallNew String BoolE
   | RelCall String BoolE String
-  | FIdentEquals String String String
+  | FIdentExact String String String
   deriving(Eq, Show)
   
 data GrNode
