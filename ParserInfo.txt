@@ -1,0 +1,357 @@
+{-
+Module declaration for the Parser module, which exports the parser and XX data type.
+-}
+module Parser (parser, XX) where
+
+{-
+Import the Lexer module, which presumably contains the lexer code.
+-}
+import Lexer
+
+{-
+Specify the name of the parser as "parser".
+-}
+%name parser
+
+{-
+Specify the token type as "Token".
+-}
+%tokentype { Token }
+
+{-
+Specify the error function to be used by the parser.
+-}
+%error { parseError }
+
+{-
+Define the token patterns that the lexer should recognize.
+-}
+%token
+ ACCESS                         { Tok _ TokACCESS           }
+ FIND                           { Tok _ TokFIND             }
+ OUT                            { Tok _ TokOUT              }
+ CONDITION                      { Tok _ TokCond             }
+ CONDITIONELIF                  { Tok _ TokCondE            }
+ LOOPF                          { Tok _ TokLoopF            }
+ ARITH                          { Tok _ TokArith            }
+ Gr                             { Tok _ TokGr               }
+ Num                            { Tok _ TokNum              }
+ Chars                          { Tok _ TokChars            }
+ B                              { Tok _ TokB                }
+ FIdent                         { Tok _ (TokFIdent $$)      }
+ GrN                            { Tok _ TokGrN              }
+ Rel                            { Tok _ TokRel              }
+ True                           { Tok _ TokBT               }
+ False                          { Tok _ TokBF               }
+ ident                          { Tok _ (TokIdent $$)       }
+ num                            { Tok _ (TokInt $$)         }
+ chars                          { Tok _ (TokString $$)      }
+ Reg                            { Tok _ (TokReg $$)         }
+ '"'                            { Tok _ TokQuote            }
+ '&&'                           { Tok _ TokConj             }
+ '||'                           { Tok _ TokLogO             }
+ '('                            { Tok _ TokBracketLeft      }
+ ')'                            { Tok _ TokBracketRight     }
+ ';'                            { Tok _ TokColS             }
+ '!='                           { Tok _ TokIneq             }
+ ','                            { Tok _ TokSep              }
+ '.'                            { Tok _ TokBrk              }
+ '>='                           { Tok _ TokEqualityEqG      }
+ '<='                           { Tok _ TokEqualityEqL      }
+ '>'                            { Tok _ TokEqualityG        }
+ '<'                            { Tok _ TokEqualityL        }
+ '='                            { Tok _ TokSet              }
+ '=='                           { Tok _ TokExact            }
+ '['                            { Tok _ TokBracketLeftS     }
+ ']'                            { Tok _ TokBracketRightS    }
+ '->'                           { Tok _ TokDirectedR        }
+ '-'                            { Tok _ TokHyph             }
+ ':'                            { Tok _ TokHeaderColN       }
+ '{'                            { Tok _ TokBracketLeftC     }
+ '}'                            { Tok _ TokBracketRightC    }
+ '_'                            { Tok _ TokUnderscore       }
+
+{-
+Specify the operator precedence and associativity for logical OR (||) and logical AND (&&).
+-}
+%right '||'
+%right '&&'
+
+%%
+
+{-
+Define the start symbol XX as a list of X.
+-}
+XX
+ : X                        { [$1]      } -- A single X wrapped in a list.
+ | X XX                     { ($1 : $2) } -- An X followed by more X's, concatenated into a list.
+
+{-
+Define the X symbol as either:
+- A Y followed by a semicolon (;), where Y is a statement.
+- A condition expression (ConditionX).
+- A loop expression (LoopFX).
+-}
+X
+ : Y ';'                    { Y $1 } -- A statement (Y) followed by a semicolon.
+ | ConditionX               { $1   } -- A condition expression.
+ | LoopFX                   { $1   } -- A loop expression.
+
+{-
+Define the Y symbol as either:
+- An identifier assigned to a class, followed by an identifier and another Y (for nested assignments).
+- An identifier assigned to a Y (for regular assignments).
+- A class followed by an identifier (for variable declarations).
+- An identifier (for variable references).
+- A number literal.
+- An identifier prefixed with "FIdent" (possibly a function identifier).
+- A string literal.
+- A call to the "FIND" function with an identifier, a boolean expression, and a "->" operator.
+- A call to the "ARITH" function with an identifier and a list of GrN expressions.
+- The "ACCESS" keyword followed by a string literal.
+- The "OUT" keyword followed by an identifier in parentheses.
+- A boolean expression (YBool).
+- An identifier followed by a dot (.) and another identifier (possibly for accessing object properties or methods).
+- An identifier followed by a dot (.) and an identifier prefixed with "FIdent" (possibly for accessing functions).
+-}
+Y
+ : Class ident '=' Y                        { IdentCl $1 $2 $4  } -- Assign a class to an identifier, then assign a Y to that identifier.
+ | ident '=' Y                              { Ident $1 $3       } -- Assign a Y to an identifier.
+ | Class ident                              { IdentFin $1 $2    } -- Declare a variable of a class.
+ | ident                                    { IdentT $1         } -- Reference an identifier.
+ | num                                      { Int $1            } -- A number literal.
+ | FIdent                                   { IdentT $1         } -- An identifier prefixed with "FIdent" (possibly a function identifier).
+ | chars                                    { String $1         } -- A string literal.
+ | ident '.' FIND '(' ident '->' YBool ')'  { FINDCall $1 $5 $7 } -- Call the "FIND" function with an identifier, another identifier, a boolean expression, and a "->" operator.
+ | ident '.' ARITH '(' AddGrN ')'            { ArithCall $1 $5  } -- Call the "ARITH" function with an identifier and a list of GrN expressions.
+ | ACCESS chars                              { ACCESS $2        } -- The "ACCESS" keyword followed by a string literal.
+ | OUT '(' ident ')'                         { OUT $3           } -- The "OUT" keyword followed by an identifier in parentheses.
+ | YBool                                     { YBool $1         } -- A boolean expression.
+ | ident '.' ident                           { IdentChar $1 $3  } -- An identifier followed by a dot (.) and another identifier (possibly for accessing object properties or methods).
+ | ident '.' FIdent                          { IdentChar $1 $3  } -- An identifier followed by a dot (.) and an identifier prefixed with "FIdent" (possibly for accessing functions).
+
+{-
+Define the YBool symbol as either:
+- The literal boolean value "True".
+- The literal boolean value "False".
+- Two Y expressions compared for equality using the "==" operator.
+- Two Y expressions compared for inequality using the "!=" operator.
+- Two Y expressions compared using the "<" operator.
+- Two Y expressions compared using the ">" operator.
+- Two Y expressions compared using the "<=" operator.
+- Two Y expressions compared using the ">=" operator.
+- The logical AND (&&) of two YBool expressions.
+- The logical OR (||) of two YBool expressions.
+- A boolean expression (YBool) surrounded by "-[" and "]->" followed by an identifier (possibly a relation call with a final result).
+- An identifier followed by "-[" and a boolean expression (YBool) surrounded by "]->", possibly a new relation call.
+- An identifier followed by "-[", a boolean expression (YBool), "]->" and another identifier (possibly a relation call).
+- An identifier followed by a dot (.), an identifier prefixed with "FIdent", the "==" operator, and a string literal (possibly checking the equality of a function identifier and a string).
+- An identifier followed by "-[", a boolean expression (YBool), "]->" and an underscore (_) (possibly a new relation call with an underscore placeholder).
+- An identifier prefixed with "FIdent" assigned to a string literal (possibly assigning a value to a function identifier).
+- A parenthesized YBool expression.
+-}
+YBool
+ : True                                      { Bool True               } -- The literal boolean value "True".
+ | False                                     { Bool False              } -- The literal boolean value "False".
+ | Y '==' Y                                  { Exact $1 $3             } -- Two Y expressions compared for equality using the "==" operator.
+ | Y '!=' Y                                  { Ineq $1 $3              } -- Two Y expressions compared for inequality using the "!=" operator.
+ | Y '<' Y                                   { EqualityL $1 $3         } -- Two Y expressions compared using the "<" operator.
+ | Y '>' Y                                   { EqualityG $1 $3         } -- Two Y expressions compared using the ">" operator.
+ | Y '<=' Y                                  { EqualityEqL $1 $3       } -- Two Y expressions compared using the "<=" operator.
+ | Y '>=' Y                                  { EqualityEqG $1 $3       } -- Two Y expressions compared using the ">=" operator.
+ | YBool '&&' YBool                          { LogA $1 $3              } -- The logical AND (&&) of two YBool expressions.
+ | YBool '||' YBool                          { LogO $1 $3              } -- The logical OR (||) of two YBool expressions.
+ | '-' '[' YBool ']' '->' ident              { RelCallFin $3 $6        } -- A boolean expression (YBool) surrounded by "-[" and "]->" followed by an identifier (possibly a relation call with a final result).
+ | ident '-' '[' YBool ']' '->'              { RelCallNew $1 $4        } -- An identifier followed by "-[" and a boolean expression (YBool) surrounded by "]->", possibly a new relation call.
+ | '(' YBool ')'                             { $2                      } -- A parenthesized YBool expression.
+ | ident '-' '[' YBool ']' '->' ident        { RelCall $1 $4 $7        } -- An identifier followed by "-[", a boolean expression (YBool), "]->" and another identifier (possibly a relation call).
+ | ident '.' FIdent '==' chars               { FIdentExact $1 $3 $5    } -- An identifier followed by a dot (.), an identifier prefixed with "FIdent", the "==" operator, and a string literal (possibly checking the equality of a function identifier and a string).
+ | ident '-' '[' YBool ']' '->' '_'          { RelCallNewUnderscore $1 $4 } -- An identifier followed by "-[", a boolean expression (YBool), "]->" and an underscore (_) (possibly a new relation call with an underscore placeholder).
+ | FIdent '=' chars                          { FIdentAssign $1 $3      } -- An identifier prefixed with "FIdent" assigned to a string literal (possibly assigning a value to a function identifier).
+
+{-
+Define the AddGrN symbol as either:
+- An identifier (GrNDup).
+- A list of SetGrNT expressions (AddGrN).
+-}
+AddGrN
+ : ident                                     { GrNDup $1  } -- An identifier (GrNDup).
+ | SetGrNNT                                  { AddGrN $1  } -- A list of SetGrNT expressions (AddGrN).
+
+{-
+Define the SetGrNNT symbol as either:
+- A single SetGrNT expression wrapped in a list.
+- A SetGrNT expression followed by a comma (,) and another SetGrNNT list (representing a list of SetGrNT expressions).
+-}
+SetGrNNT
+ : SetGrNT                                   { [$1]          } -- A single SetGrNT expression wrapped in a list.
+ | SetGrNT ',' SetGrNNT                      { ($1 : $3)     } -- A SetGrNT expression followed by a comma (,) and another SetGrNNT list (representing a list of SetGrNT expressions).
+
+{-
+Define the SetGrNT symbol as either:
+- An identifier assigned to a Y expression.
+- An identifier prefixed with "FIdent" assigned to a Y expression.
+- An identifier followed by "-[", a list of SetGrNT expressions, "]->" and another identifier (possibly a relation set operation).
+-}
+SetGrNT
+ : ident '=' Y                               { SetGrNT $1 $3   } -- An identifier assigned to a Y expression.
+ | FIdent '=' Y                              { SetGrNT $1 $3   } -- An identifier prefixed with "FIdent" assigned to a Y expression.
+ | ident '-' '[' SetGrNNT ']' '->' ident     { RelSet $1 $4 $7 } -- An identifier followed by "-[", a list of SetGrNT expressions, "]->" and another identifier (possibly a relation set operation).
+
+{-
+Define the ConditionX symbol as either:
+- The "CONDITION" keyword followed by a boolean expression (YBool) in parentheses, a code block (XX) surrounded by curly braces.
+- The "CONDITION" keyword followed by a boolean expression (YBool) in parentheses, a code block (XX) surrounded by curly braces, the "CONDITIONELIF" keyword, another code block (XX) surrounded by curly braces (possibly an if-else-if condition).
+-}
+ConditionX
+ : CONDITION '(' YBool ')' '{' XX '}'                          { ConditionBXX $3 $6         } -- The "CONDITION" keyword followed by a boolean expression (YBool) in parentheses, a code block (XX) surrounded by curly braces.
+ | CONDITION '(' YBool ')' '{' XX '}' CONDITIONELIF '{' XX '}' { ConditionBXXEXX $3 $6 $10  } -- The "CONDITION" keyword followed by a boolean expression (YBool) in parentheses, a code block (XX) surrounded by curly braces, the "CONDITIONELIF" keyword, another code block (XX) surrounded by curly braces (possibly an if-else-if condition).
+
+{-
+Define the LoopFX symbol as:
+- The "LOOPF" keyword followed by a class, an identifier, a colon (:), another identifier, all surrounded by parentheses, and a code block (XX) surrounded by curly braces (possibly a loop construct with two identifiers and a class).
+-}
+LoopFX
+ : LOOPF '(' Class ident ':' ident ')' '{' XX '}'              { LoopFBlock $3 $4 $6 $9 } -- The "LOOPF" keyword followed by a class, an identifier, a colon (:), another identifier, all surrounded by parentheses, and a code block (XX) surrounded by curly braces (possibly a loop construct with two identifiers and a class).
+
+{-
+Define the Class symbol as one of the following token patterns:
+- Gr
+- Num
+- Chars
+- B
+- GrN
+- Rel
+-}
+Class
+ : Gr        { Class $1 }
+ | Num       { Class $1 }
+ | Chars     { Class $1 }
+ | B         { Class $1 }
+ | GrN       { Class $1 }
+ | Rel       { Class $1 }
+
+{-
+The parseError function is used to handle parsing errors.
+It takes a list of Token and returns an error message with the token and position information.
+-}
+parseError :: [Token] -> a
+parseError [] = error "Parse error detected\n"
+parseError (Tok (AlexPn _ r c) t : _) = error $ "Error " ++ show t ++ " @ " ++ show r ++ " - " ++ show c ++ "\n"
+
+{-
+Type alias for XX, which is a list of X.
+-}
+type XX = [X]
+
+{-
+The X data type represents different kinds of expressions or statements in the language.
+It can be one of the following:
+- Y Y (a Y expression followed by a semicolon)
+- ConditionBXX YBool XX (a condition statement with a boolean expression and a code block)
+- ConditionBXXEXX YBool XX XX (a condition statement with a boolean expression, a code block, and an else-if code block)
+- LoopFBlock Class String String XX (a loop construct with a class, two identifiers, and a code block)
+-}
+data X
+= Y Y
+| ConditionBXX YBool XX
+| ConditionBXXEXX YBool XX XX
+| LoopFBlock Class String String XX
+deriving (Eq, Show)
+
+{-
+The Y data type represents different kinds of expressions or statements in the language.
+It can be one of the following:
+- IdentCl Class String Y (an identifier assigned to a class, followed by another identifier and another Y expression)
+- Ident String Y (an identifier assigned to a Y expression)
+- IdentFin Class String (a variable declaration with a class and an identifier)
+- IdentT String (an identifier)
+- Int Int (an integer literal)
+- String String (a string literal)
+- FINDCall String String YBool (a call to the "FIND" function with an identifier, another identifier, and a boolean expression)
+- ArithCall String GrN (a call to the "ARITH" function with an identifier and a GrN expression)
+- ACCESS String (the "ACCESS" keyword followed by a string literal)
+- OUT String (the "OUT" keyword followed by an identifier in parentheses)
+- YBool YBool (a boolean expression)
+- IdentChar String String (an identifier followed by a dot (.) and another identifier)
+-}
+data Y
+= IdentCl Class String Y
+| Ident String Y
+| IdentFin Class String
+| IdentT String
+| Int Int
+| String String
+| FINDCall String String YBool
+| ArithCall String GrN
+| ACCESS String
+| OUT String
+| YBool YBool
+| IdentChar String String
+deriving (Eq, Show)
+
+{-
+The YBool data type represents different kinds of boolean expressions in the language.
+It can be one of the following:
+- Bool Bool (a literal boolean value)
+- Exact Y Y (two Y expressions compared for equality using the "==" operator)
+- Ineq Y Y (two Y expressions compared for inequality using the "!=" operator)
+- EqualityL Y Y (two Y expressions compared using the "<" operator)
+- EqualityG Y Y (two Y expressions compared using the ">" operator)
+- EqualityEqL Y Y (two Y expressions compared using the "<=" operator)
+- EqualityEqG Y Y (two Y expressions compared using the ">=" operator)
+- LogA YBool YBool (the logical AND (&&) of two YBool expressions)
+- LogO YBool YBool (the logical OR (||) of two YBool expressions)
+- RelCallFin YBool String (a boolean expression (YBool) surrounded by "-[" and "]->" followed by an identifier)
+- RelCallNew String YBool (an identifier followed by "-[" and a boolean expression (YBool) surrounded by "]->")
+- RelCall String YBool String (an identifier followed by "-[", a boolean expression (YBool), "]->" and another identifier)
+- FIdentExact String String String (an identifier followed by a dot (.), an identifier prefixed with "FIdent", the "==" operator, and a string literal)
+- RelCallNewUnderscore String YBool (an identifier followed by "-[", a boolean expression (YBool), "]->" and an underscore (_))
+- Underscore (an underscore (_))
+- FIdentAssign String String (an identifier prefixed with "FIdent" assigned to a string literal)
+-}
+data YBool
+= Bool Bool
+| Exact Y Y
+| Ineq Y Y
+| EqualityL Y Y
+| EqualityG Y Y
+| EqualityEqL Y Y
+| EqualityEqG Y Y
+| LogA YBool YBool
+| LogO YBool YBool
+| RelCallFin YBool String
+| RelCallNew String YBool
+| RelCall String YBool String
+| FIdentExact String String String
+| RelCallNewUnderscore String YBool
+| Underscore
+| FIdentAssign String String
+deriving (Eq, Show)
+
+{-
+The GrN data type represents either:
+- GrNDup String (an identifier)
+- AddGrN [SetGrNT] (a list of SetGrNT expressions)
+-}
+data GrN
+= GrNDup String
+| AddGrN [SetGrNT]
+deriving (Eq, Show)
+
+{-
+The SetGrNT data type represents either:
+- SetGrNT String Y (an identifier assigned to a Y expression)
+- RelSet String [SetGrNT] String (an identifier followed by "-[", a list of SetGrNT expressions, "]->" and another identifier)
+-}
+data SetGrNT
+= SetGrNT String Y
+| RelSet String [SetGrNT] String
+deriving (Eq, Show)
+
+{-
+The Class data type represents a class, which is a Token.
+-}
+data Class
+= Class Token
+deriving (Eq, Show)
