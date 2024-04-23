@@ -32,7 +32,7 @@ tokens :-
   \;                                { \p _ -> Tok p TokSemiColon }        
   \,                                { \p _ -> Tok p TokComma }
   \"                                { \p _ -> Tok p TokQuoteMark }
-
+  \n                                { \p _ -> Tok p TokNewLine }
   $white+                           ;
   "--".*                            ;
   

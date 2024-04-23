@@ -25,19 +25,20 @@ import InputLexer (Token(..), TokenType(..), tokenPosn)
     ';'                 { Tok _ TokSemiColon }
     ','                 { Tok _ TokComma }
     '"'                 { Tok _ TokQuoteMark }
+    '\n'                { Tok _ TokNewLine }
 
 %left ':' ';' label
 %right ','
 
 %%
-Tables : {- empty -}                                    { [] }
-       | Table Tables                                   { $1 : $2 }
+Tables : NL                                    { [] }
+       | Table NL Tables                                   { $1 : $3 }
 
 Table : Header Rows                                     { $1 : $2 }
                 
-Header : id Types                                   { Header $2 }
-       | startId Types endId ',' type           { RelationshipHeader $2 }
-       | id Types label                         { LabeledHeader $2 }
+Header : id Types NL                                   { Header $2 }
+       | startId Types endId ',' type NL           { RelationshipHeader $2 }
+       | id Types label NL                         { LabeledHeader $2 }
 
 Types : {- empty -}                                            { [ ] }
       | ','                                         { [ ] }
@@ -50,19 +51,23 @@ Type : ',' Name ':' stringType                              { StringType $2 }
 Name : string                                           { $1 }
      | alphanum                                         { $1 }    
 
-Rows : {- empty -}                                      { [] }
+Rows : RowNoNL                                      { [$1] }
+     | Row                                              { [$1] }
      | Row Rows                                         { $1 : $2 }
 
-Row : alphanum Values                                   { Data (Id $1) $2 }
-    | alphanum Values ',' alphanum ',' string           { RelationshipData (Id $1) $2 (Id $4) $6 }
-    | alphanum Values ',' Labels                        { LabeledData (Id $1) $2 $4 }
+Row : alphanum Values NL                                   { Data (Id $1) $2 }
+    | alphanum Values Labels NL                        { LabeledData (Id $1) $2 $3 }
+    | alphanum Values alphanum ',' string NL           { RelationshipData (Id $1) $2 (Id $3) $5 }
 
-Labels : {- empty -}                                    { [] }
-       | string                                         { [$1] }
+RowNoNL : alphanum Values                                    { Data (Id $1) $2 }
+        | alphanum Values Labels                        { LabeledData (Id $1) $2 $3 }
+        | alphanum Values alphanum ',' string           { RelationshipData (Id $1) $2 (Id $3) $5 }
+
+Labels : string                                         { [$1] }
        | string ';' Labels                              { $1 : $3 }
 
 Values : {- empty -}                                    { [] }  
-    --    | ','                                            { [] }
+       | ','                                            { [] }
        | Value Values                                   { $1 : $2 }
 
 Value : ',' '"' string '"'                              { StringValue $3 }
@@ -70,9 +75,13 @@ Value : ',' '"' string '"'                              { StringValue $3 }
       | ',' bool                                        { BoolValue $2 }
       | ',' null                                        { NullValue }
 
+NL : {- empty -}                                              { }
+   | '\n' NL                                           { }
+
 {
 
 parseError :: [Token] -> a
+parseError [] = error "Parse error at end of input"
 parseError tokens = error $ "Parse error: " ++ tokenPosn (head tokens) ++ "\n" ++ show tokens
 
 type Tables = [Table]
