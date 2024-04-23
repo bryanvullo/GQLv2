@@ -21,7 +21,7 @@ import Lexer
   Chars                       { Tok _ TokChars          }
   B                           { Tok _ TokB          }
   FIdent                      { Tok _ (TokFIdent $$)    }
-  NType                       { Tok _ TokNType          }
+  GrN                       { Tok _ TokGrN          }
   RType                       { Tok _ TokRType          }
   True                        { Tok _ TokBT             }
   False                       { Tok _ TokBF             }
@@ -30,7 +30,7 @@ import Lexer
   string                      { Tok _ (TokString $$)    }
   rgx                         { Tok _ (Tokrgx $$)       }
   '"'                         { Tok _ TokDelimiter      }
-  '&&'                        { Tok _ TokConjunction    }
+  '&&'                        { Tok _ TokConj    }
   '||'                        { Tok _ TokOr             }
   '('                         { Tok _ TokBracketLeft    }
   ')'                         { Tok _ TokBracketRight   }
@@ -124,7 +124,7 @@ Type
   | Num         { Type $1 }
   | Chars         { Type $1 }
   | B         { Type $1 }
-  | NType         { Type $1 }
+  | GrN         { Type $1 }
   | RType         { Type $1 }
 
 {

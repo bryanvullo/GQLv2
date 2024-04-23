@@ -21,7 +21,7 @@ tokens :-
   Boolean                           { \p _ -> Tok p TokB                             }
   True                              { \p _ -> Tok p TokBT                              }
   False                             { \p _ -> Tok p TokBF                             }
-  Node                              { \p _ -> Tok p TokNType                             }
+  Node                              { \p _ -> Tok p TokGrN                             }
   Relation                          { \p _ -> Tok p TokRType                             }
   ">="                              { \p _ -> Tok p TokEqualityG                               }
   "<="                              { \p _ -> Tok p TokEqualityL                               }
@@ -44,7 +44,7 @@ tokens :-
   \"($alpha*)+\"                    { \p s -> Tok p (TokStringLiteral (drop 1 $ init s)) }
   \"                                { \p _ -> Tok p TokDelimiter                         }
   "||"                              { \p _ -> Tok p TokOr                                }
-  "&&"                              { \p _ -> Tok p TokConjunction                               }
+  "&&"                              { \p _ -> Tok p TokConj                               }
   \(                                { \p _ -> Tok p TokBracketLeft                            }
   \)                                { \p _ -> Tok p TokBracketRight                            }
   \{                                { \p _ -> Tok p TokLCurl                             }
@@ -62,7 +62,7 @@ data TokenType
   | TokOUT
   | TokDelimiter
   | TokOr
-  | TokConjunction
+  | TokConj
   | TokBracketLeft
   | TokBracketRight
   | TokGr
@@ -99,7 +99,7 @@ data TokenType
   | TokIneq
   | TokSep
   | TokInt Int
-  | TokNType
+  | TokGrN
   | TokRType
   deriving (Eq, Show)
 
