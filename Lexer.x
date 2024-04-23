@@ -22,11 +22,11 @@ tokens :-
   True                              { \p _ -> Tok p TokBT                              }
   False                             { \p _ -> Tok p TokBF                             }
   GraphNode                         { \p _ -> Tok p TokGrN                             }
-  Rel                               { \p _ -> Tok p TokRType                             }
-  ">="                              { \p _ -> Tok p TokEqualityG                               }
-  "<="                              { \p _ -> Tok p TokEqualityL                               }
-  \>                                { \p _ -> Tok p TokGT                                }
-  \<                                { \p _ -> Tok p TokLT                                }
+  Rel                               { \p _ -> Tok p TokRel                             }
+  ">="                              { \p _ -> Tok p TokEqualityEqG                               }
+  "<="                              { \p _ -> Tok p TokEqualityEqL                               }
+  \>                                { \p _ -> Tok p TokEqualityG                                }
+  \<                                { \p _ -> Tok p TokEqualityL                                }
   \=                                { \p _ -> Tok p TokSet                            }
   "=="                              { \p _ -> Tok p TokEquals                            }
   \[                                { \p _ -> Tok p TokBracketLeftS                               }
@@ -77,10 +77,10 @@ data TokenType
   | TokLoopF
   | TokNCol
   | TokIdent String
+  | TokEqualityEqG
+  | TokEqualityEqL
   | TokEqualityG
   | TokEqualityL
-  | TokGT
-  | TokLT
   | TokSet
   | TokEquals
   | TokBracketLeftS
@@ -100,7 +100,7 @@ data TokenType
   | TokSep
   | TokInt Int
   | TokGrN
-  | TokRType
+  | TokRel
   deriving (Eq, Show)
 
 data Token = Tok AlexPosn TokenType

@@ -22,7 +22,7 @@ import Lexer
   B                           { Tok _ TokB              }
   FIdent                      { Tok _ (TokFIdent $$)    }
   GrN                         { Tok _ TokGrN            }
-  RType                       { Tok _ TokRType          }
+  RType                       { Tok _ TokRel          }
   True                        { Tok _ TokBT             }
   False                       { Tok _ TokBF             }
   ident                       { Tok _ (TokIdent $$)     }
@@ -38,10 +38,10 @@ import Lexer
   '!='                        { Tok _ TokIneq           }
   ','                         { Tok _ TokSep            }
   '.'                         { Tok _ TokBrk            }
-  '>='                        { Tok _ TokEqualityG      }
-  '<='                        { Tok _ TokEqualityL      }
-  '>'                         { Tok _ TokGT             }
-  '<'                         { Tok _ TokLT             }
+  '>='                        { Tok _ TokEqualityEqG      }
+  '<='                        { Tok _ TokEqualityEqL      }
+  '>'                         { Tok _ TokEqualityG             }
+  '<'                         { Tok _ TokEqualityL             }
   '='                         { Tok _ TokSet            }
   '=='                        { Tok _ TokEquals         }
   '['                         { Tok _ TokBracketLeftS   }
