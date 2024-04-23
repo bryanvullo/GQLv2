@@ -29,9 +29,9 @@ import Lexer
   int                         { Tok _ (TokInt $$)       }
   string                      { Tok _ (TokString $$)    }
   Reg                         { Tok _ (TokReg $$)       }
-  '"'                         { Tok _ TokDelim      }
+  '"'                         { Tok _ TokQuote      }
   '&&'                        { Tok _ TokConj           }
-  '||'                        { Tok _ TokOr             }
+  '||'                        { Tok _ TokLogO             }
   '('                         { Tok _ TokBracketLeft    }
   ')'                         { Tok _ TokBracketRight   }
   ';'                         { Tok _ TokColS           }
@@ -48,7 +48,7 @@ import Lexer
   ']'                         { Tok _ TokBracketRightS  }
   '->'                        { Tok _ TokDirectedR      }
   '-'                         { Tok _ TokHyph           }
-  ':'                         { Tok _ TokColN           }
+  ':'                         { Tok _ TokHeaderColN           }
   '{'                         { Tok _ TokBracketLeftC   }
   '}'                         { Tok _ TokBracketRightC  }
 

@@ -42,14 +42,14 @@ tokens :-
   \:[A-Z]+                          { \p s -> Tok p (TokFIdent (drop 1 s))               }
   \'($alpha|$digit|\.)*\'           { \p s -> Tok p (TokString (drop 1 $ init s))        }
   \"($alpha*)+\"                    { \p s -> Tok p (TokStringLiteral (drop 1 $ init s)) }
-  \"                                { \p _ -> Tok p TokDelim                         }
-  "||"                              { \p _ -> Tok p TokOr                                }
+  \"                                { \p _ -> Tok p TokQuote                         }
+  "||"                              { \p _ -> Tok p TokLogO                                }
   "&&"                              { \p _ -> Tok p TokConj                               }
   \(                                { \p _ -> Tok p TokBracketLeft                            }
   \)                                { \p _ -> Tok p TokBracketRight                            }
   \{                                { \p _ -> Tok p TokBracketLeftC                             }
   \}                                { \p _ -> Tok p TokBracketRightC                             }
-  \:                                { \p _ -> Tok p TokColN                             }
+  \:                                { \p _ -> Tok p TokHeaderColN                             }
   [a-z]($alpha|$digit)*             { \p s -> Tok p (TokIdent s)                         }
   $digit+                           { \p s -> Tok p (TokInt (read s :: Int))             }
   $white+                           ;
@@ -60,8 +60,8 @@ data TokenType
   = TokACCESS
   | TokFIND
   | TokOUT
-  | TokDelim
-  | TokOr
+  | TokQuote
+  | TokLogO
   | TokConj
   | TokBracketLeft
   | TokBracketRight
@@ -75,7 +75,7 @@ data TokenType
   | TokCond
   | TokCondE
   | TokLoopF
-  | TokColN
+  | TokHeaderColN
   | TokIdent String
   | TokEqualityEqG
   | TokEqualityEqL
