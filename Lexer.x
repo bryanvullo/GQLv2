@@ -15,9 +15,9 @@ tokens :-
   ELSE                              { \p _ -> Tok p TokElse                              }
   FOR                               { \p _ -> Tok p TokFor                               }
   ADD                               { \p _ -> Tok p TokArith                               }
-  Graph                             { \p _ -> Tok p TokGType                             }
-  Integer                           { \p _ -> Tok p TokIType                             }
-  String                            { \p _ -> Tok p TokSType                             }
+  Graph                             { \p _ -> Tok p TokGr                             }
+  Integer                           { \p _ -> Tok p TokNum                             }
+  String                            { \p _ -> Tok p TokChars                             }
   Boolean                           { \p _ -> Tok p TokBType                             }
   True                              { \p _ -> Tok p TokBT                              }
   False                             { \p _ -> Tok p TokBF                             }
@@ -65,9 +65,9 @@ data TokenType
   | TokConjunction
   | TokBracketLeft
   | TokBracketRight
-  | TokGType
-  | TokIType
-  | TokSType
+  | TokGr
+  | TokNum
+  | TokChars
   | TokStringLiteral String
   | TokBType
   | TokLCurl

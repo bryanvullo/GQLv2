@@ -16,9 +16,9 @@ import Lexer
   ELSE                        { Tok _ TokElse           }
   FOR                         { Tok _ TokFor            }
   ADD                         { Tok _ TokArith          }
-  GType                       { Tok _ TokGType          }
-  IType                       { Tok _ TokIType          }
-  SType                       { Tok _ TokSType          }
+  GType                       { Tok _ TokGr             }
+  Num                         { Tok _ TokNum          }
+  Chars                       { Tok _ TokChars          }
   BType                       { Tok _ TokBType          }
   FIdent                      { Tok _ (TokFIdent $$)    }
   NType                       { Tok _ TokNType          }
@@ -121,8 +121,8 @@ ForStatement
 
 Type
   : GType         { Type $1 }
-  | IType         { Type $1 }
-  | SType         { Type $1 }
+  | Num         { Type $1 }
+  | Chars         { Type $1 }
   | BType         { Type $1 }
   | NType         { Type $1 }
   | RType         { Type $1 }
