@@ -12,7 +12,7 @@ tokens :-
   FIND                              { \p _ -> Tok p TokFIND                              }
   OUT                               { \p _ -> Tok p TokOUT                               }
   CONDITION                                { \p _ -> Tok p TokCond                              }
-  ELSE                              { \p _ -> Tok p TokCondE                              }
+  CONDITIONELIF                              { \p _ -> Tok p TokCondE                              }
   LOOPF                               { \p _ -> Tok p TokLoopF                               }
   ARITH                               { \p _ -> Tok p TokArith                               }
   Gr                             { \p _ -> Tok p TokGr                             }

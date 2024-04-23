@@ -13,7 +13,7 @@ import Lexer
   FIND                        { Tok _ TokFIND           }
   OUT                         { Tok _ TokOUT            }
   CONDITION                          { Tok _ TokCond           }
-  ELSE                        { Tok _ TokCondE          }
+  CONDITIONELIF                        { Tok _ TokCondE          }
   LOOPF                         { Tok _ TokLoopF          }
   ARITH                         { Tok _ TokArith          }
   Gr                       { Tok _ TokGr             }
@@ -114,7 +114,7 @@ GrNodeSet
 
 ConditionX
   : CONDITION '(' YBool ')' '{' XX '}'                         { ConditionBXX $3 $6         }
-  | CONDITION '(' YBool ')' '{' XX '}' ELSE '{' XX '}'    { ConditionBXXEXX $3 $6 $10 }
+  | CONDITION '(' YBool ')' '{' XX '}' CONDITIONELIF '{' XX '}'    { ConditionBXXEXX $3 $6 $10 }
 
 LoopFX
   : LOOPF '(' Class ident ':' ident ')' '{' XX '}'         { LoopFBlock $3 $4 $6 $9 }
