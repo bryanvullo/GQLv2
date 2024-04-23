@@ -1,19 +1,25 @@
-Graph graph = READFILE "table.n4j"
+Gr gr = ACCESS 'table.n4j';
 
-Graph result
+Gr out;
 
-FOR (Node n : graph) {
-    IF (EXISTS(n<-[:Beat]-)) {
-        Node beater = STARTNODE(n<-[:Beat]-)
-        FOR (Node other : graph) {
-            IF ((other-[:DrewWith]->beater && beater-[:Beat]->n) || 
-                (beater-[:DrewWith]->other && beater-[:Beat]->n)) {
-                IF (other.points != null && other.points == n.points) {
-                    result.ADD(n{ID, points})
-                }
-            }
+Gr n_prime = gr.FIND(relationship -> relationship.:TYPE == 'Beat');
+
+LOOPF (Gr r : n_prime) {
+    Gr n = r - [:TYPE == 'Beat'] ->_;
+    
+    Gr n_prime_prime = gr.FIND(relationship ->
+        relationship.ARITH(:START_ID = r.:START_ID) &&
+        relationship.:TYPE == 'DrewWith'
+    );
+    
+    LOOPF (Gr r_prime : n_prime_prime) {
+        Gr n_prime_prime_id = r_prime - [:TYPE == 'DrewWith'] ->_;
+        
+        CONDITION (n.points != null && n.points == n_prime_prime_id.points) {
+            GrN new_node = n.ARITH(:ID = :ID, points = points);
+            out = out.ARITH(new_node);
         }
     }
 }
 
-PRINT(result)
+OUT(out);
