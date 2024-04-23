@@ -34,7 +34,7 @@ import Lexer
   '||'                        { Tok _ TokOr             }
   '('                         { Tok _ TokBracketLeft    }
   ')'                         { Tok _ TokBracketRight   }
-  ';'                         { Tok _ TokSCol           }
+  ';'                         { Tok _ TokColS           }
   '!='                        { Tok _ TokIneq           }
   ','                         { Tok _ TokSep            }
   '.'                         { Tok _ TokBrk            }
@@ -43,12 +43,12 @@ import Lexer
   '>'                         { Tok _ TokEqualityG             }
   '<'                         { Tok _ TokEqualityL             }
   '='                         { Tok _ TokSet            }
-  '=='                        { Tok _ TokEquals         }
+  '=='                        { Tok _ TokExact         }
   '['                         { Tok _ TokBracketLeftS   }
   ']'                         { Tok _ TokBracketRightS  }
   '->'                        { Tok _ TokDirectedR      }
   '-'                         { Tok _ TokHyph           }
-  ':'                         { Tok _ TokNCol           }
+  ':'                         { Tok _ TokColN           }
   '{'                         { Tok _ TokBracketLeftC   }
   '}'                         { Tok _ TokBracketRightC  }
 

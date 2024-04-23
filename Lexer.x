@@ -28,14 +28,14 @@ tokens :-
   \>                                { \p _ -> Tok p TokEqualityG                                }
   \<                                { \p _ -> Tok p TokEqualityL                                }
   \=                                { \p _ -> Tok p TokSet                            }
-  "=="                              { \p _ -> Tok p TokEquals                            }
+  "=="                              { \p _ -> Tok p TokExact                            }
   \[                                { \p _ -> Tok p TokBracketLeftS                               }
   \]                                { \p _ -> Tok p TokBracketRightS                               }
   "<-"                              { \p _ -> Tok p TokLArrow                            }
   "->"                              { \p _ -> Tok p TokDirectedR                            }
   \-                                { \p _ -> Tok p TokHyph                              }
   r\".*\"                           { \p s -> Tok p (Tokrgx (drop 2 $ init s))           }
-  \;                                { \p _ -> Tok p TokSCol                         }
+  \;                                { \p _ -> Tok p TokColS                         }
   \!=                               { \p _ -> Tok p TokIneq                         }
   \,                                { \p _ -> Tok p TokSep                             }
   \.                                { \p _ -> Tok p TokBrk                               }
@@ -49,7 +49,7 @@ tokens :-
   \)                                { \p _ -> Tok p TokBracketRight                            }
   \{                                { \p _ -> Tok p TokBracketLeftC                             }
   \}                                { \p _ -> Tok p TokBracketRightC                             }
-  \:                                { \p _ -> Tok p TokNCol                             }
+  \:                                { \p _ -> Tok p TokColN                             }
   [a-z]($alpha|$digit)*             { \p s -> Tok p (TokIdent s)                         }
   $digit+                           { \p s -> Tok p (TokInt (read s :: Int))             }
   $white+                           ;
@@ -75,14 +75,14 @@ data TokenType
   | TokCond
   | TokCondE
   | TokLoopF
-  | TokNCol
+  | TokColN
   | TokIdent String
   | TokEqualityEqG
   | TokEqualityEqL
   | TokEqualityG
   | TokEqualityL
   | TokSet
-  | TokEquals
+  | TokExact
   | TokBracketLeftS
   | TokBracketRightS
   | TokLArrow
@@ -95,7 +95,7 @@ data TokenType
   | TokString String
   | TokBT
   | TokBF
-  | TokSCol
+  | TokColS
   | TokIneq
   | TokSep
   | TokInt Int
