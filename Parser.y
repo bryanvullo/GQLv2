@@ -42,7 +42,7 @@ import Lexer
   '<='                        { Tok _ TokEqualityL      }
   '>'                         { Tok _ TokGT             }
   '<'                         { Tok _ TokLT             }
-  '='                         { Tok _ TokAssign         }
+  '='                         { Tok _ TokSet         }
   '=='                        { Tok _ TokEquals         }
   '['                         { Tok _ TokBracketLeftS   }
   ']'                         { Tok _ TokBracketRightS  }
@@ -93,10 +93,10 @@ BoolExpr
   | Expr '>=' Expr                    { GTEquals $1 $3           }
   | BoolExpr '&&' BoolExpr            { And $1 $3                }
   | BoolExpr '||' BoolExpr            { Or $1 $3                 }
-  | '-' '[' BoolExpr ']' '->' ident     { EndRelationQuery $3 $6   }
-  | ident '-' '[' BoolExpr ']' '->'     { StartRelationQuery $1 $4 }
+  | '-' '[' BoolExpr ']' '->' ident     { EndRelQuery $3 $6   }
+  | ident '-' '[' BoolExpr ']' '->'     { StartRelQuery $1 $4 }
   | '(' BoolExpr ')'                  { $2                       }
-  | ident '-' '[' BoolExpr ']' '->' ident { RelationQuery $1 $4 $7   }
+  | ident '-' '[' BoolExpr ']' '->' ident { RelQuery $1 $4 $7   }
   | ident '.' FIdent '==' string        { FIdentEquals $1 $3 $5    }
 
 NewGraphNode
@@ -110,7 +110,7 @@ GraphNodeSetNT
 GraphNodeSet
   : ident '=' Expr                              { GraphNodeSet $1 $3        }
   | FIdent '=' Expr                           { GraphNodeSet $1 $3        }
-  | ident '-' '[' GraphNodeSetNT ']' '->' ident  { RelationSet $1 $4 $7 }
+  | ident '-' '[' GraphNodeSetNT ']' '->' ident  { RelSet $1 $4 $7 }
 
 IfStatement
   : IF '(' BoolExpr ')' '{' Program '}'                         { IfBlock $3 $6         }
@@ -167,9 +167,9 @@ data BoolExpr
   | GTEquals Expr Expr
   | And BoolExpr BoolExpr
   | Or BoolExpr BoolExpr
-  | EndRelationQuery BoolExpr String
-  | StartRelationQuery String BoolExpr
-  | RelationQuery String BoolExpr String
+  | EndRelQuery BoolExpr String
+  | StartRelQuery String BoolExpr
+  | RelQuery String BoolExpr String
   | FIdentEquals String String String
   deriving(Eq, Show)
   
@@ -180,7 +180,7 @@ data GraphNode
 
 data GraphNodeSet
   = GraphNodeSet String Expr
-  | RelationSet String [GraphNodeSet] String
+  | RelSet String [GraphNodeSet] String
   deriving(Eq, Show)
 
 data Type

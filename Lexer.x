@@ -21,13 +21,13 @@ tokens :-
   Boolean                           { \p _ -> Tok p TokB                             }
   True                              { \p _ -> Tok p TokBT                              }
   False                             { \p _ -> Tok p TokBF                             }
-  GraphNode                              { \p _ -> Tok p TokGrN                             }
-  Relation                          { \p _ -> Tok p TokRType                             }
+  GraphNode                         { \p _ -> Tok p TokGrN                             }
+  Rel                               { \p _ -> Tok p TokRType                             }
   ">="                              { \p _ -> Tok p TokEqualityG                               }
   "<="                              { \p _ -> Tok p TokEqualityL                               }
   \>                                { \p _ -> Tok p TokGT                                }
   \<                                { \p _ -> Tok p TokLT                                }
-  \=                                { \p _ -> Tok p TokAssign                            }
+  \=                                { \p _ -> Tok p TokSet                            }
   "=="                              { \p _ -> Tok p TokEquals                            }
   \[                                { \p _ -> Tok p TokBracketLeftS                               }
   \]                                { \p _ -> Tok p TokBracketRightS                               }
@@ -81,7 +81,7 @@ data TokenType
   | TokEqualityL
   | TokGT
   | TokLT
-  | TokAssign
+  | TokSet
   | TokEquals
   | TokBracketLeftS
   | TokBracketRightS
