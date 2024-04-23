@@ -51,6 +51,7 @@ import Lexer
  ':'                            { Tok _ TokHeaderColN       }
  '{'                            { Tok _ TokBracketLeftC     }
  '}'                            { Tok _ TokBracketRightC    }
+ '_'                            { Tok _ TokUnderscore       }
 
 %right '||'
 %right '&&'
@@ -98,6 +99,8 @@ YBool
  | '(' YBool ')'                             { $2                      }
  | ident '-' '[' YBool ']' '->' ident        { RelCall $1 $4 $7        }
  | ident '.' FIdent '==' chars               { FIdentExact $1 $3 $5    }
+ | ident '-' '[' YBool ']' '->' '_'          { RelCallNewUnderscore $1 $4 }
+ | FIdent '=' chars                          { FIdentAssign $1 $3      }
 
 AddGrN
  : ident                                     { GrNDup $1  }
@@ -171,6 +174,9 @@ data YBool
  | RelCallNew String YBool
  | RelCall String YBool String
  | FIdentExact String String String
+ | RelCallNewUnderscore String YBool
+ | Underscore
+ | FIdentAssign String String
  deriving (Eq, Show)
  
 data GrN

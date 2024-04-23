@@ -21,7 +21,7 @@ tokens :-
  Boolean                                { \p _ -> Tok p TokB                                   }
  True                                   { \p _ -> Tok p TokBT                                  }
  False                                  { \p _ -> Tok p TokBF                                  }
- GrNode                                 { \p _ -> Tok p TokGrN                                 }
+ GrN                                    { \p _ -> Tok p TokGrN                                 }
  Rel                                    { \p _ -> Tok p TokRel                                 }
  ">="                                   { \p _ -> Tok p TokEqualityEqG                         }
  "<="                                   { \p _ -> Tok p TokEqualityEqL                         }
@@ -50,7 +50,8 @@ tokens :-
  \{                                     { \p _ -> Tok p TokBracketLeftC                        }
  \}                                     { \p _ -> Tok p TokBracketRightC                       }
  \:                                     { \p _ -> Tok p TokHeaderColN                          }
- [a-z]($alpha|$digit)*                  { \p s -> Tok p (TokIdent s)                           }
+ \_                                     { \p _ -> Tok p TokUnderscore                          }
+ [a-z]($alpha|$digit|_)*                { \p s -> Tok p (TokIdent s)                           }
  $digit+                                { \p s -> Tok p (TokInt (read s :: Int))               }
  $white+                                ;
  "--".*                                 ;
@@ -101,6 +102,7 @@ data TokenClass
  | TokInt Int
  | TokGrN
  | TokRel
+ | TokUnderscore
  deriving (Eq, Show)
 
 data Token = Tok AlexPosn TokenClass
