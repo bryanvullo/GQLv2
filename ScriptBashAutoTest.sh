@@ -53,8 +53,6 @@ echo -e "\e[33mProject compilation completed.\e[0m"
 echo -e "\e[32mBuild process completed.\e[0m"
 
 echo -e "\e[34mStart Testing Process\e[0m"
-./ScriptClean.sh
-./ScriptBuild.sh
 
 echo -e "\e[34mStart Testing PR1\e[0m"
 ./GQL ./queries/pr1.gql
