@@ -13,24 +13,24 @@ import Lexer
   FIND                        { Tok _ TokFIND           }
   OUT                         { Tok _ TokOUT            }
   IF                          { Tok _ TokCond           }
-  ELSE                        { Tok _ TokElse           }
+  ELSE                        { Tok _ TokCondE          }
   FOR                         { Tok _ TokFor            }
   ADD                         { Tok _ TokArith          }
   GType                       { Tok _ TokGr             }
-  Num                         { Tok _ TokNum          }
+  Num                         { Tok _ TokNum            }
   Chars                       { Tok _ TokChars          }
-  B                           { Tok _ TokB          }
+  B                           { Tok _ TokB              }
   FIdent                      { Tok _ (TokFIdent $$)    }
-  GrN                         { Tok _ TokGrN          }
+  GrN                         { Tok _ TokGrN            }
   RType                       { Tok _ TokRType          }
   True                        { Tok _ TokBT             }
   False                       { Tok _ TokBF             }
-  ident                         { Tok _ (TokIdent $$)     }
+  ident                       { Tok _ (TokIdent $$)     }
   int                         { Tok _ (TokInt $$)       }
   string                      { Tok _ (TokString $$)    }
   rgx                         { Tok _ (Tokrgx $$)       }
   '"'                         { Tok _ TokDelimiter      }
-  '&&'                        { Tok _ TokConj    }
+  '&&'                        { Tok _ TokConj           }
   '||'                        { Tok _ TokOr             }
   '('                         { Tok _ TokBracketLeft    }
   ')'                         { Tok _ TokBracketRight   }
@@ -42,15 +42,15 @@ import Lexer
   '<='                        { Tok _ TokEqualityL      }
   '>'                         { Tok _ TokGT             }
   '<'                         { Tok _ TokLT             }
-  '='                         { Tok _ TokSet         }
+  '='                         { Tok _ TokSet            }
   '=='                        { Tok _ TokEquals         }
   '['                         { Tok _ TokBracketLeftS   }
   ']'                         { Tok _ TokBracketRightS  }
   '->'                        { Tok _ TokDirectedR      }
   '-'                         { Tok _ TokHyph           }
   ':'                         { Tok _ TokNCol           }
-  '{'                         { Tok _ TokBracketLeftC          }
-  '}'                         { Tok _ TokBracketRightC          }
+  '{'                         { Tok _ TokBracketLeftC   }
+  '}'                         { Tok _ TokBracketRightC  }
 
 %right '||'
 %right '&&'

@@ -12,7 +12,7 @@ tokens :-
   FIND                              { \p _ -> Tok p TokFIND                              }
   OUT                               { \p _ -> Tok p TokOUT                               }
   IF                                { \p _ -> Tok p TokCond                              }
-  ELSE                              { \p _ -> Tok p TokElse                              }
+  ELSE                              { \p _ -> Tok p TokCondE                              }
   FOR                               { \p _ -> Tok p TokFor                               }
   ADD                               { \p _ -> Tok p TokArith                               }
   Graph                             { \p _ -> Tok p TokGr                             }
@@ -73,7 +73,7 @@ data TokenType
   | TokBracketLeftC
   | TokBracketRightC
   | TokCond
-  | TokElse
+  | TokCondE
   | TokFor
   | TokNCol
   | TokIdent String
