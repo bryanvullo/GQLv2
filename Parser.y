@@ -26,7 +26,7 @@ import Lexer
   True                        { Tok _ TokBT             }
   False                       { Tok _ TokBF             }
   ident                       { Tok _ (TokIdent $$)     }
-  int                         { Tok _ (TokInt $$)       }
+  num                         { Tok _ (TokInt $$)       }
   string                      { Tok _ (TokString $$)    }
   Reg                         { Tok _ (TokReg $$)       }
   '"'                         { Tok _ TokQuote      }
@@ -71,7 +71,7 @@ E
   | ident '=' E                            { Assign $1 $3         }
   | Type ident                                { Declare $1 $2        }
   | ident                                     { Var $1               }
-  | int                                     { Int $1               }
+  | num                                     { Int $1               }
   | FIdent                                  { Var $1               }
   | string                                  { String $1            }
   | ident '.' FIND '(' ident '->' BoolE ')'  { FINDCall $1 $5 $7   }

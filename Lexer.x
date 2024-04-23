@@ -16,7 +16,7 @@ tokens :-
   LOOPF                               { \p _ -> Tok p TokLoopF                               }
   ARITH                               { \p _ -> Tok p TokArith                               }
   Gr                             { \p _ -> Tok p TokGr                             }
-  Integer                           { \p _ -> Tok p TokNum                             }
+  Num                           { \p _ -> Tok p TokNum                             }
   String                            { \p _ -> Tok p TokChars                             }
   Boolean                           { \p _ -> Tok p TokB                             }
   True                              { \p _ -> Tok p TokBT                              }
