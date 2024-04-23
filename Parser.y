@@ -130,7 +130,7 @@ Class
 {
 
 parseError :: [Token] -> a
-parseError [] = error "Parse error at end of file\n"
+parseError [] = error "Parse error detected\n"
 parseError (Tok (AlexPn _ r c) t : _) = error $ "Error " ++ show t ++ " @ " ++ show r ++ " - " ++ show c ++ "\n"
 
 type XX = [X]
