@@ -67,9 +67,9 @@ X
   | LoopFX                    { $1      }
 
 E
-  : Type ident '=' E                       { TypedAssign $1 $2 $4 }
-  | ident '=' E                            { Assign $1 $3         }
-  | Type ident                                { Declare $1 $2        }
+  : Class ident '=' E                       { IdentCl $1 $2 $4 }
+  | ident '=' E                            { Ident $1 $3         }
+  | Class ident                                { IdentFin $1 $2        }
   | ident                                     { Var $1               }
   | num                                     { Int $1               }
   | FIdent                                  { Var $1               }
@@ -79,8 +79,8 @@ E
   | ACCESS chars                             { ACCESS $2              }
   | OUT '(' ident ')'                         { OUT $3               }
   | BoolE                                { BoolE $1          }
-  | ident '.' ident                             { GetProperty $1 $3    }
-  | ident '.' FIdent                          { GetProperty $1 $3    }
+  | ident '.' ident                             { IdentChar $1 $3    }
+  | ident '.' FIdent                          { IdentChar $1 $3    }
 
 BoolE
   : True                              { Bool True                }
@@ -117,20 +117,20 @@ ConditionX
   | CONDITION '(' BoolE ')' '{' XX '}' ELSE '{' XX '}'    { ConditionElseBlock $3 $6 $10 }
 
 LoopFX
-  : LOOPF '(' Type ident ':' ident ')' '{' XX '}'         { LoopFBlock $3 $4 $6 $9 }
+  : LOOPF '(' Class ident ':' ident ')' '{' XX '}'         { LoopFBlock $3 $4 $6 $9 }
 
-Type
-  : Gr         { Type $1 }
-  | Num         { Type $1 }
-  | Chars         { Type $1 }
-  | B         { Type $1 }
-  | GrN         { Type $1 }
-  | Rel         { Type $1 }
+Class
+  : Gr         { Class $1 }
+  | Num         { Class $1 }
+  | Chars         { Class $1 }
+  | B         { Class $1 }
+  | GrN         { Class $1 }
+  | Rel         { Class $1 }
 
 {
 parseError :: [Token] -> a
-parseError [] = error "Should not be erroring on no Tokens"
-parseError (Tok (AlexPn _ r c) t : _) = error $ "Parse error on token: " ++ show t ++ ", at: " ++ show r ++ ":" ++ show c ++ "\n"
+parseError [] = error "Parse error at end of file\n"
+parseError (Tok (AlexPn _ r c) t : _) = error $ "Error " ++ show t ++ " @ " ++ show r ++ " - " ++ show c ++ "\n"
 
 type XX
   = [X]
@@ -139,13 +139,13 @@ data X
   = E E
   | ConditionBlock BoolE XX
   | ConditionElseBlock BoolE XX XX
-  | LoopFBlock Type String String XX
+  | LoopFBlock Class String String XX
   deriving(Eq, Show)
 
 data E
-  = TypedAssign Type String E
-  | Assign String E
-  | Declare Type String
+  = IdentCl Class String E
+  | Ident String E
+  | IdentFin Class String
   | Var String
   | Int Int
   | String String
@@ -154,7 +154,7 @@ data E
   | ACCESS String
   | OUT String
   | BoolE BoolE
-  | GetProperty String String
+  | IdentChar String String
   deriving(Eq, Show)
 
 data BoolE
@@ -183,8 +183,8 @@ data GrNodeSet
   | RelSet String [GrNodeSet] String
   deriving(Eq, Show)
 
-data Type
-  = Type Token
+data Class
+  = Class Token
   deriving(Eq, Show)
 
 } 

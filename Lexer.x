@@ -56,7 +56,7 @@ tokens :-
   "--".*                            ;
 
 {
-data TokenType
+data TokenClass
   = TokACCESS
   | TokFIND
   | TokOUT
@@ -103,7 +103,7 @@ data TokenType
   | TokRel
   deriving (Eq, Show)
 
-data Token = Tok AlexPosn TokenType
+data Token = Tok AlexPosn TokenClass
   deriving (Eq, Show)
 
 tokenPosn :: Token -> String
