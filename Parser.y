@@ -12,7 +12,7 @@ import Lexer
   ACCESS                        { Tok _ TokACCESS           }
   FIND                        { Tok _ TokFIND           }
   OUT                         { Tok _ TokOUT            }
-  IF                          { Tok _ TokCond           }
+  CONDITION                          { Tok _ TokCond           }
   ELSE                        { Tok _ TokCondE          }
   LOOPF                         { Tok _ TokLoopF          }
   ADD                         { Tok _ TokArith          }
@@ -63,7 +63,7 @@ Program
 
 Statement
   : E ';'                        { E $1 }
-  | IfStatement                     { $1      }
+  | ConditionStatement                     { $1      }
   | LoopFStatement                    { $1      }
 
 E
@@ -74,8 +74,8 @@ E
   | int                                     { Int $1               }
   | FIdent                                  { Var $1               }
   | string                                  { String $1            }
-  | ident '.' FIND '(' ident '->' BoolE ')'  { FINDQuery $1 $5 $7   }
-  | ident '.' ADD '(' NewGrNode ')'             { AddQuery $1 $5       }
+  | ident '.' FIND '(' ident '->' BoolE ')'  { FINDCall $1 $5 $7   }
+  | ident '.' ADD '(' NewGrNode ')'             { AddCall $1 $5       }
   | ACCESS string                             { ACCESS $2              }
   | OUT '(' ident ')'                         { OUT $3               }
   | BoolE                                { BoolE $1          }
@@ -93,10 +93,10 @@ BoolE
   | E '>=' E                    { GTEquals $1 $3           }
   | BoolE '&&' BoolE            { And $1 $3                }
   | BoolE '||' BoolE            { Or $1 $3                 }
-  | '-' '[' BoolE ']' '->' ident     { EndRelQuery $3 $6   }
-  | ident '-' '[' BoolE ']' '->'     { StartRelQuery $1 $4 }
+  | '-' '[' BoolE ']' '->' ident     { EndRelCall $3 $6   }
+  | ident '-' '[' BoolE ']' '->'     { StartRelCall $1 $4 }
   | '(' BoolE ')'                  { $2                       }
-  | ident '-' '[' BoolE ']' '->' ident { RelQuery $1 $4 $7   }
+  | ident '-' '[' BoolE ']' '->' ident { RelCall $1 $4 $7   }
   | ident '.' FIdent '==' string        { FIdentEquals $1 $3 $5    }
 
 NewGrNode
@@ -112,9 +112,9 @@ GrNodeSet
   | FIdent '=' E                           { GrNodeSet $1 $3        }
   | ident '-' '[' GrNodeSetNT ']' '->' ident  { RelSet $1 $4 $7 }
 
-IfStatement
-  : IF '(' BoolE ')' '{' Program '}'                         { IfBlock $3 $6         }
-  | IF '(' BoolE ')' '{' Program '}' ELSE '{' Program '}'    { IfElseBlock $3 $6 $10 }
+ConditionStatement
+  : CONDITION '(' BoolE ')' '{' Program '}'                         { ConditionBlock $3 $6         }
+  | CONDITION '(' BoolE ')' '{' Program '}' ELSE '{' Program '}'    { ConditionElseBlock $3 $6 $10 }
 
 LoopFStatement
   : LOOPF '(' Type ident ':' ident ')' '{' Program '}'         { LoopFBlock $3 $4 $6 $9 }
@@ -137,8 +137,8 @@ type Program
 
 data Statement
   = E E
-  | IfBlock BoolE Program
-  | IfElseBlock BoolE Program Program
+  | ConditionBlock BoolE Program
+  | ConditionElseBlock BoolE Program Program
   | LoopFBlock Type String String Program
   deriving(Eq, Show)
 
@@ -149,8 +149,8 @@ data E
   | Var String
   | Int Int
   | String String
-  | FINDQuery String String BoolE
-  | AddQuery String GrNode
+  | FINDCall String String BoolE
+  | AddCall String GrNode
   | ACCESS String
   | OUT String
   | BoolE BoolE
@@ -167,9 +167,9 @@ data BoolE
   | GTEquals E E
   | And BoolE BoolE
   | Or BoolE BoolE
-  | EndRelQuery BoolE String
-  | StartRelQuery String BoolE
-  | RelQuery String BoolE String
+  | EndRelCall BoolE String
+  | StartRelCall String BoolE
+  | RelCall String BoolE String
   | FIdentEquals String String String
   deriving(Eq, Show)
   

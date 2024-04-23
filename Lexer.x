@@ -11,7 +11,7 @@ tokens :-
   ACCESS                              { \p _ -> Tok p TokACCESS                              }
   FIND                              { \p _ -> Tok p TokFIND                              }
   OUT                               { \p _ -> Tok p TokOUT                               }
-  IF                                { \p _ -> Tok p TokCond                              }
+  CONDITION                                { \p _ -> Tok p TokCond                              }
   ELSE                              { \p _ -> Tok p TokCondE                              }
   LOOPF                               { \p _ -> Tok p TokLoopF                               }
   ADD                               { \p _ -> Tok p TokArith                               }
