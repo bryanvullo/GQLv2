@@ -8,7 +8,7 @@ main :: IO ()
 main = do
     (filename:_) <- getArgs
     contents <- readFile filename
-    let inputResult = parseInput $ lexInput contents
-    print inputResult
-    -- let result = parser $ Lexer.lex contents
-    -- print result  
+    -- let inputResult = parseInput $ lexInput contents
+    -- print inputResult
+    let result = parser $ Lexer.lex contents
+    print result  
