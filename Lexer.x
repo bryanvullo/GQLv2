@@ -14,7 +14,7 @@ tokens :-
   CONDITION                                { \p _ -> Tok p TokCond                              }
   ELSE                              { \p _ -> Tok p TokCondE                              }
   LOOPF                               { \p _ -> Tok p TokLoopF                               }
-  ADD                               { \p _ -> Tok p TokArith                               }
+  ARITH                               { \p _ -> Tok p TokArith                               }
   Gr                             { \p _ -> Tok p TokGr                             }
   Integer                           { \p _ -> Tok p TokNum                             }
   String                            { \p _ -> Tok p TokChars                             }

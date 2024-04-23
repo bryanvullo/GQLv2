@@ -15,7 +15,7 @@ import Lexer
   CONDITION                          { Tok _ TokCond           }
   ELSE                        { Tok _ TokCondE          }
   LOOPF                         { Tok _ TokLoopF          }
-  ADD                         { Tok _ TokArith          }
+  ARITH                         { Tok _ TokArith          }
   GType                       { Tok _ TokGr             }
   Num                         { Tok _ TokNum            }
   Chars                       { Tok _ TokChars          }
@@ -75,7 +75,7 @@ E
   | FIdent                                  { Var $1               }
   | string                                  { String $1            }
   | ident '.' FIND '(' ident '->' BoolE ')'  { FINDCall $1 $5 $7   }
-  | ident '.' ADD '(' NewGrNode ')'             { AddCall $1 $5       }
+  | ident '.' ARITH '(' NewGrNode ')'             { ArithCall $1 $5       }
   | ACCESS string                             { ACCESS $2              }
   | OUT '(' ident ')'                         { OUT $3               }
   | BoolE                                { BoolE $1          }
@@ -150,7 +150,7 @@ data E
   | Int Int
   | String String
   | FINDCall String String BoolE
-  | AddCall String GrNode
+  | ArithCall String GrNode
   | ACCESS String
   | OUT String
   | BoolE BoolE
