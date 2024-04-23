@@ -23,22 +23,22 @@ tokens :-
   False                             { \p _ -> Tok p TokBF                             }
   Node                              { \p _ -> Tok p TokNType                             }
   Relation                          { \p _ -> Tok p TokRType                             }
-  ">="                              { \p _ -> Tok p TokGEQ                               }
-  "<="                              { \p _ -> Tok p TokLEQ                               }
+  ">="                              { \p _ -> Tok p TokEqualityG                               }
+  "<="                              { \p _ -> Tok p TokEqualityL                               }
   \>                                { \p _ -> Tok p TokGT                                }
   \<                                { \p _ -> Tok p TokLT                                }
   \=                                { \p _ -> Tok p TokAssign                            }
   "=="                              { \p _ -> Tok p TokEquals                            }
-  \[                                { \p _ -> Tok p TokLSQ                               }
-  \]                                { \p _ -> Tok p TokRSQ                               }
+  \[                                { \p _ -> Tok p TokBracketLeftS                               }
+  \]                                { \p _ -> Tok p TokBracketRightS                               }
   "<-"                              { \p _ -> Tok p TokLArrow                            }
-  "->"                              { \p _ -> Tok p TokRArrow                            }
-  \-                                { \p _ -> Tok p TokDash                              }
+  "->"                              { \p _ -> Tok p TokDirectedR                            }
+  \-                                { \p _ -> Tok p TokHyph                              }
   r\".*\"                           { \p s -> Tok p (Tokrgx (drop 2 $ init s))           }
-  \;                                { \p _ -> Tok p TokSemicolon                         }
+  \;                                { \p _ -> Tok p TokSCol                         }
   \!=                               { \p _ -> Tok p TokIneq                         }
-  \,                                { \p _ -> Tok p TokComma                             }
-  \.                                { \p _ -> Tok p TokDot                               }
+  \,                                { \p _ -> Tok p TokSep                             }
+  \.                                { \p _ -> Tok p TokBrk                               }
   \:[A-Z]+                          { \p s -> Tok p (TokFIdent (drop 1 s))               }
   \'($alpha|$digit|\.)*\'           { \p s -> Tok p (TokString (drop 1 $ init s))        }
   \"($alpha*)+\"                    { \p s -> Tok p (TokStringLiteral (drop 1 $ init s)) }
@@ -49,7 +49,7 @@ tokens :-
   \)                                { \p _ -> Tok p TokBracketRight                            }
   \{                                { \p _ -> Tok p TokLCurl                             }
   \}                                { \p _ -> Tok p TokRCurl                             }
-  \:                                { \p _ -> Tok p TokColon                             }
+  \:                                { \p _ -> Tok p TokNCol                             }
   [a-z]($alpha|$digit)*             { \p s -> Tok p (TokIdent s)                         }
   $digit+                           { \p s -> Tok p (TokInt (read s :: Int))             }
   $white+                           ;
@@ -75,29 +75,29 @@ data TokenType
   | TokCond
   | TokElse
   | TokFor
-  | TokColon
+  | TokNCol
   | TokIdent String
-  | TokGEQ
-  | TokLEQ
+  | TokEqualityG
+  | TokEqualityL
   | TokGT
   | TokLT
   | TokAssign
   | TokEquals
-  | TokLSQ
-  | TokRSQ
+  | TokBracketLeftS
+  | TokBracketRightS
   | TokLArrow
-  | TokRArrow
-  | TokDash
+  | TokDirectedR
+  | TokHyph
   | Tokrgx String
   | TokArith
-  | TokDot
+  | TokBrk
   | TokFIdent String
   | TokString String
   | TokBT
   | TokBF
-  | TokSemicolon
+  | TokSCol
   | TokIneq
-  | TokComma
+  | TokSep
   | TokInt Int
   | TokNType
   | TokRType

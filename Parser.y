@@ -34,21 +34,21 @@ import Lexer
   '||'                        { Tok _ TokOr             }
   '('                         { Tok _ TokBracketLeft    }
   ')'                         { Tok _ TokBracketRight   }
-  ';'                         { Tok _ TokSemicolon      }
+  ';'                         { Tok _ TokSCol           }
   '!='                        { Tok _ TokIneq           }
-  ','                         { Tok _ TokComma          }
-  '.'                         { Tok _ TokDot            }
-  '>='                        { Tok _ TokGEQ            }
-  '<='                        { Tok _ TokLEQ            }
+  ','                         { Tok _ TokSep            }
+  '.'                         { Tok _ TokBrk            }
+  '>='                        { Tok _ TokEqualityG      }
+  '<='                        { Tok _ TokEqualityL      }
   '>'                         { Tok _ TokGT             }
   '<'                         { Tok _ TokLT             }
   '='                         { Tok _ TokAssign         }
   '=='                        { Tok _ TokEquals         }
-  '['                         { Tok _ TokLSQ            }
-  ']'                         { Tok _ TokRSQ            }
-  '->'                        { Tok _ TokRArrow         }
-  '-'                         { Tok _ TokDash           }
-  ':'                         { Tok _ TokColon          }
+  '['                         { Tok _ TokBracketLeftS   }
+  ']'                         { Tok _ TokBracketRightS  }
+  '->'                        { Tok _ TokDirectedR      }
+  '-'                         { Tok _ TokHyph           }
+  ':'                         { Tok _ TokNCol          }
   '{'                         { Tok _ TokLCurl          }
   '}'                         { Tok _ TokRCurl          }
 
