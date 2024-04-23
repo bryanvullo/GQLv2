@@ -100,7 +100,7 @@ YBool
   | ident '.' FIdent '==' chars        { FIdentExact $1 $3 $5    }
 
 AddGrN
-  : ident                               { GrNodeCopy $1 }
+  : ident                               { GrNDup $1 }
   | SetGrNNT                   { AddGrN $1  }
 
 SetGrNNT
@@ -150,7 +150,7 @@ data Y
   | Int Int
   | String String
   | FINDCall String String YBool
-  | ArithCall String GrNode
+  | ArithCall String GrN
   | ACCESS String
   | OUT String
   | YBool YBool
@@ -173,8 +173,8 @@ data YBool
   | FIdentExact String String String
   deriving(Eq, Show)
   
-data GrNode
-  = GrNodeCopy String
+data GrN
+  = GrNDup String
   | AddGrN [SetGrNT]
   deriving(Eq, Show)
 
