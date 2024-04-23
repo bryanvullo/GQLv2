@@ -75,7 +75,7 @@ Y
   | FIdent                                  { IdentT $1               }
   | chars                                  { String $1            }
   | ident '.' FIND '(' ident '->' YBool ')'  { FINDCall $1 $5 $7   }
-  | ident '.' ARITH '(' NewGrNode ')'             { ArithCall $1 $5       }
+  | ident '.' ARITH '(' AddGrN ')'             { ArithCall $1 $5       }
   | ACCESS chars                             { ACCESS $2              }
   | OUT '(' ident ')'                         { OUT $3               }
   | YBool                                { YBool $1          }
@@ -99,18 +99,18 @@ YBool
   | ident '-' '[' YBool ']' '->' ident { RelCall $1 $4 $7   }
   | ident '.' FIdent '==' chars        { FIdentExact $1 $3 $5    }
 
-NewGrNode
+AddGrN
   : ident                               { GrNodeCopy $1 }
-  | GrNodeSetNT                   { NewGrNode $1  }
+  | SetGrNNT                   { AddGrN $1  }
 
-GrNodeSetNT
-  : GrNodeSet                      { [$1]      }
-  | GrNodeSet ',' GrNodeSetNT  { ($1 : $3) }
+SetGrNNT
+  : SetGrNT                      { [$1]      }
+  | SetGrNT ',' SetGrNNT  { ($1 : $3) }
 
-GrNodeSet
-  : ident '=' Y                              { GrNodeSet $1 $3        }
-  | FIdent '=' Y                           { GrNodeSet $1 $3        }
-  | ident '-' '[' GrNodeSetNT ']' '->' ident  { RelSet $1 $4 $7 }
+SetGrNT
+  : ident '=' Y                              { SetGrNT $1 $3        }
+  | FIdent '=' Y                           { SetGrNT $1 $3        }
+  | ident '-' '[' SetGrNNT ']' '->' ident  { RelSet $1 $4 $7 }
 
 ConditionX
   : CONDITION '(' YBool ')' '{' XX '}'                         { ConditionBXX $3 $6         }
@@ -175,12 +175,12 @@ data YBool
   
 data GrNode
   = GrNodeCopy String
-  | NewGrNode [GrNodeSet]
+  | AddGrN [SetGrNT]
   deriving(Eq, Show)
 
-data GrNodeSet
-  = GrNodeSet String Y
-  | RelSet String [GrNodeSet] String
+data SetGrNT
+  = SetGrNT String Y
+  | RelSet String [SetGrNT] String
   deriving(Eq, Show)
 
 data Class
