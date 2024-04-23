@@ -31,7 +31,7 @@ tokens :-
   "=="                              { \p _ -> Tok p TokExact                            }
   \[                                { \p _ -> Tok p TokBracketLeftS                               }
   \]                                { \p _ -> Tok p TokBracketRightS                               }
-  "<-"                              { \p _ -> Tok p TokLArrow                            }
+  "<-"                              { \p _ -> Tok p TokDirectedL                            }
   "->"                              { \p _ -> Tok p TokDirectedR                            }
   \-                                { \p _ -> Tok p TokHyph                              }
   r\".*\"                           { \p s -> Tok p (Tokrgx (drop 2 $ init s))           }
@@ -85,7 +85,7 @@ data TokenType
   | TokExact
   | TokBracketLeftS
   | TokBracketRightS
-  | TokLArrow
+  | TokDirectedL
   | TokDirectedR
   | TokHyph
   | Tokrgx String
