@@ -1,0 +1,15 @@
+Graph graph = READFILE ("table.n4j");
+Graph result;
+FOR (Node n : graph) {
+  FOR (Node n2 : graph) {
+    FOR (Node n3 : graph) { 
+      IF (n.points != null &&
+          n.points == n3.points &&
+          ( n3-[:TYPE=="DrewWith"]->n2 && n2-[:TYPE=="Beat"]->n ||
+            n2-[:TYPE=="DrewWith"]->n3 && n2-[:TYPE=="Beat"]->n)) {
+        result.ADD(n);
+      }
+    }
+  }
+}
+PRINT (result);

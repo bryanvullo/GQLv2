@@ -1,0 +1,3 @@
+Graph graph = READFILE("./access.n4j");
+graph = graph.MATCH (:LABEL=="Visitor" || age <= 25);
+PRINT(graph);
