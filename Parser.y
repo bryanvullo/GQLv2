@@ -19,7 +19,7 @@ import Lexer
   GType                       { Tok _ TokGr             }
   Num                         { Tok _ TokNum          }
   Chars                       { Tok _ TokChars          }
-  BType                       { Tok _ TokBType          }
+  B                           { Tok _ TokB          }
   FIdent                      { Tok _ (TokFIdent $$)    }
   NType                       { Tok _ TokNType          }
   RType                       { Tok _ TokRType          }
@@ -123,7 +123,7 @@ Type
   : GType         { Type $1 }
   | Num         { Type $1 }
   | Chars         { Type $1 }
-  | BType         { Type $1 }
+  | B         { Type $1 }
   | NType         { Type $1 }
   | RType         { Type $1 }
 

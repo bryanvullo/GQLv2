@@ -18,7 +18,7 @@ tokens :-
   Graph                             { \p _ -> Tok p TokGr                             }
   Integer                           { \p _ -> Tok p TokNum                             }
   String                            { \p _ -> Tok p TokChars                             }
-  Boolean                           { \p _ -> Tok p TokBType                             }
+  Boolean                           { \p _ -> Tok p TokB                             }
   True                              { \p _ -> Tok p TokBT                              }
   False                             { \p _ -> Tok p TokBF                             }
   Node                              { \p _ -> Tok p TokNType                             }
@@ -69,7 +69,7 @@ data TokenType
   | TokNum
   | TokChars
   | TokStringLiteral String
-  | TokBType
+  | TokB
   | TokLCurl
   | TokRCurl
   | TokCond
