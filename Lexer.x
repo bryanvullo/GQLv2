@@ -47,8 +47,8 @@ tokens :-
   "&&"                              { \p _ -> Tok p TokConj                               }
   \(                                { \p _ -> Tok p TokBracketLeft                            }
   \)                                { \p _ -> Tok p TokBracketRight                            }
-  \{                                { \p _ -> Tok p TokLCurl                             }
-  \}                                { \p _ -> Tok p TokRCurl                             }
+  \{                                { \p _ -> Tok p TokBracketLeftC                             }
+  \}                                { \p _ -> Tok p TokBracketRightC                             }
   \:                                { \p _ -> Tok p TokNCol                             }
   [a-z]($alpha|$digit)*             { \p s -> Tok p (TokIdent s)                         }
   $digit+                           { \p s -> Tok p (TokInt (read s :: Int))             }
@@ -70,8 +70,8 @@ data TokenType
   | TokChars
   | TokStringLiteral String
   | TokB
-  | TokLCurl
-  | TokRCurl
+  | TokBracketLeftC
+  | TokBracketRightC
   | TokCond
   | TokElse
   | TokFor

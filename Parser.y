@@ -49,8 +49,8 @@ import Lexer
   '->'                        { Tok _ TokDirectedR      }
   '-'                         { Tok _ TokHyph           }
   ':'                         { Tok _ TokNCol           }
-  '{'                         { Tok _ TokLCurl          }
-  '}'                         { Tok _ TokRCurl          }
+  '{'                         { Tok _ TokBracketLeftC          }
+  '}'                         { Tok _ TokBracketRightC          }
 
 %right '||'
 %right '&&'
