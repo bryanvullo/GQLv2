@@ -34,7 +34,7 @@ tokens :-
   "<-"                              { \p _ -> Tok p TokDirectedL                            }
   "->"                              { \p _ -> Tok p TokDirectedR                            }
   \-                                { \p _ -> Tok p TokHyph                              }
-  r\".*\"                           { \p s -> Tok p (Tokrgx (drop 2 $ init s))           }
+  r\".*\"                           { \p s -> Tok p (TokReg (drop 2 $ init s))           }
   \;                                { \p _ -> Tok p TokColS                         }
   \!=                               { \p _ -> Tok p TokIneq                         }
   \,                                { \p _ -> Tok p TokSep                             }
@@ -42,7 +42,7 @@ tokens :-
   \:[A-Z]+                          { \p s -> Tok p (TokFIdent (drop 1 s))               }
   \'($alpha|$digit|\.)*\'           { \p s -> Tok p (TokString (drop 1 $ init s))        }
   \"($alpha*)+\"                    { \p s -> Tok p (TokStringLiteral (drop 1 $ init s)) }
-  \"                                { \p _ -> Tok p TokDelimiter                         }
+  \"                                { \p _ -> Tok p TokDelim                         }
   "||"                              { \p _ -> Tok p TokOr                                }
   "&&"                              { \p _ -> Tok p TokConj                               }
   \(                                { \p _ -> Tok p TokBracketLeft                            }
@@ -60,7 +60,7 @@ data TokenType
   = TokACCESS
   | TokFIND
   | TokOUT
-  | TokDelimiter
+  | TokDelim
   | TokOr
   | TokConj
   | TokBracketLeft
@@ -88,7 +88,7 @@ data TokenType
   | TokDirectedL
   | TokDirectedR
   | TokHyph
-  | Tokrgx String
+  | TokReg String
   | TokArith
   | TokBrk
   | TokFIdent String

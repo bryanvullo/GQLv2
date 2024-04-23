@@ -28,8 +28,8 @@ import Lexer
   ident                       { Tok _ (TokIdent $$)     }
   int                         { Tok _ (TokInt $$)       }
   string                      { Tok _ (TokString $$)    }
-  rgx                         { Tok _ (Tokrgx $$)       }
-  '"'                         { Tok _ TokDelimiter      }
+  Reg                         { Tok _ (TokReg $$)       }
+  '"'                         { Tok _ TokDelim      }
   '&&'                        { Tok _ TokConj           }
   '||'                        { Tok _ TokOr             }
   '('                         { Tok _ TokBracketLeft    }
