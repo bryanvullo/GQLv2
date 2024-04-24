@@ -3,8 +3,8 @@ import Parser
 import Lexer
 import InputParser (parseInput, Tables, Table, Row, ID, Labels)
 import InputLexer (lexInput, Token(..))
-import Interpreter (interpret)
-import Printer (printOutput)
+-- import Interpreter (interpret)
+-- import Printer (printOutput)
 
 main :: IO ()
 main = do

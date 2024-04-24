@@ -1,4 +1,5 @@
 # Clean script for Haskell project
+cls
 
 # Print a header
 Write-Host "Starting clean process..." -ForegroundColor Green

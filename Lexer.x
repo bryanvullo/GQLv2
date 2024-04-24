@@ -72,7 +72,7 @@ tokens :-
   -- Identifiers, strings, and other literals 
   [a-z] [$alnum]*                      { \x y -> Key (KeyIdentity y) x               } -- Identifier starting with lowercase letter
   r\" ([^\"\\]|\\.)*  \"               { \x y -> Key (KeyRegular (read y)) x         } -- Regular expression literal
-  ":" [$alpha _]+                      { \x y -> Key (KeyHeader (tail y)) x          } -- Header name starting with colon
+  ":" [$alpha _]+                      { \x y -> Key (KeyHeader (drop 1 y)) x        } -- Header name starting with colon
   \" ($graphic # \")* \"               { \x y -> Key (KeyChars (read y)) x           } -- String literal  
   True                                 { \x _ -> Key KeyBoolTrue x                   } -- Boolean literal "True"
   False                                { \x _ -> Key KeyBoolFalse x                  } -- Boolean literal "False"

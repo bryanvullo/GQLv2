@@ -4,7 +4,7 @@ import InputParser (parseInput, Tables, Row(..), ID(..), Value(..), Labels, Rela
 import Parser (QQ, Q(..), X(..), NumericXX(..), BoolXX(..), Class(..))
 import InputLexer (lexInput, Token(..))
 import Data.List (isInfixOf)
-import Text.Regex.TDFA ((=~))
+-- import Text.Regex.TDFA ((=~))
 
 data Env = Env {
     tables :: Tables,
@@ -70,7 +70,7 @@ isMatchingRow :: Row -> String -> Bool
 isMatchingRow row regex = undefined
 
 isMatching :: String -> String -> Bool
-isMatching str regex = str =~ regex
+isMatching str regex = undefined -- str =~ regex
 
 isSubstring :: String -> String -> Bool
 isSubstring substr str = substr `isInfixOf` str
