@@ -45,14 +45,131 @@ findAccess :: QQ -> Q
 findAccess qq = head $ filter (\x -> x == X ( ClassFinalSet _ _ (ACCESS _))) qq
 
 interpretCEK :: Control -> Control
-interpretCEK ( s@(X (ClassFinalSet dType name x)):statements, env, kont) = 
+interpretCEK ([], env, KEmpty) = ([], env, KEmpty)
+interpretCEK (s@(X (ClassFinalSet dType name x)):statements, env, kont) =
     interpretCEK (x:statements, env, KAssign name env kont)
-interpretCEK ( s@(X (Set x1 x2)):statements, env, kont) = 
-    interpretCEK (statements, env, KSetL x2 env kont)
-interpretCEK ( s@(X (ClassShow dType name)):statements, env, kont) = 
-    interpretCEK (statements, (name,Nill):env, kont)
-interpretCEK ( s@(X (Identifier name)):statements, env, kont) = 
-    interpretCEK (statements, (name,Nill):env, kont)
+interpretCEK (s@(X (Set x1 x2)):statements, env, kont) =
+    interpretCEK (x1:statements, env, KSetL x2 env kont)
+interpretCEK (s@(X (ClassShow dType name)):statements, env, kont) =
+    interpretCEK (statements, (name, Nil):env, kont)
+interpretCEK (s@(X (Identifier name)):statements, env, kont) =
+    case lookup name env of
+        Just value -> interpretCEK (statements, env, kont)
+        Nothing -> error $ "Undefined variable: " ++ name
+interpretCEK (s@(X (NumericXX numXX)):statements, env, kont) =
+    interpretCEK (statements, env, KNumericXX numXX env kont)
+interpretCEK (s@(X (Chars str)):statements, env, kont) =
+    interpretCEK (statements, ("$str", S str):env, kont)
+interpretCEK (s@(X (Regular regex)):statements, env, kont) =
+    interpretCEK (statements, ("$regex", S regex):env, kont)
+interpretCEK (s@(X (CASEQ x boolXX)):statements, env, kont) =
+    interpretCEK (x:statements, env, KCase boolXX env kont)
+interpretCEK (s@(X (PlusQ x1 x2)):statements, env, kont) =
+    interpretCEK (x1:x2:statements, env, KPlus env kont)
+interpretCEK (s@(X (ACCESS fileName)):statements, env, kont) =
+    case parseInputFile fileName of
+        Left err -> error err
+        Right tables -> interpretCEK (statements, ("$tables", G tables):env, kont)
+interpretCEK (s@(X (STDOUT name)):statements, env, kont) =
+    case lookup name env of
+        Just value -> do
+            print value
+            interpretCEK (statements, env, kont)
+        Nothing -> error $ "Undefined variable: " ++ name
+interpretCEK (s@(X (BoolXX boolXX)):statements, env, kont) =
+    interpretCEK (statements, env, KBoolXX boolXX env kont)
+interpretCEK (s@(X (CallAttribute x attr)):statements, env, kont) =
+    interpretCEK (x:statements, env, KAttr attr env kont)
+interpretCEK (s@(X (CallAssociation x boolXX)):statements, env, kont) =
+    interpretCEK (x:statements, env, KAssoc boolXX env kont)
+interpretCEK (s@(X (NumericIncrease x1 x2)):statements, env, kont) =
+    interpretCEK (x1:x2:statements, env, KIncrease env kont)
+interpretCEK (s@(X (NumericDecrease x1 x2)):statements, env, kont) =
+    interpretCEK (x1:x2:statements, env, KDecrease env kont)
+interpretCEK (s@(X (Not x1 x2)):statements, env, kont) =
+    interpretCEK (x1:x2:statements, env, KNot env kont)
+interpretCEK (s@(X (CallDataPoint x boolXX)):statements, env, kont) =
+    interpretCEK (x:statements, env, KDataPoint boolXX env kont)
+interpretCEK (s@(CONDIFQ boolXX qq):statements, env, kont) =
+    interpretCEK (statements, env, KCondIf boolXX qq [] env kont)
+interpretCEK (s@(CONDELIFQ boolXX qq1 qq2):statements, env, kont) =
+    interpretCEK (statements, env, KCondElseIf boolXX qq1 qq2 env kont)
+interpretCEK (s@(THROUGHQ cls label x qq):statements, env, kont) =
+    interpretCEK (statements, env, KThrough cls label x qq env kont)
+
+-- Continuation handlers
+interpretCEK ([], env, KAssign name value k) =
+    interpretCEK ([], (name, value):env, k)
+interpretCEK (x:statements, env, KAssign name _ k) =
+    interpretCEK (x:statements, env, KAssign name env k)
+interpretCEK ([], env, KSetL x2 value k) =
+    interpretCEK (x2:[], env, KAssign "$temp" value k)
+interpretCEK (x1:statements, env, KSetL x2 _ k) =
+    interpretCEK (x1:statements, env, KSetL x2 env k)
+interpretCEK ([], env, KNumericXX numXX value k) =
+    let result = interpretNumericXX numXX value
+    in interpretCEK ([], ("$temp", I result):env, k)
+interpretCEK (x:statements, env, KNumericXX numXX _ k) =
+    interpretCEK (x:statements, env, KNumericXX numXX env k)
+interpretCEK ([], env, KCase boolXX value k) =
+    if interpretBoolXX boolXX value
+        then interpretCEK ([], ("$temp", B True):env, k)
+        else interpretCEK ([], ("$temp", B False):env, k)
+interpretCEK (x:statements, env, KCase boolXX _ k) =
+    interpretCEK (x:statements, env, KCase boolXX env k)
+interpretCEK ([], env, KPlus value1 (G tables1) (KPlus value2 (G tables2) k)) =
+    interpretCEK ([], ("$temp", G (tables1 ++ tables2)):env, k)
+interpretCEK (x1:x2:statements, env, KPlus _ _ k) =
+    interpretCEK (x1:x2:statements, env, KPlus env k)
+interpretCEK ([], env, KBoolXX boolXX value k) =
+    let result = interpretBoolXX boolXX value
+    in interpretCEK ([], ("$temp", B result):env, k)
+interpretCEK (x:statements, env, KBoolXX boolXX _ k) =
+    interpretCEK (x:statements, env, KBoolXX boolXX env k)
+interpretCEK ([], env, KAttr attr value k) =
+    let result = getAttribute attr value
+    in interpretCEK ([], ("$temp", result):env, k)
+interpretCEK (x:statements, env, KAttr attr _ k) =
+    interpretCEK (x:statements, env, KAttr attr env k)
+interpretCEK ([], env, KAssoc boolXX value k) =
+    let result = getRelatedRows value (interpretBoolXX boolXX value)
+    in interpretCEK ([], ("$temp", G result):env, k)
+interpretCEK (x:statements, env, KAssoc boolXX _ k) =
+    interpretCEK (x:statements, env, KAssoc boolXX env k)
+interpretCEK ([], env, KIncrease value1 (I n1) (KIncrease value2 (I n2) k)) =
+    let result = numericIncrease value1 n2
+    in interpretCEK ([], ("$temp", G result):env, k)
+interpretCEK (x1:x2:statements, env, KIncrease _ _ k) =
+    interpretCEK (x1:x2:statements, env, KIncrease env k)
+interpretCEK ([], env, KDecrease value1 (I n1) (KDecrease value2 (I n2) k)) =
+    let result = numericDecrease value1 n2
+    in interpretCEK ([], ("$temp", G result):env, k)
+interpretCEK (x1:x2:statements, env, KDecrease _ _ k) =
+    interpretCEK (x1:x2:statements, env, KDecrease env k)
+interpretCEK ([], env, KNot value1 (G tables1) (KNot value2 (G tables2) k)) =
+    let result = filterTable (\row -> not (elem row tables2)) tables1
+    in interpretCEK ([], ("$temp", G result):env, k)
+interpretCEK (x1:x2:statements, env, KNot _ _ k) =
+    interpretCEK (x1:x2:statements, env, KNot env k)
+interpretCEK ([], env, KDataPoint boolXX value k) =
+    let result = getDataPoints value (interpretBoolXX boolXX value)
+    in interpretCEK ([], ("$temp", G result):env, k)
+interpretCEK (x:statements, env, KDataPoint boolXX _ k) =
+    interpretCEK (x:statements, env, KDataPoint boolXX env k)
+interpretCEK ([], env, KCondIf boolXX qq _ _ k) =
+    if interpretBoolXX boolXX (lookup "$temp" env)
+        then interpretCEK (qq, env, k)
+        else interpretCEK ([], env, k)
+interpretCEK ([], env, KCondElseIf boolXX qq1 qq2 _ k) =
+    if interpretBoolXX boolXX (lookup "$temp" env)
+        then interpretCEK (qq1, env, k)
+        else interpretCEK (qq2, env, k)
+interpretCEK ([], env, KThrough cls label x qq _ k) =
+    case lookup label env of
+        Just (G tables) ->
+            let results = map (\table -> interpretCEK (qq, (label, G table):env, k)) tables
+            in interpretCEK ([], env, k)
+        _ -> error $ "Invalid data for label: " ++ label
 
 interpretQ :: Q -> Tables -> Tables
 interpretQ q tables = undefined
