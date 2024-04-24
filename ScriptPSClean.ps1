@@ -17,7 +17,7 @@ Remove-Item -Path .\Lexer.o -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\Parser.o -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\InputLexer.o -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\InputParser.o -Force -ErrorAction SilentlyContinue
-Remove-Item -Path .\GQL.o -Force -ErrorAction SilentlyContinueGQL.o -Force -ErrorAction SilentlyContinue
+Remove-Item -Path .\GQL.o -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\Printer.o -Force -ErrorAction SilentlyContinue
 Remove-Item -Path .\Interpreter.o -Force -ErrorAction SilentlyContinue
 Write-Host "Generated object files removed." -ForegroundColor Yellow
