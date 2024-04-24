@@ -1,12 +1,12 @@
-Graph graph = READFILE("networks.n4j");
-Graph initial = graph.MATCH(firstname == r"^(A|B|C)");
-Graph second;
-FOR (Relation isFriendRelation : initial.GETRELATION(:TYPE == "IsFriend")) {
-  IF (((initial.MATCH(:ID == isFriendRelation.:START_ID).age) < (initial.MATCH(:ID == isFriendRelation.:END_ID).age))) { // Check if Friend is older than themselves
-    IF (initial.GETNODE(initial.GETRELATION(:TYPE == "WorksFor").MATCH(:START_ID == isFriendRelation.:END_ID).:END_ID).:LABEL.CONTAINS("Cafe")) { // Check if friend works in cafe
-      second.ADD(initial.GETNODE(isFriendRelation.:START_ID));
-      second.ADD(isFriendRelation);
+DataStructure networks = ACCESS("networks.n4j"); // networks.n4j is a file in the same directory as this script
+DataStructure networksMatch = networks.CASE(firstname i== r"^(A|B|C)"); // Filter the data structure to only include data points with first names starting with A, B, or C
+DataStructure output; // Create a new data structure to store the output
+THROUGH (Association association : networksMatch.CALLASSOCIATION(:CLASS i== "IsFriend")) { // Iterate through all associations in the filtered data structure with the class "IsFriend"
+  CONDIF (((networksMatch.CASE(:ID i== association.:START_ID).age) < (networksMatch.CASE(:ID i== association.:END_ID).age))) { // Check if the age of the friend is less than the age of the person
+    CONDIF (networksMatch.CALLDATAPOINT(networksMatch.CALLASSOCIATION(:CLASS i== "WorksFor").CASE(:START_ID i== association.:END_ID).:END_ID).:LABEL.HAS("Cafe")) { // Check if the friend works for a company with the label "Cafe"
+      output.PLUS(networksMatch.CALLDATAPOINT(association.:START_ID)); // Add the person to the output data structure
+      output.PLUS(association); // Add the association to the output data structure
     }
   }
 }
-PRINT(second);
+STDOUT(output); // Output the filtered data structure with the selected associations

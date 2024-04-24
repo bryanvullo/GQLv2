@@ -1,16 +1,20 @@
-Graph graph = READFILE("tasks.n4j");
-Graph result = graph; // This makes copy
-FOR (Node nT : graph) {
-  IF (-[priority >= 8]-> nT) { // nT is a target of some relationship with field priority with val >= 8
-    FOR (Node nS : graph) {
-      IF (nS -[available == True]->) {
-        Relation rel;
-        rel.:TYPE = "PossiblyAllocated";
-        rel.:START_ID = nS;
-        rel.:END_ID = nT;
-        result.ADD(rel);
-      }
+DataStructure tasks = ACCESS("./tasks.n4j");
+DataStructure tasksCopy = tasks;
+
+tasks = tasks.CASE (
+    dataPoint.HAS("priority") AND dataPoint.priority >= 8
+);
+
+THROUGH (DataPoint highPriorityTask : tasks) {
+    THROUGH (DataPoint availableTask : tasks) {
+        CONDIF (availableTask.HAS("available") AND availableTask.available i== True) {
+            Association possiblyAllocated;
+            possiblyAllocated.:CLASS = "PossiblyAllocated";
+            possiblyAllocated.:START_ID = availableTask;
+            possiblyAllocated.:END_ID = highPriorityTask;
+            tasksCopy.PLUS(possiblyAllocated);
+        }
     }
-  }
 }
-PRINT (result);
+
+STDOUT (tasksCopy);

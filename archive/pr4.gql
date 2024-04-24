@@ -1,5 +1,5 @@
-Graph graph = READFILE("networks.n4j");
-Graph initial = graph.MATCH(firstname == r"^(A|B|C)");
+Graph networks = READFILE("networks.n4j");
+Graph initial = networks.MATCH(firstname == r"^(A|B|C)");
 Graph second;
 FOR (Relation isFriendRelation : initial.GETRELATION(:TYPE == "IsFriend")) {
   IF (((initial.MATCH(:ID == isFriendRelation.:START_ID).age) < (initial.MATCH(:ID == isFriendRelation.:END_ID).age))) { // Check if Friend is older than themselves

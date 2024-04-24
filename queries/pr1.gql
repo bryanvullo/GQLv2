@@ -1,5 +1,6 @@
-DataStructure ds = ACCESS("./access.n4j");
-
-ds = ds.CASE (:LABEL i== "Visitor" OR age <= 25);
-
-STDOUT(ds);
+DataStructure access = ACCESS("./access.n4j");
+access = access.CASE (
+    (dataPoint.HAS("LABEL") AND dataPoint.LABEL i== "Visitor") OR
+    (dataPoint.HAS("age") AND dataPoint.age <= 25)
+);
+STDOUT (access);

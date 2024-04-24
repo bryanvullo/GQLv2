@@ -1,15 +1,21 @@
-Graph graph = READFILE ("table.n4j");
-Graph result;
-FOR (Node n : graph) {
-  FOR (Node n2 : graph) {
-    FOR (Node n3 : graph) { 
-      IF (n.points != null &&
-          n.points == n3.points &&
-          ( n3-[:TYPE=="DrewWith"]->n2 && n2-[:TYPE=="Beat"]->n ||
-            n2-[:TYPE=="DrewWith"]->n3 && n2-[:TYPE=="Beat"]->n)) {
-        result.ADD(n);
-      }
+DataStructure table = ACCESS("./table.n4j");
+DataStructure output;
+
+THROUGH (DataPoint team : table) {
+    CONDIF (team.HAS("points") AND team.points !== null) {
+        THROUGH (DataPoint drawnTeam : table) {
+            CONDIF (drawnTeam.HAS("points") AND drawnTeam.points i== team.points) {
+                THROUGH (DataPoint beatenTeam : table) {
+                    CONDIF (
+                        (drawnTeam -[:CLASS i== "DrewWith"]-> beatenTeam AND team -[:CLASS i== "Beat"]-> beatenTeam) OR
+                        (beatenTeam -[:CLASS i== "DrewWith"]-> drawnTeam AND team -[:CLASS i== "Beat"]-> beatenTeam)
+                    ) {
+                        output.PLUS(team);
+                    }
+                }
+            }
+        }
     }
-  }
 }
-PRINT (result);
+
+STDOUT(output);
