@@ -4,7 +4,6 @@ import InputParser (parseInput, Tables, Row(..), ID(..), Value(..), Labels, Rela
 import Parser (QQ, Q(..), X(..), NumericXX(..), BoolXX(..), Class(..))
 import InputLexer (lexInput, Token(..))
 import Data.List (isInfixOf)
--- import Text.Regex.TDFA ((=~))
 
 data Env = Env {
     tables :: Tables,
@@ -70,7 +69,19 @@ isMatchingRow :: Row -> String -> Bool
 isMatchingRow row regex = undefined
 
 isMatching :: String -> String -> Bool
-isMatching str regex = undefined -- str =~ regex
+isMatching str regex = isMatchingHelper str regex 0 0
+
+isMatchingHelper :: String -> String -> Int -> Int -> Bool
+isMatchingHelper str regex strIdx regexIdx
+    | strIdx == length str && regexIdx == length regex = True
+    | strIdx == length str || regexIdx == length regex = False
+    | regex !! regexIdx == '.' = isMatchingHelper str regex (strIdx + 1) (regexIdx + 1)
+    | regex !! regexIdx == '*' =
+        isMatchingHelper str regex strIdx (regexIdx + 1) ||
+        (strIdx < length str && isMatchingHelper str regex (strIdx + 1) regexIdx)
+    | strIdx < length str && str !! strIdx == regex !! regexIdx =
+        isMatchingHelper str regex (strIdx + 1) (regexIdx + 1)
+    | otherwise = False
 
 isSubstring :: String -> String -> Bool
 isSubstring substr str = substr `isInfixOf` str
