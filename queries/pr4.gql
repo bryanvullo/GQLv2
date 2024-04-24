@@ -27,7 +27,7 @@ THROUGH (DataPoint person : network) {
                 
                 CONDIF (friendWorksInCafe i== False) {
                     output.PLUS(friend);
-                    output.PLUS(person -[association.:TYPE = "IsFriend"]>> friend);
+                    output.PLUS(person -[association.:TYPE i== "IsFriend"]>> friend);
                 }
             }
         }
