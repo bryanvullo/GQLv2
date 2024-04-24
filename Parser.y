@@ -9,7 +9,7 @@ import Lexer
 
 -- Token definitions, mapping tokens to Haskell data constructors
 %token
-  n                                     { Key (KeyNum $$)                  _ } -- Integer literal
+  n                                     { Key (KeyNum $$)                  _ } -- Numeric literal
   ACCESS                                { Key KeyACCESSToken               _ } -- Keyword for accessing input files 
   CASE                                  { Key KeyCASEToken                 _ } -- Keyword for case expressions
   STDOUT                                { Key KeySTDOUTToken               _ } -- Keyword for standard output
@@ -140,7 +140,7 @@ NumericXX
 NumericQ  
   : NumericXX '*' NumericXX             { NumericMultiply $1 $3 }  -- Multiplication expression
   | NumericXX '/' NumericXX             { NumericDivide $1 $3   }  -- Division expression
-  | n                                   { IntTerminal $1        }  -- Integer literal
+  | n                                   { NumericTerminal $1    }  -- Numeric literal
 
 -- Boolean expressions  
 BoolXX
@@ -225,7 +225,7 @@ data X
   deriving (Eq, Show)
 
 data NumericXX  
-  = IntTerminal Int
+  = NumericTerminal Int
   | PlusPlus NumericXX NumericXX
   | NumericSubtract NumericXX NumericXX
   | NumericMultiply NumericXX NumericXX  

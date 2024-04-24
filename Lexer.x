@@ -5,9 +5,9 @@ module Lexer where
 %wrapper "posn"
 
 -- Character classes
-$digit   = 0-9                 -- Digits
+$num     = 0-9                 -- Digits
 $alpha   = [a-zA-Z]            -- Alphabetic characters
-$alnum   = [$alpha $digit]     -- Alphanumeric characters
+$alnum   = [$alpha $num]       -- Alphanumeric characters
 $sym     = [ \. \/ \\ \' \_]   -- Symbols allowed in identifiers
 $graphic = [$alnum $sym]       -- All valid characters for identifiers
 
@@ -19,7 +19,7 @@ tokens :-
   "#".*                                ;
 
   -- Numeric literals
-  $digit+                              { \x s -> Key (KeyNum (read s)) x             } -- Integer literal
+  $num+                                { \x y -> Key (KeyNum (read y)) x             } -- Numeric literal
 
   -- Keywords for language constructs and data types
   ACCESS                               { \x _ -> Key KeyACCESSToken x                } -- Keyword for accessing input files
@@ -70,10 +70,10 @@ tokens :-
   "."                                  { \x _ -> Key KeyPeriod x                     } -- Period for attribute access
 
   -- Identifiers, strings, and other literals 
-  [a-z] [$alnum]*                      { \x s -> Key (KeyIdentity s) x               } -- Identifier starting with lowercase letter
-  r\" ([^\"\\]|\\.)*  \"               { \x s -> Key (KeyRegular (read s)) x         } -- Regular expression literal
-  ":" [$alpha _]+                      { \x s -> Key (KeyHeader (tail s)) x          } -- Header name starting with colon
-  \" ($graphic # \")* \"               { \x s -> Key (KeyChars (read s)) x           } -- String literal  
+  [a-z] [$alnum]*                      { \x y -> Key (KeyIdentity y) x               } -- Identifier starting with lowercase letter
+  r\" ([^\"\\]|\\.)*  \"               { \x y -> Key (KeyRegular (read y)) x         } -- Regular expression literal
+  ":" [$alpha _]+                      { \x y -> Key (KeyHeader (tail y)) x          } -- Header name starting with colon
+  \" ($graphic # \")* \"               { \x y -> Key (KeyChars (read y)) x           } -- String literal  
   True                                 { \x _ -> Key KeyBoolTrue x                   } -- Boolean literal "True"
   False                                { \x _ -> Key KeyBoolFalse x                  } -- Boolean literal "False"
 
