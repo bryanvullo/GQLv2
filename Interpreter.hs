@@ -31,7 +31,6 @@ type Control = (QQ, Env, Kont) -- Statements, Environment, Continuation
 data Data = G [Table] | N Row | B Bool | I Int | S String | Nil -- Graph, Node, Bool, Int, String, Nil
 
 -- Interpreter Functions
-
 interpret :: QQ -> Tables
 interpret qq = interpretCEK (newQQ, [name, newGraph], KEmpty)
     where 
