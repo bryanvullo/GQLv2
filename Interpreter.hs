@@ -9,7 +9,7 @@ import Data.List (isInfixOf)
 -- Environment
 type Env = [(String, Data)] -- Variable name, Data
 
--- Continuation
+-- Continuation Stack
 data Kont =
     KEmpty -- Empty continuation
     | KSeq QQ Env Kont -- Sequence continuation
@@ -24,10 +24,10 @@ data Kont =
     | KNumericDecrease X Env Kont -- Numeric decrease continuation
     | KDataPoint BoolXX Env Kont -- Data point continuation
 
--- Control
+-- Control State
 type Control = (QQ, Env, Kont) -- Statements, Environment, Continuation
 
--- Data
+-- Data Type
 data Data = G [Table] | N Row | B Bool | I Int | S String | Nil -- Graph, Node, Bool, Int, String, Nil
 
 -- Interpreter Functions
