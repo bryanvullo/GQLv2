@@ -7,28 +7,28 @@ import InputLexer (lexInput, Token(..))
 import Data.List (isInfixOf)
 
 -- Environment
-type Env = [(String, Data)]
+type Env = [(String, Data)] -- Variable name, Data
 
 -- Continuation
 data Kont =
-    KEmpty
-    | KSeq QQ Env Kont
-    | KCond BoolXX QQ QQ Env Kont
-    | KThrough Class String X QQ Env Kont
-    | KSet String X Env Kont
-    | KNumericXX NumericXX Env Kont
-    | KBoolXX BoolXX Env Kont
-    | KCallAttribute String Env Kont
-    | KCallAssociation BoolXX Env Kont
-    | KNumericIncrease X Env Kont
-    | KNumericDecrease X Env Kont
-    | KDataPoint BoolXX Env Kont
+    KEmpty -- Empty continuation
+    | KSeq QQ Env Kont -- Sequence continuation
+    | KCond BoolXX QQ QQ Env Kont -- Conditional continuation
+    | KThrough Class String X QQ Env Kont -- Through continuation
+    | KSet String X Env Kont -- Set continuation
+    | KNumericXX NumericXX Env Kont -- Numeric continuation
+    | KBoolXX BoolXX Env Kont -- Boolean continuation
+    | KCallAttribute String Env Kont -- Call attribute continuation
+    | KCallAssociation BoolXX Env Kont -- Call association continuation
+    | KNumericIncrease X Env Kont -- Numeric increase continuation
+    | KNumericDecrease X Env Kont -- Numeric decrease continuation
+    | KDataPoint BoolXX Env Kont -- Data point continuation
 
 -- Control
-type Control = (QQ, Env, Kont)
+type Control = (QQ, Env, Kont) -- Statements, Environment, Continuation
 
 -- Data
-data Data = G [Table] | N Row | B Bool | I Int | S String | Nil
+data Data = G [Table] | N Row | B Bool | I Int | S String | Nil -- Graph, Node, Bool, Int, String, Nil
 
 -- Interpreter Functions
 
