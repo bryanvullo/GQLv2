@@ -37,7 +37,7 @@ findAccess :: QQ -> Q
 findAccess qq = head $ filter (\x -> x == X ( ClassFinalSet _ name (ACCESS file))) qq
 
 interpretCEK :: Control -> Tables
-interpretCEK (( s@(X _) : statements) , env, kont) = 
+interpretCEK (( s@(X _) : statements) , env, kont) = undefined
 
 interpretQ :: Q -> Tables -> Tables
 interpretQ q tables = undefined
