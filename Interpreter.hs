@@ -12,6 +12,8 @@ type Env = [(String, Data)] -- Variable name, Data
 -- Continuation Stack
 data Kont =
     KEmpty -- Empty continuation
+    | KAssign String Env Kont
+    | KSetL X Env Kont
     | KSeq QQ Env Kont -- Sequence continuation
     | KCond BoolXX QQ QQ Env Kont -- Conditional continuation
     | KThrough Class String X QQ Env Kont -- Through continuation
@@ -37,13 +39,19 @@ interpret qq = interpretCEK (newQQ, [name, newGraph], KEmpty)
         --find access statement 
         (X ( ClassFinalSet _ name (ACCESS file))) = findAccess qq
         newGraph = parseInputFile file
-        newQQ = filter (\x -> x /= X ( ClassFinalSet _ name (ACCESS file))) qq
+        newQQ = filter (\x -> x /= X ( ClassFinalSet _ _ (ACCESS _))) qq
 
 findAccess :: QQ -> Q 
-findAccess qq = head $ filter (\x -> x == X ( ClassFinalSet _ name (ACCESS file))) qq
+findAccess qq = head $ filter (\x -> x == X ( ClassFinalSet _ _ (ACCESS _))) qq
 
-interpretCEK :: Control -> Tables
-interpretCEK (( s@(X _) : statements) , env, kont) = undefined
+interpretCEK :: Control -> Control
+interpretCEK ( s@(X (ClassFinalSet dType name x)):statements, env, kont) = 
+    interpretCEK (x:statements, env, KAssign name env kont)
+interpretCEK ( s@(X (Set x1 x2)):statements, env, kont) = 
+    interpretCEK (statements, env, KSetL x2 env kont)
+interpretCEK ( s@(X (ClassShow dType name)):statements, env, kont) = 
+    interpretCEK (statements, (name,Nill):env, kont)
+
 
 interpretQ :: Q -> Tables -> Tables
 interpretQ q tables = undefined
