@@ -57,9 +57,9 @@ tokens :-
   "i=="                                { \x _ -> Key KeyIdentical x                  } -- Strict equality test
   "["                                  { \x _ -> Key KeyBracketLeftSquare x          } -- Left square bracket
   "]"                                  { \x _ -> Key KeyBracketRightSquare x         } -- Right square bracket  
-  "->"                                 { \x _ -> Key KeyDirectionalRight x           } -- Right arrow for edges
+  ">>"                                 { \x _ -> Key KeyDirectionalRight x           } -- Right arrow for edges
   "-"                                  { \x _ -> Key KeyNumericMinus x               } -- Subtraction operator
-  "+"                                  { \x _ -> Key KeyNumericAdd x                 } -- Addition operator
+  "+"                                  { \x _ -> Key KeyNumericPlus x                } -- Addition operator
   "*"                                  { \x _ -> Key KeyNumericMultiply x            } -- Multiplication operator
   "/"                                  { \x _ -> Key KeyNumericDivide x              } -- Division operator
   "=+"                                 { \x _ -> Key KeyNumericIncrease x            } -- Increment operator
@@ -130,7 +130,7 @@ data TokenType
   | KeyCallAssociationToken
   | KeyHasToken
   | KeyCallDataPointToken
-  | KeyNumericAdd
+  | KeyNumericPlus
   | KeyNumericMultiply
   | KeyNumericDivide
   | KeyNumericIncrease  

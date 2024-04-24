@@ -37,7 +37,7 @@ import Lexer
   'i=='                                 { Key KeyIdentical                 _ } -- Strict equality test operator  
   '['                                   { Key KeyBracketLeftSquare         _ } -- Left square bracket
   ']'                                   { Key KeyBracketRightSquare        _ } -- Right square bracket
-  '->'                                  { Key KeyDirectionalRight          _ } -- Right arrow for defining edges  
+  '>>'                                  { Key KeyDirectionalRight          _ } -- Right arrow for defining edges  
   '-'                                   { Key KeyNumericMinus              _ } -- Subtraction operator
   regular                               { Key (KeyRegular $$)              _ } -- Regular expression literal
   PLUS                                  { Key KeyPlusToken                 _ } -- Keyword for adding nodes/edges to output
@@ -54,7 +54,7 @@ import Lexer
   CALLASSOCIATION                       { Key KeyCallAssociationToken      _ } -- Keyword for querying edges
   HAS                                   { Key KeyHasToken                  _ } -- Keyword for property queries on nodes/edges 
   CALLDATAPOINT                         { Key KeyCallDataPointToken        _ } -- Keyword for querying nodes  
-  '+'                                   { Key KeyNumericAdd                _ } -- Addition operator
+  '+'                                   { Key KeyNumericPlus               _ } -- Addition operator
   '*'                                   { Key KeyNumericMultiply           _ } -- Multiplication operator
   '/'                                   { Key KeyNumericDivide             _ } -- Division operator
   '=+'                                  { Key KeyNumericIncrease           _ } -- Increment operator  
@@ -67,6 +67,7 @@ import Lexer
 %left ':'
 %right 'OR'
 %right 'AND'
+%right 'NEGATE'
 %nonassoc 'i==' '!==' 
 %nonassoc '>' '<' '>=' '<='
 %left '+' '-'
@@ -157,10 +158,10 @@ LogicalBoolXX
   | X '>' X                                   { InequalityStrictGreater $1 $3 }  -- Strict greater than expression
   | X '<=' X                                  { InequalitySlackLesser $1 $3   }  -- Less than or equal expression
   | X '>=' X                                  { InequalitySlackGreater $1 $3  }  -- Greater than or equal expression
-  | '-' '[' BoolXX ']' '->' identity          { AssociationEndQ $3 $6         }  -- Edge target query expression
-  | identity '-' '[' BoolXX ']' '->'          { AssociationStartQ $1 $4       }  -- Edge source query expression
+  | '-' '[' BoolXX ']' '>>' identity          { AssociationEndQ $3 $6         }  -- Edge target query expression
+  | identity '-' '[' BoolXX ']' '>>'          { AssociationStartQ $1 $4       }  -- Edge source query expression
   | '(' BoolXX ')'                            { $2                            }  -- Parenthesized boolean expression 
-  | identity '-' '[' BoolXX ']' '->' identity { AssociationQ $1 $4 $7         }  -- Edge query expression
+  | identity '-' '[' BoolXX ']' '>>' identity { AssociationQ $1 $4 $7         }  -- Edge query expression
   | X '.' HAS '(' CharsQ ')'                  { Has $1 $5                     }  -- Node/edge property query expression  
 
 -- Conditional expressions 
