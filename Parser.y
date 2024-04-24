@@ -9,7 +9,7 @@ import Lexer
 
 -- Token definitions
 %token
-  int                         { Key (KeyNum $$)      _ }
+  n                         { Key (KeyNum $$)      _ }
   ACCESS                    { Key KeyACCESSToken        _ }
   CASE                       { Key KeyCASEToken           _ }
   STDOUT                       { Key KeySTDOUTToken           _ }
@@ -107,9 +107,9 @@ IdentifyXX
 
 -- Set XX
 SetXX
-  : Class identity '=' X               { ClassdSet $1 $2 $4 }
+  : Class identity '=' X               { ClassFinalSet $1 $2 $4 }
   | X '=' X                   { Set $1 $3 }
-  | Class identity               %shift   { Declare $1 $2 }
+  | Class identity               %shift   { ClassShow $1 $2 }
   | X '=+' X                  { NumericIncrease $1 $3 }
   | X '=-' X                  { NumericDecrease $1 $3 }
   | X '.' CALLDATAPOINT '(' X ')'   { CallDataPoint $1 $5 }
@@ -138,14 +138,14 @@ NumericXX
   | NumericXX '-' NumericXX           { Subtraction $1 $3 }
 
 NumericQ
-  : NumericXX '*' NumericXX           { Multiplication $1 $3 }
-  | NumericXX '/' NumericXX           { Divison $1 $3 }
-  | int                             { IntTerminal $1 }
+  : NumericXX '*' NumericXX           { NumericMultiply $1 $3 }
+  | NumericXX '/' NumericXX           { NumericDivide $1 $3 }
+  | n                             { IntTerminal $1 }
 
 -- Bool XX
 BoolXX
-  : LogicalBoolXX 'AND' BoolXX    { And $1 $3 }
-  | LogicalBoolXX 'OR' BoolXX    { Or $1 $3 }
+  : LogicalBoolXX 'AND' BoolXX    { LogicalAnd $1 $3 }
+  | LogicalBoolXX 'OR' BoolXX    { LogicalOr $1 $3 }
   | LogicalBoolXX     %shift       { $1 }
 
 LogicalBoolXX
@@ -202,9 +202,9 @@ data Q
   deriving (Eq, Show)
 
 data X
-  = ClassdSet Class String X
+  = ClassFinalSet Class String X
   | Set X X
-  | Declare Class String
+  | ClassShow Class String
   | Identifier String
   | NumericXX NumericXX
   | Chars String
@@ -226,8 +226,8 @@ data NumericXX
   = IntTerminal Int
   | PlusPlus NumericXX NumericXX
   | Subtraction NumericXX NumericXX
-  | Multiplication NumericXX NumericXX
-  | Divison NumericXX NumericXX
+  | NumericMultiply NumericXX NumericXX
+  | NumericDivide NumericXX NumericXX
   deriving (Eq, Show)
 
 data BoolXX
@@ -238,8 +238,8 @@ data BoolXX
   | InequalityStrictGreater X X
   | InequalitySlackLesser X X
   | InequalitySlackGreater X X
-  | And BoolXX BoolXX
-  | Or BoolXX BoolXX
+  | LogicalAnd BoolXX BoolXX
+  | LogicalOr BoolXX BoolXX
   | AssociationEndQ BoolXX String
   | AssociationStartQ String BoolXX
   | AssociationQ String BoolXX String

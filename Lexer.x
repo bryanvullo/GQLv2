@@ -5,7 +5,7 @@ module Lexer where
 %wrapper "posn"
 
 -- Character classes
-$int = 0-9
+$n = 0-9
 $char = [a-zA-Z]
 $sym = [ \. \/ \\ \' \_]
 
@@ -17,7 +17,7 @@ tokens :-
   "//".*                          ;
 
   -- Numeric literals
-  $int+                           { \x intChar -> Key (KeyNum (read intChar)) x }
+  $n+                           { \x intChar -> Key (KeyNum (read intChar)) x }
 
   -- Keywords
   ACCESS                          { \x _ -> Key KeyACCESSToken x }
@@ -67,10 +67,10 @@ tokens :-
   \.                              { \x _ -> Key KeyPeriod x }
 
   -- Identifiers
-  [a-z]($char|$int)*            { \x identifier -> Key (KeyIdentity identifier) x }
+  [a-z]($char|$n)*            { \x identifier -> Key (KeyIdentity identifier) x }
   r\".*\"                         { \x rational -> Key (KeyRegular $ show $ drop 2 $ take ((length rational) - 1) rational) x }
   \:([A-Z]|\_)+                   { \x header -> Key (KeyHeader $ show $ drop 1 header) x }
-  \"($char|$int|$sym)*\"{ \x chars -> Key (KeyChars $ show $ drop 1 $ take ((length chars) - 1) chars) x }
+  \"($char|$n|$sym)*\"{ \x chars -> Key (KeyChars $ show $ drop 1 $ take ((length chars) - 1) chars) x }
   True                            { \x _ -> Key KeyBoolTrue x }
   False                           { \x _ -> Key KeyBoolFalse x }
 
