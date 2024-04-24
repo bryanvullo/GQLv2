@@ -22,4 +22,8 @@ Write-Host "Start Testing PR5" -ForegroundColor Blue
 .\GQL .\queries\pr5.gql
 Write-Host "End Testing PR5" -ForegroundColor Blue
 
+Write-Host "Start Cleaning Process" -ForegroundColor Blue
+.\ScriptPSClean.ps1
+Write-Host "End Cleaning Process" -ForegroundColor Blue
+
 Write-Host "End Testing Process" -ForegroundColor Blue
