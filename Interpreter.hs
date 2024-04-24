@@ -21,7 +21,7 @@ data Kont =
     | KNumericDecrease X Env Kont
     | KDataPoint BoolXX Env Kont
 
-type Control = (X, Env, Kont)
+type Control = (QQ, Env, Kont)
 
 data Data = G [Table] | N Row | B Bool | I Int | S String
 
@@ -29,16 +29,12 @@ interpret :: QQ -> Tables
 interpret qq = interpretCEK (newQQ, [name, newGraph], KEmpty)
     where 
         --find access statement 
-        access = findAccess qq
-        newQQ = qq \ access
-        case access of 
-            X $ ClassFinalSet _ name (ACCESS file) ->
-                contents <- readFile file
-                let newGraph = parseInput $ lexInput contents
-                newGraph
+        (X ( ClassFinalSet _ name (ACCESS file))) = findAccess qq
+        newGraph = parseInputFile file
+        newQQ = filter (\x -> x /= X ( ClassFinalSet _ name (ACCESS file))) qq
 
 findAccess :: QQ -> Q 
-findAccess qq = head $ filter (\x -> case x of X $ ClassFinalSet _ name (ACCESS file))
+findAccess qq = head $ filter (\x -> x == X ( ClassFinalSet _ name (ACCESS file))) qq
 
 interpretCEK :: Control -> Tables
 interpretCEK control = undefined
@@ -136,10 +132,9 @@ getNodeTypes rows = undefined
 getEdgeTypes :: [Row] -> [Row]
 getEdgeTypes rows = undefined
 
--- parseInputFile :: String -> Either String Tables
--- parseInputFile fileName = do
---     contents <- readFile fileName
---     let tokens = lexInput contents
---     case parseInput tokens of
---         Left err -> Left err
---         Right tables -> Right tables
+parseInputFile :: String -> Tables
+parseInputFile fileName = do
+    contents <- readFile fileName
+    let tokens = lexInput contents
+    let result = parseInput tokens
+    result
