@@ -181,12 +181,12 @@ CharsQ
 
 -- Type annotations
 Class  
-  : DataStructure                       { ClassGen $1 }     -- Graph data structure type
-  | Num                                 { ClassGen $1 }     -- Numeric type  
-  | Chars                               { ClassGen $1 }     -- String type
-  | Bool                                { ClassGen $1 }     -- Boolean type
-  | DataPoint                           { ClassGen $1 }     -- Node type
-  | Association                         { ClassGen $1 }     -- Edge type  
+  : DataStructure                       { Graph }     -- Graph data structure type
+  | Num                                 { Num }     -- Numeric type  
+  | Chars                               { String }     -- String type
+  | Bool                                { Bool }     -- Boolean type
+  | DataPoint                           { Node }     -- Node type
+  | Association                         { Edge }     -- Edge type  
 
 {
 
@@ -251,7 +251,12 @@ data BoolXX
   deriving (Eq, Show)
 
 data Class  
-  = ClassGen Token
+  = Graph 
+  | Num 
+  | String 
+  | Bool 
+  | Node 
+  | Edge
   deriving (Eq, Show)  
 
 }
