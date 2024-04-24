@@ -1,0 +1,10 @@
+pr1.gql
+
+DataStructure access = ACCESS("./access.n4j");
+
+access = access.CASE (
+    (dataPoint.HAS("LABEL") AND dataPoint.:LABEL i== "Visitor") OR
+    (dataPoint.HAS("age") AND dataPoint.age <= 25)
+);
+
+STDOUT (access);

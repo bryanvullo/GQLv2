@@ -1,8 +1,29 @@
 DataStructure network = ACCESS("./network.n4j");
-DataStructure outputGraph;
+DataStructure output;
 
 THROUGH (DataPoint person : network) {
-    # CONTINUE CODE HERE
+    CONDIF (
+        person.HAS("firstName") AND
+        (
+            person.firstName >= "A" AND person.firstName <= "C"
+        )
+    ) {
+        output.PLUS(person);
+        
+        THROUGH (DataPoint friend : person.CALLASSOCIATION(association -[:TYPE i== "IsFriend"]>> dataPoint)) {
+            CONDIF (
+                friend.HAS("age") AND
+                person.HAS("age") AND
+                friend.age > person.age AND
+                NOT(friend.CALLASSOCIATION(
+                    association -[:TYPE i== "WorksFor"]>> dataPoint.CALLDATAPOINT(dataPoint.HAS("LABEL") AND dataPoint.:LABEL i== "Cafe")
+                ))
+            ) {
+                output.PLUS(friend);
+                output.PLUS(person -[association.:TYPE = "IsFriend"]>> friend);
+            }
+        }
+    }
 }
 
-STDOUT(outputGraph);
+STDOUT(output);
