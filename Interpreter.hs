@@ -1,12 +1,15 @@
 module Interpreter (interpret) where
 
+-- Importing necessary modules
 import InputParser (parseInput, Tables, Table, Row(..), ID(..), Value(..), Labels, Relationship, Type(..))
 import Parser (QQ, Q(..), X(..), NumericXX(..), BoolXX(..), Class(..))
 import InputLexer (lexInput, Token(..))
 import Data.List (isInfixOf)
 
+-- Environment
 type Env = [(String, Data)]
 
+-- Continuation
 data Kont =
     KEmpty
     | KSeq QQ Env Kont
@@ -21,9 +24,13 @@ data Kont =
     | KNumericDecrease X Env Kont
     | KDataPoint BoolXX Env Kont
 
+-- Control
 type Control = (QQ, Env, Kont)
 
+-- Data
 data Data = G [Table] | N Row | B Bool | I Int | S String | Nil
+
+-- Interpreter Functions
 
 interpret :: QQ -> Tables
 interpret qq = interpretCEK (newQQ, [name, newGraph], KEmpty)
@@ -217,6 +224,7 @@ getNodeTypes rows = undefined
 getEdgeTypes :: [Row] -> [Row]
 getEdgeTypes rows = undefined
 
+-- Parsing Function
 parseInputFile :: String -> Tables
 parseInputFile fileName = do
     contents <- readFile fileName
