@@ -5,80 +5,85 @@ module Lexer where
 %wrapper "posn"
 
 -- Character classes
-$n     = 0-9
-$char  = [a-zA-Z]
-$sym   = [ \. \/ \\ \' \_]
+$digit   = 0-9                 -- Digits
+$alpha   = [a-zA-Z]            -- Alphabetic characters
+$alnum   = [$alpha $digit]     -- Alphanumeric characters
+$sym     = [ \. \/ \\ \' \_]   -- Symbols allowed in identifiers
+$graphic = [$alnum $sym]       -- All valid characters for identifiers
 
 -- Token definitions
 tokens :-
 
-  -- Ignore whitespace and comments
-  $white+                                            ;
-  "#".*                                             ;
+  -- Whitespace and comments are ignored
+  $white+                              ;
+  "#".*                                ;
 
   -- Numeric literals
-  $n+                                   { \x intChar -> Key (KeyNum (read intChar)) x }
+  $digit+                              { \x s -> Key (KeyNum (read s)) x             } -- Integer literal
 
-  -- Keywords
-  ACCESS                                { \x _ -> Key KeyACCESSToken x                }
-  CASE                                  { \x _ -> Key KeyCASEToken x                  }
-  STDOUT                                { \x _ -> Key KeySTDOUTToken x                }
-  DataStructure                         { \x _ -> Key KeyDataStructureToken x         }
-  Num                                   { \x _ -> Key KeyNumToken x                   }
-  Chars                                 { \x _ -> Key KeyCharsToken x                 }
-  Bool                                  { \x _ -> Key KeyBoolToken x                  }
-  CONDIF                                { \x _ -> Key KeyCONDIFToken x                }
-  CONDELIF                              { \x _ -> Key KeyCONDELIFToken x              }
-  THROUGH                               { \x _ -> Key KeyTHROUGHToken x               }
-  DataPoint                             { \x _ -> Key KeyDataPointToken x             }
-  Association                           { \x _ -> Key KeyAssociationToken x           }
-  CALLASSOCIATION                       { \x _ -> Key KeyCallAssociationToken x       }
-  HAS                                   { \x _ -> Key KeyHasToken x                   }
-  CALLDATAPOINT                         { \x _ -> Key KeyCallDataPointToken x         }
-  PLUS                                  { \x _ -> Key KeyPlusToken x                  }
-  NOT                                   { \x _ -> Key KeyNotToken x                   }
+  -- Keywords for language constructs and data types
+  ACCESS                               { \x _ -> Key KeyACCESSToken x                } -- Keyword for accessing input files
+  CASE                                 { \x _ -> Key KeyCASEToken x                  } -- Keyword for case statements
+  STDOUT                               { \x _ -> Key KeySTDOUTToken x                } -- Keyword for standard output
+  DataStructure                        { \x _ -> Key KeyDataStructureToken x         } -- Keyword for the Graph data structure
+  Num                                  { \x _ -> Key KeyNumToken x                   } -- Keyword for numeric data type
+  Chars                                { \x _ -> Key KeyCharsToken x                 } -- Keyword for string data type
+  Bool                                 { \x _ -> Key KeyBoolToken x                  } -- Keyword for boolean data type 
+  CONDIF                               { \x _ -> Key KeyCONDIFToken x                } -- Keyword for conditional if statements
+  CONDELIF                             { \x _ -> Key KeyCONDELIFToken x              } -- Keyword for conditional else-if statements
+  THROUGH                              { \x _ -> Key KeyTHROUGHToken x               } -- Keyword for loops over data
+  DataPoint                            { \x _ -> Key KeyDataPointToken x             } -- Keyword for nodes in the graph
+  Association                          { \x _ -> Key KeyAssociationToken x           } -- Keyword for edges in the graph
+  CALLASSOCIATION                      { \x _ -> Key KeyCallAssociationToken x       } -- Keyword for querying edges
+  HAS                                  { \x _ -> Key KeyHasToken x                   } -- Keyword for property queries on nodes/edges
+  CALLDATAPOINT                        { \x _ -> Key KeyCallDataPointToken x         } -- Keyword for querying nodes
+  PLUS                                 { \x _ -> Key KeyPlusToken x                  } -- Keyword for adding nodes/edges to output
+  NOT                                  { \x _ -> Key KeyNotToken x                   } -- Keyword for logical negation
 
   -- Operators
-  "OR"                                  { \x _ -> Key KeyLogicalOr x                  }
-  "AND"                                 { \x _ -> Key KeyLogicalAnd x                 }
-  \(                                    { \x _ -> Key KeyBracketLeft x                }
-  \)                                    { \x _ -> Key KeyBracketRight x               }
-  \{                                    { \x _ -> Key KeyBraceLeft x                  }
-  \}                                    { \x _ -> Key KeyBraceRight x                 }
-  \:                                    { \x _ -> Key KeySeparatorColon x             }
-  ">="                                  { \x _ -> Key KeyInequalitySlackGreater x     }
-  "<="                                  { \x _ -> Key KeyInequalitySlackLesser x      }
-  \>                                    { \x _ -> Key KeyInequalityStrictGreater x    }
-  \<                                    { \x _ -> Key KeyInequalityStrictLesser x     }
-  \=                                    { \x _ -> Key KeySet x                        }
-  "i=="                                 { \x _ -> Key KeyIdentical x                  }
-  \[                                    { \x _ -> Key KeyBracketLeftSquare x          }
-  \]                                    { \x _ -> Key KeyBracketRightSquare x         }
-  "->"                                  { \x _ -> Key KeyDirectionalRight x           }
-  \-                                    { \x _ -> Key KeyNumericMinus x               }
-  \+                                    { \x _ -> Key KeyNumericAdd x                 }
-  \*                                    { \x _ -> Key KeyNumericMultiply x            }
-  \/                                    { \x _ -> Key KeyNumericDivide x              }
-  "=+"                                  { \x _ -> Key KeyNumericIncrease x            }
-  "=-"                                  { \x _ -> Key KeyNumericDecrease x            }
-  \,                                    { \x _ -> Key KeySeparatorComma x             }
-  \;                                    { \x _ -> Key KeySeparatorColonSemi x         }
-  "!=="                                 { \x _ -> Key KeyIdenticalNot x               }
-  \.                                    { \x _ -> Key KeyPeriod x                     }
+  "OR"                                 { \x _ -> Key KeyLogicalOr x                  } -- Logical OR operator
+  "AND"                                { \x _ -> Key KeyLogicalAnd x                 } -- Logical AND operator
+  "NEGATE"                             { \x _ -> Key KeyLogicalNegate x              } -- Logical NOT-negation operator
+  "("                                  { \x _ -> Key KeyBracketLeft x                } -- Left parenthesis
+  ")"                                  { \x _ -> Key KeyBracketRight x               } -- Right parenthesis
+  "{"                                  { \x _ -> Key KeyBraceLeft x                  } -- Left brace
+  "}"                                  { \x _ -> Key KeyBraceRight x                 } -- Right brace
+  ":"                                  { \x _ -> Key KeySeparatorColon x             } -- Colon separator
+  ">="                                 { \x _ -> Key KeyInequalitySlackGreater x     } -- Greater than or equal to
+  "<="                                 { \x _ -> Key KeyInequalitySlackLesser x      } -- Less than or equal to 
+  ">"                                  { \x _ -> Key KeyInequalityStrictGreater x    } -- Strictly greater than
+  "<"                                  { \x _ -> Key KeyInequalityStrictLesser x     } -- Strictly less than
+  "="                                  { \x _ -> Key KeySet x                        } -- Variable assignment  
+  "i=="                                { \x _ -> Key KeyIdentical x                  } -- Strict equality test
+  "["                                  { \x _ -> Key KeyBracketLeftSquare x          } -- Left square bracket
+  "]"                                  { \x _ -> Key KeyBracketRightSquare x         } -- Right square bracket  
+  "->"                                 { \x _ -> Key KeyDirectionalRight x           } -- Right arrow for edges
+  "-"                                  { \x _ -> Key KeyNumericMinus x               } -- Subtraction operator
+  "+"                                  { \x _ -> Key KeyNumericAdd x                 } -- Addition operator
+  "*"                                  { \x _ -> Key KeyNumericMultiply x            } -- Multiplication operator
+  "/"                                  { \x _ -> Key KeyNumericDivide x              } -- Division operator
+  "=+"                                 { \x _ -> Key KeyNumericIncrease x            } -- Increment operator
+  "=-"                                 { \x _ -> Key KeyNumericDecrease x            } -- Decrement operator
+  ","                                  { \x _ -> Key KeySeparatorComma x             } -- Comma separator (e.g. for CSVs) 
+  ";"                                  { \x _ -> Key KeySeparatorColonSemi x         } -- Semicolon separator (e.g. end of statement)
+  "!=="                                { \x _ -> Key KeyIdenticalNot x               } -- Strict inequality test
+  "."                                  { \x _ -> Key KeyPeriod x                     } -- Period for attribute access
 
-  -- Identifiers
-  [a-z]($char|$n)*                      { \x identifier -> Key (KeyIdentity identifier) x                                           }
-  r\".*\"                               { \x rational -> Key (KeyRegular $ show $ drop 2 $ take ((length rational) - 1) rational) x }
-  \:([A-Z]|\_)+                         { \x header -> Key (KeyHeader $ show $ drop 1 header) x                                     }
-  \"($char|$n|$sym)*\"                  { \x chars -> Key (KeyChars $ show $ drop 1 $ take ((length chars) - 1) chars) x            }
-  True                                  { \x _ -> Key KeyBoolTrue x                                                                 }
-  False                                 { \x _ -> Key KeyBoolFalse x                                                                }
+  -- Identifiers, strings, and other literals 
+  [a-z] [$alnum]*                      { \x s -> Key (KeyIdentity s) x               } -- Identifier starting with lowercase letter
+  r\" ([^\"\\]|\\.)*  \"               { \x s -> Key (KeyRegular (read s)) x         } -- Regular expression literal
+  ":" [$alpha _]+                      { \x s -> Key (KeyHeader (tail s)) x          } -- Header name starting with colon
+  \" ($graphic # \")* \"               { \x s -> Key (KeyChars (read s)) x           } -- String literal  
+  True                                 { \x _ -> Key KeyBoolTrue x                   } -- Boolean literal "True"
+  False                                { \x _ -> Key KeyBoolFalse x                  } -- Boolean literal "False"
 
 {
 
+-- Token type
 data Token = Key TokenType AlexPosn
   deriving (Eq, Show)
 
+-- Token types, corresponding to the tokens defined above  
 data TokenType
   = KeyNum Int
   | KeyACCESSToken
@@ -86,6 +91,7 @@ data TokenType
   | KeySTDOUTToken
   | KeyLogicalOr
   | KeyLogicalAnd
+  | KeyLogicalNegate
   | KeyBracketLeft
   | KeyBracketRight
   | KeyDataStructureToken
@@ -97,11 +103,11 @@ data TokenType
   | KeyCONDIFToken
   | KeyCONDELIFToken
   | KeyTHROUGHToken
-  | KeySeparatorColon
+  | KeySeparatorColon   
   | KeyIdentity String
   | KeyInequalitySlackGreater
   | KeyInequalitySlackLesser
-  | KeyInequalityStrictGreater
+  | KeyInequalityStrictGreater 
   | KeyInequalityStrictLesser
   | KeySet
   | KeyIdentical
@@ -110,7 +116,7 @@ data TokenType
   | KeyDirectionalRight
   | KeyNumericMinus
   | KeyRegular String
-  | KeyPlusToken
+  | KeyPlusToken  
   | KeyPeriod
   | KeyHeader String
   | KeyChars String
@@ -120,14 +126,14 @@ data TokenType
   | KeyIdenticalNot
   | KeySeparatorComma
   | KeyDataPointToken
-  | KeyAssociationToken
+  | KeyAssociationToken 
   | KeyCallAssociationToken
   | KeyHasToken
   | KeyCallDataPointToken
   | KeyNumericAdd
   | KeyNumericMultiply
   | KeyNumericDivide
-  | KeyNumericIncrease
+  | KeyNumericIncrease  
   | KeyNumericDecrease
   | KeyNotToken
   deriving (Eq, Show)
