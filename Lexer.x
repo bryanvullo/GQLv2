@@ -33,7 +33,7 @@ tokens :-
   DataPoint                            { \x _ -> Key KeyDataPointToken x }
   Association                        { \x _ -> Key KeyAssociationToken x }
   CALLASSOCIATION                     { \x _ -> Key KeyCallAssociationToken x }
-  CONTAINS                        { \x _ -> Key KeyContainsToken x }
+  HAS                        { \x _ -> Key KeyHasToken x }
   CALLDATAPOINT                         { \x _ -> Key KeyCallDataPointToken x }
   PLUS                             { \x _ -> Key KeyPlusToken x }
   NOT                         { \x _ -> Key KeyNotToken x }
@@ -63,12 +63,12 @@ tokens :-
   "=-"                            { \x _ -> Key KeyNumericDecrease x }
   \,                              { \x _ -> Key KeySeparatorComma x }
   \;                              { \x _ -> Key KeySeparatorColonSemi x }
-  "!="                            { \x _ -> Key KeyIdenticalNot x }
+  "=!"                            { \x _ -> Key KeyIdenticalNot x }
   \.                              { \x _ -> Key KeyPeriod x }
 
-  -- Identifiers and literals
+  -- Identifiers
   [a-z]($char|$int)*            { \x identifier -> Key (KeyIdentity identifier) x }
-  r\".*\"                         { \x rational -> Key (KeyRegularExpression $ show $ drop 2 $ take ((length rational) - 1) rational) x }
+  r\".*\"                         { \x rational -> Key (KeyRegular $ show $ drop 2 $ take ((length rational) - 1) rational) x }
   \:([A-Z]|\_)+                   { \x header -> Key (KeyHeader $ show $ drop 1 header) x }
   \"($char|$int|$sym)*\"{ \x chars -> Key (KeyChars $ show $ drop 1 $ take ((length chars) - 1) chars) x }
   True                            { \x _ -> Key KeyBoolTrue x }
@@ -108,7 +108,7 @@ data TokenType
   | KeyBracketRightSquare
   | KeyDirectionalRight
   | KeyNumericMinus
-  | KeyRegularExpression String
+  | KeyRegular String
   | KeyPlusToken
   | KeyPeriod
   | KeyHeader String
@@ -121,7 +121,7 @@ data TokenType
   | KeyDataPointToken
   | KeyAssociationToken
   | KeyCallAssociationToken
-  | KeyContainsToken
+  | KeyHasToken
   | KeyCallDataPointToken
   | KeyNumericAdd
   | KeyNumericMultiply

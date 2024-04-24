@@ -1,5 +1,5 @@
-DataStructure nodes = ACCESS("./access.n4j");
+DataStructure ds = ACCESS("./access.n4j");
 
-nodes = nodes.CASE (:LABEL=="Visitor" OR age <= 25);
+ds = ds.CASE (:LABEL=="Visitor" OR age <= 25);
 
-STDOUT(nodes);
+STDOUT(ds);

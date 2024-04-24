@@ -38,7 +38,7 @@ import Lexer
   ']'                         { Key KeyBracketRightSquare             _ }
   '->'                        { Key KeyDirectionalRight          _ }
   '-'                         { Key KeyNumericMinus            _ }
-  regular                       { Key (KeyRegularExpression $$)     _ }
+  regular                       { Key (KeyRegular $$)     _ }
   PLUS                         { Key KeyPlusToken             _ }
   '.'                         { Key KeyPeriod             _ }
   header                    { Key (KeyHeader $$)  _ }
@@ -46,12 +46,12 @@ import Lexer
   True                        { Key KeyBoolTrue       _ }
   False                       { Key KeyBoolFalse      _ }
   ';'                         { Key KeySeparatorColonSemi       _ }
-  '!='                        { Key KeyIdenticalNot       _ }
+  '=!'                        { Key KeyIdenticalNot       _ }
   ','                         { Key KeySeparatorComma           _ }
   DataPoint                    { Key KeyDataPointToken        _ }
   Association                { Key KeyAssociationToken    _ }
   CALLASSOCIATION                 { Key KeyCallAssociationToken     _ }
-  CONTAINS                    { Key KeyContainsToken        _ }
+  HAS                    { Key KeyHasToken        _ }
   CALLDATAPOINT                     { Key KeyCallDataPointToken         _ }
   '+'                         { Key KeyNumericAdd            _ }
   '*'                         { Key KeyNumericMultiply            _ }
@@ -66,7 +66,7 @@ import Lexer
 %left ':'
 %right 'OR'
 %right 'AND'
-%nonassoc '==' '!='
+%nonassoc '==' '=!'
 %nonassoc '>' '<' '>=' '<='
 %left '+' '-'
 %left '*' '/'
@@ -76,177 +76,177 @@ import Lexer
 
 -- Grammar rules
 
--- Queries
-Queries
-  : Query Queries               { ($1 : $2) }
+-- QQ
+QQ
+  : Q QQ               { ($1 : $2) }
   | {- empty -}                     { [] }
 
--- Query
-Query
-  : Expr ';'                        { Expr $1 }
-  | CONDIFQuery                     { $1 }
-  | THROUGHQuery                    { $1 }
+-- Q
+Q
+  : X ';'                        { X $1 }
+  | CONDIFQ                     { $1 }
+  | THROUGHQ                    { $1 }
 
--- Expressions
-Expr
-  : ExtractExpr                     { $1 }
-  | FuncExpr                        { $1 }
-  | FuncAppExpr                     { $1 }
-  | BoolExpr       %shift           { BoolExpr $1 }
-  | SetExpr                      { $1 }
-  | LiteralExpr                     { $1 }
-  | '(' Expr ')'                    { $2 }
+-- XX
+X
+  : IsolateXX                     { $1 }
+  | StatementXX                        { $1 }
+  | StatementTryXX                     { $1 }
+  | BoolXX       %shift           { BoolXX $1 }
+  | SetXX                      { $1 }
+  | IdentifyXX                     { $1 }
+  | '(' X ')'                    { $2 }
 
--- Literal Expressions
-LiteralExpr
-  : identity                             { Var $1 }
-  | MathExpr                        { MathExpr $1 }
-  | header                        { Var $1 }
+-- Identify XX
+IdentifyXX
+  : identity                             { Identifier $1 }
+  | NumericXX                        { NumericXX $1 }
+  | header                        { Identifier $1 }
   | chars                          { Chars $1 }
-  | regular                           { RegularExpression $1 }
+  | regular                           { Regular $1 }
 
--- Setment Expressions
-SetExpr
-  : Type identity '=' Expr               { TypedSet $1 $2 $4 }
-  | Expr '=' Expr                   { Set $1 $3 }
-  | Type identity               %shift   { Declare $1 $2 }
-  | Expr '=+' Expr                  { IncrementSet $1 $3 }
-  | Expr '=-' Expr                  { DecrementSet $1 $3 }
-  | Expr '.' CALLDATAPOINT '(' Expr ')'   { CallDataPoint $1 $5 }
+-- Set XX
+SetXX
+  : Class identity '=' X               { ClassdSet $1 $2 $4 }
+  | X '=' X                   { Set $1 $3 }
+  | Class identity               %shift   { Declare $1 $2 }
+  | X '=+' X                  { NumericIncrease $1 $3 }
+  | X '=-' X                  { NumericDecrease $1 $3 }
+  | X '.' CALLDATAPOINT '(' X ')'   { CallDataPoint $1 $5 }
 
--- Extract Expressions
-ExtractExpr
-  : Expr '.' identity                    { CallProperty $1 $3 }
-  | Expr '.' header               { CallProperty $1 $3 }
+-- Isolate XX
+IsolateXX
+  : X '.' identity                    { CallAttribute $1 $3 }
+  | X '.' header               { CallAttribute $1 $3 }
 
--- Function Expressions
-FuncExpr
+-- Statementtion XX
+StatementXX
   : ACCESS '(' chars ')'         { ACCESS $3 }
   | STDOUT '(' identity ')'               { STDOUT $3 }
 
--- Function Application Expressions
-FuncAppExpr
-  : Expr '.' CASE '(' BoolExpr ')'        { CASEQuery $1 $5 }
-  | Expr '.' PLUS '(' Expr ')'              { PlusQuery $1 $5 }
-  | Expr '.' CALLASSOCIATION '(' BoolExpr ')'  { CallAssociation $1 $5 }
-  | Expr '.' NOT '(' Expr ')'          { Not $1 $5 }
+-- Statementtion Trylication XX
+StatementTryXX
+  : X '.' CASE '(' BoolXX ')'        { CASEQ $1 $5 }
+  | X '.' PLUS '(' X ')'              { PlusQ $1 $5 }
+  | X '.' CALLASSOCIATION '(' BoolXX ')'  { CallAssociation $1 $5 }
+  | X '.' NOT '(' X ')'          { Not $1 $5 }
 
--- Math Expressions
-MathExpr
-  : MathTerm                        { $1 }
-  | MathExpr '+' MathExpr           { PlusPlus $1 $3 }
-  | MathExpr '-' MathExpr           { Subtraction $1 $3 }
+-- Numeric XX
+NumericXX
+  : NumericQ                        { $1 }
+  | NumericXX '+' NumericXX           { PlusPlus $1 $3 }
+  | NumericXX '-' NumericXX           { Subtraction $1 $3 }
 
-MathTerm
-  : MathExpr '*' MathExpr           { Multiplication $1 $3 }
-  | MathExpr '/' MathExpr           { Divison $1 $3 }
-  | int                             { IntLit $1 }
+NumericQ
+  : NumericXX '*' NumericXX           { Multiplication $1 $3 }
+  | NumericXX '/' NumericXX           { Divison $1 $3 }
+  | int                             { IntTerminal $1 }
 
--- Bool Expressions
-BoolExpr
-  : SimpleBoolExpr 'AND' BoolExpr    { And $1 $3 }
-  | SimpleBoolExpr 'OR' BoolExpr    { Or $1 $3 }
-  | SimpleBoolExpr     %shift       { $1 }
+-- Bool XX
+BoolXX
+  : LogicalBoolXX 'AND' BoolXX    { And $1 $3 }
+  | LogicalBoolXX 'OR' BoolXX    { Or $1 $3 }
+  | LogicalBoolXX     %shift       { $1 }
 
-SimpleBoolExpr
-  : True                            { BoolLit True }
-  | False                           { BoolLit False }
-  | Expr '==' Expr                  { Equals $1 $3 }
-  | Expr '!=' Expr                  { NotEquals $1 $3 }
-  | Expr '<' Expr                   { LessThan $1 $3 }
-  | Expr '>' Expr                   { GreaterThan $1 $3 }
-  | Expr '<=' Expr                  { LTEquals $1 $3 }
-  | Expr '>=' Expr                  { GTEquals $1 $3 }
-  | '-' '[' BoolExpr ']' '->' identity   { EndAssociationQuery $3 $6 }
-  | identity '-' '[' BoolExpr ']' '->'   { StartAssociationQuery $1 $4 }
-  | '(' BoolExpr ')'                { $2 }
-  | identity '-' '[' BoolExpr ']' '->' identity { AssociationQuery $1 $4 $7 }
-  | Expr '.' CONTAINS '(' CharsList ')'  { Contains $1 $5 }
+LogicalBoolXX
+  : True                            { BoolTerminal True }
+  | False                           { BoolTerminal False }
+  | X '==' X                  { Identical $1 $3 }
+  | X '=!' X                  { IdenticalNot $1 $3 }
+  | X '<' X                   { InequalityStrictLesser $1 $3 }
+  | X '>' X                   { InequalityStrictGreater $1 $3 }
+  | X '<=' X                  { InequalitySlackLesser $1 $3 }
+  | X '>=' X                  { InequalitySlackGreater $1 $3 }
+  | '-' '[' BoolXX ']' '->' identity   { AssociationEndQ $3 $6 }
+  | identity '-' '[' BoolXX ']' '->'   { AssociationStartQ $1 $4 }
+  | '(' BoolXX ')'                { $2 }
+  | identity '-' '[' BoolXX ']' '->' identity { AssociationQ $1 $4 $7 }
+  | X '.' HAS '(' CharsQ ')'  { Has $1 $5 }
 
--- If Query
-CONDIFQuery
-  : CONDIF '(' BoolExpr ')' '{' Queries '}'                         { CONDIFBlock $3 $6 }
-  | CONDIF '(' BoolExpr ')' '{' Queries '}' CONDELIF '{' Queries '}'    { CONDELIFBlock $3 $6 $10 }
+-- If Q
+CONDIFQ
+  : CONDIF '(' BoolXX ')' '{' QQ '}'                         { CONDIFQ $3 $6 }
+  | CONDIF '(' BoolXX ')' '{' QQ '}' CONDELIF '{' QQ '}'    { CONDELIFQ $3 $6 $10 }
 
--- THROUGH Query
-THROUGHQuery
-  : THROUGH '(' Type identity ':' Expr ')' '{' Queries '}'         { THROUGHBlock $3 $4 $6 $9 }
+-- THROUGH Q
+THROUGHQ
+  : THROUGH '(' Class identity ':' X ')' '{' QQ '}'         { THROUGHQ $3 $4 $6 $9 }
 
--- Chars List
-CharsList
+-- Chars Q
+CharsQ
   : chars                          { [$1] }
-  | chars ',' CharsList           { ($1 : $3) }
+  | chars ',' CharsQ           { ($1 : $3) }
 
--- Type
-Type
-  : DataStructure                       { TypeConstr $1 }
-  | Num                     { TypeConstr $1 }
-  | Chars                      { TypeConstr $1 }
-  | Bool                     { TypeConstr $1 }
-  | DataPoint                        { TypeConstr $1 }
-  | Association                    { TypeConstr $1 }
+-- Class
+Class
+  : DataStructure                       { ClassConstr $1 }
+  | Num                     { ClassConstr $1 }
+  | Chars                      { ClassConstr $1 }
+  | Bool                     { ClassConstr $1 }
+  | DataPoint                        { ClassConstr $1 }
+  | Association                    { ClassConstr $1 }
 
 {
 parseError :: [Token] -> a
 parseError [] = error "Parse error at end of input\n"
 parseError (Key t (AlexPn _ x y) : _) = error $ "Error " ++ show t ++ ", see " ++ show x ++ ":" ++ show y ++ "\n"
 
-type Queries
-  = [Query]
+type QQ
+  = [Q]
 
-data Query
-  = Expr Expr
-  | CONDIFBlock BoolExpr Queries
-  | CONDELIFBlock BoolExpr Queries Queries
-  | THROUGHBlock Type String Expr Queries
+data Q
+  = X X
+  | CONDIFQ BoolXX QQ
+  | CONDELIFQ BoolXX QQ QQ
+  | THROUGHQ Class String X QQ
   deriving (Eq, Show)
 
-data Expr
-  = TypedSet Type String Expr
-  | Set Expr Expr
-  | Declare Type String
-  | Var String
-  | MathExpr MathExpr
+data X
+  = ClassdSet Class String X
+  | Set X X
+  | Declare Class String
+  | Identifier String
+  | NumericXX NumericXX
   | Chars String
-  | RegularExpression String
-  | CASEQuery Expr BoolExpr
-  | PlusQuery Expr Expr
+  | Regular String
+  | CASEQ X BoolXX
+  | PlusQ X X
   | ACCESS String
   | STDOUT String
-  | BoolExpr BoolExpr
-  | CallProperty Expr String
-  | CallAssociation Expr BoolExpr
-  | IncrementSet Expr Expr
-  | DecrementSet Expr Expr
-  | Not Expr Expr
-  | CallDataPoint Expr Expr
+  | BoolXX BoolXX
+  | CallAttribute X String
+  | CallAssociation X BoolXX
+  | NumericIncrease X X
+  | NumericDecrease X X
+  | Not X X
+  | CallDataPoint X X
   deriving (Eq, Show)
 
-data MathExpr
-  = IntLit Int
-  | PlusPlus MathExpr MathExpr
-  | Subtraction MathExpr MathExpr
-  | Multiplication MathExpr MathExpr
-  | Divison MathExpr MathExpr
+data NumericXX
+  = IntTerminal Int
+  | PlusPlus NumericXX NumericXX
+  | Subtraction NumericXX NumericXX
+  | Multiplication NumericXX NumericXX
+  | Divison NumericXX NumericXX
   deriving (Eq, Show)
 
-data BoolExpr
-  = BoolLit Bool
-  | Equals Expr Expr
-  | NotEquals Expr Expr
-  | LessThan Expr Expr
-  | GreaterThan Expr Expr
-  | LTEquals Expr Expr
-  | GTEquals Expr Expr
-  | And BoolExpr BoolExpr
-  | Or BoolExpr BoolExpr
-  | EndAssociationQuery BoolExpr String
-  | StartAssociationQuery String BoolExpr
-  | AssociationQuery String BoolExpr String
-  | Contains Expr [String]
+data BoolXX
+  = BoolTerminal Bool
+  | Identical X X
+  | IdenticalNot X X
+  | InequalityStrictLesser X X
+  | InequalityStrictGreater X X
+  | InequalitySlackLesser X X
+  | InequalitySlackGreater X X
+  | And BoolXX BoolXX
+  | Or BoolXX BoolXX
+  | AssociationEndQ BoolXX String
+  | AssociationStartQ String BoolXX
+  | AssociationQ String BoolXX String
+  | Has X [String]
   deriving (Eq, Show)
 
-data Type
-  = TypeConstr Token
+data Class
+  = ClassConstr Token
   deriving (Eq, Show)
 }
