@@ -14,7 +14,7 @@ tokens :-
 
   -- Ignore whitespace and comments
   $white+                                            ;
-  "//".*                                             ;
+  "#".*                                             ;
 
   -- Numeric literals
   $n+                                   { \x intChar -> Key (KeyNum (read intChar)) x }
