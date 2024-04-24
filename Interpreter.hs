@@ -10,21 +10,24 @@ import Data.List (isInfixOf)
 type Env = [(String, Data)] -- Variable name, Data
 
 -- Continuation Stack
-data Kont =
-    KEmpty -- Empty continuation
+data Kont
+    = KEmpty
     | KAssign String Env Kont
     | KSetL X Env Kont
-    | KSeq QQ Env Kont -- Sequence continuation
-    | KCond BoolXX QQ QQ Env Kont -- Conditional continuation
-    | KThrough Class String X QQ Env Kont -- Through continuation
-    | KSet String X Env Kont -- Set continuation
-    | KNumericXX NumericXX Env Kont -- Numeric continuation
-    | KBoolXX BoolXX Env Kont -- Boolean continuation
-    | KCallAttribute String Env Kont -- Call attribute continuation
-    | KCallAssociation BoolXX Env Kont -- Call association continuation
-    | KNumericIncrease X Env Kont -- Numeric increase continuation
-    | KNumericDecrease X Env Kont -- Numeric decrease continuation
-    | KDataPoint BoolXX Env Kont -- Data point continuation
+    | KNumericXX NumericXX Env Kont
+    | KCase BoolXX Env Kont
+    | KPlus Env Kont
+    | KBoolXX BoolXX Env Kont
+    | KAttr String Env Kont
+    | KAssoc BoolXX Env Kont
+    | KIncrease Env Kont
+    | KDecrease Env Kont
+    | KNot Env Kont
+    | KDataPoint BoolXX Env Kont
+    | KCondIf BoolXX QQ QQ Env Kont
+    | KCondElseIf BoolXX QQ QQ Env Kont
+    | KThrough Class String X QQ Env Kont
+    | KSeq QQ Env Kont
 
 -- Control State
 type Control = (QQ, Env, Kont) -- Statements, Environment, Continuation
