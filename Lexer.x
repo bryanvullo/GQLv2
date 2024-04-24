@@ -51,7 +51,7 @@ tokens :-
   \>                              { \x _ -> Key KeyInequalityStrictGreater x }
   \<                              { \x _ -> Key KeyInequalityStrictLesser x }
   \=                              { \x _ -> Key KeySet x }
-  "=="                            { \x _ -> Key KeyIdentical x }
+  "i=="                            { \x _ -> Key KeyIdentical x }
   \[                              { \x _ -> Key KeyBracketLeftSquare x }
   \]                              { \x _ -> Key KeyBracketRightSquare x }
   "->"                            { \x _ -> Key KeyDirectionalRight x }
@@ -63,7 +63,7 @@ tokens :-
   "=-"                            { \x _ -> Key KeyNumericDecrease x }
   \,                              { \x _ -> Key KeySeparatorComma x }
   \;                              { \x _ -> Key KeySeparatorColonSemi x }
-  "=!"                            { \x _ -> Key KeyIdenticalNot x }
+  "!=="                            { \x _ -> Key KeyIdenticalNot x }
   \.                              { \x _ -> Key KeyPeriod x }
 
   -- Identifiers

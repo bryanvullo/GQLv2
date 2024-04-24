@@ -1,5 +1,5 @@
 DataStructure ds = ACCESS("./access.n4j");
 
-ds = ds.CASE (:LABEL=="Visitor" OR age <= 25);
+ds = ds.CASE (:LABEL i== "Visitor" OR age <= 25);
 
 STDOUT(ds);

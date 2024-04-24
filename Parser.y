@@ -33,7 +33,7 @@ import Lexer
   '>'                         { Key KeyInequalityStrictGreater              _ }
   '<'                         { Key KeyInequalityStrictLesser              _ }
   '='                         { Key KeySet          _ }
-  '=='                        { Key KeyIdentical          _ }
+  'i=='                        { Key KeyIdentical          _ }
   '['                         { Key KeyBracketLeftSquare             _ }
   ']'                         { Key KeyBracketRightSquare             _ }
   '->'                        { Key KeyDirectionalRight          _ }
@@ -46,7 +46,7 @@ import Lexer
   True                        { Key KeyBoolTrue       _ }
   False                       { Key KeyBoolFalse      _ }
   ';'                         { Key KeySeparatorColonSemi       _ }
-  '=!'                        { Key KeyIdenticalNot       _ }
+  '!=='                        { Key KeyIdenticalNot       _ }
   ','                         { Key KeySeparatorComma           _ }
   DataPoint                    { Key KeyDataPointToken        _ }
   Association                { Key KeyAssociationToken    _ }
@@ -66,7 +66,7 @@ import Lexer
 %left ':'
 %right 'OR'
 %right 'AND'
-%nonassoc '==' '=!'
+%nonassoc 'i==' '!=='
 %nonassoc '>' '<' '>=' '<='
 %left '+' '-'
 %left '*' '/'
@@ -135,7 +135,7 @@ StatementTryXX
 NumericXX
   : NumericQ                        { $1 }
   | NumericXX '+' NumericXX           { PlusPlus $1 $3 }
-  | NumericXX '-' NumericXX           { Subtraction $1 $3 }
+  | NumericXX '-' NumericXX           { NumericSubtract $1 $3 }
 
 NumericQ
   : NumericXX '*' NumericXX           { NumericMultiply $1 $3 }
@@ -151,8 +151,8 @@ BoolXX
 LogicalBoolXX
   : True                            { BoolTerminal True }
   | False                           { BoolTerminal False }
-  | X '==' X                  { Identical $1 $3 }
-  | X '=!' X                  { IdenticalNot $1 $3 }
+  | X 'i==' X                  { Identical $1 $3 }
+  | X '!==' X                  { IdenticalNot $1 $3 }
   | X '<' X                   { InequalityStrictLesser $1 $3 }
   | X '>' X                   { InequalityStrictGreater $1 $3 }
   | X '<=' X                  { InequalitySlackLesser $1 $3 }
@@ -179,12 +179,12 @@ CharsQ
 
 -- Class
 Class
-  : DataStructure                       { ClassConstr $1 }
-  | Num                     { ClassConstr $1 }
-  | Chars                      { ClassConstr $1 }
-  | Bool                     { ClassConstr $1 }
-  | DataPoint                        { ClassConstr $1 }
-  | Association                    { ClassConstr $1 }
+  : DataStructure                       { ClassGen $1 }
+  | Num                     { ClassGen $1 }
+  | Chars                      { ClassGen $1 }
+  | Bool                     { ClassGen $1 }
+  | DataPoint                        { ClassGen $1 }
+  | Association                    { ClassGen $1 }
 
 {
 parseError :: [Token] -> a
@@ -225,7 +225,7 @@ data X
 data NumericXX
   = IntTerminal Int
   | PlusPlus NumericXX NumericXX
-  | Subtraction NumericXX NumericXX
+  | NumericSubtract NumericXX NumericXX
   | NumericMultiply NumericXX NumericXX
   | NumericDivide NumericXX NumericXX
   deriving (Eq, Show)
@@ -247,6 +247,6 @@ data BoolXX
   deriving (Eq, Show)
 
 data Class
-  = ClassConstr Token
+  = ClassGen Token
   deriving (Eq, Show)
 }
