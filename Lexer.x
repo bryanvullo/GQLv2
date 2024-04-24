@@ -113,7 +113,7 @@ data TokenType
   | KeyIdentical
   | KeyBracketLeftSquare
   | KeyBracketRightSquare
-  | KeyDirectionalRight
+  | KeyDirection
   | KeyNumericMinus
   | KeyRegular String
   | KeyPlusToken  
