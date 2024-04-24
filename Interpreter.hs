@@ -5,10 +5,7 @@ import Parser (QQ, Q(..), X(..), NumericXX(..), BoolXX(..), Class(..))
 import InputLexer (lexInput, Token(..))
 import Data.List (isInfixOf)
 
-data Env = Env {
-    tables :: Tables,
-    variables :: [(String, X)]
-}
+type Env = [(String, Data)]
 
 data Kont =
     KEmpty
@@ -26,16 +23,19 @@ data Kont =
 
 type Control = (X, Env, Kont)
 
+data Data = G [Table] | N Row | B Bool | I Int | S String
+
 interpret :: QQ -> Tables
-interpret qq = 
+interpret qq = interpretCEK (newQQ, [name, newGraph], KEmpty)
     where 
         --find access statement 
         access = findAccess qq
+        newQQ = qq \ access
         case access of 
-            X $ ClassFinalSet _ name (ACCESS file) -> do
+            X $ ClassFinalSet _ name (ACCESS file) ->
                 contents <- readFile file
                 let newGraph = parseInput $ lexInput contents
-                interpret statements newGraph
+                newGraph
 
 findAccess :: QQ -> Q 
 findAccess qq = head $ filter (\x -> case x of X $ ClassFinalSet _ name (ACCESS file))
