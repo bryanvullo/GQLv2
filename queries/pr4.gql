@@ -15,7 +15,7 @@ THROUGH (DataPoint person : network) {
                 friend.HAS("age") AND
                 person.HAS("age") AND
                 friend.age > person.age AND
-                friend.NOT(friend.CALLASSOCIATION(
+                NOT(friend.CALLASSOCIATION(
                     association -[:TYPE i== "WorksFor"]>> dataPoint.CALLDATAPOINT(dataPoint.HAS("LABEL") AND dataPoint.:LABEL i== "Cafe")
                 ))
             ) {

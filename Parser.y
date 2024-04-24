@@ -163,6 +163,7 @@ LogicalBoolXX
   | '(' BoolXX ')'                                  { $2                             }  -- Parenthesized boolean expression 
   | identity '-' '[' BoolXX ']' '>>' identity       { AssociationQ $1 $4 $7          }  -- Edge query expression
   | X '.' HAS '(' CharsQ ')'                        { Has $1 $5                      }  -- Node/edge property query expression  
+  | NOT '(' LogicalBoolXX ')'                       { LogicalNegate $3               }  -- Logical negation expression
   | identity '-' '[' BoolXX ']' '>>' '[' CharsQ ']' { AssociationNodeLabelQ $1 $4 $8 }  -- Edge query with target node label filter
 
 -- Conditional expressions 
