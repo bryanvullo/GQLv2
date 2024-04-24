@@ -2,8 +2,9 @@ DataStructure loyalty = ACCESS("./loyalty.n4j");
 DataStructure output = loyalty;
 
 THROUGH (DataPoint p : loyalty) {
-    THROUGH (DataPoint b : p.CALLDATAPOINT(dataPoint -[association.:CLASS i== "CustomerOf"]>> _)) {
-        THROUGH (DataPoint q : p.CALLDATAPOINT(dataPoint -[association.:CLASS i== "Recommended"]>> dataPoint -[association.:CLASS i== "CustomerOf"]>> b)) {
+    THROUGH (DataPoint b : p.CALLDATAPOINT(dataPoint -[association.:CLASS i== "CustomerOf"]>> anyNode)) {
+        DataStructure recommendedCustomers = p.CALLDATAPOINT(dataPoint -[association.:CLASS i== "Recommended"]>> anyNode);
+        THROUGH (DataPoint q : recommendedCustomers.CALLDATAPOINT(dataPoint -[association.:CLASS i== "CustomerOf"]>> b)) {
             DataStructure pCustomerOf = p.CALLASSOCIATION(association -[:CLASS i== "CustomerOf"]>> b);
             DataStructure qCustomerOf = q.CALLASSOCIATION(association -[:CLASS i== "CustomerOf"]>> b);
             
