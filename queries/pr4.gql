@@ -14,13 +14,21 @@ THROUGH (DataPoint person : network) {
             CONDIF (
                 friend.HAS("age") AND
                 person.HAS("age") AND
-                friend.age > person.age AND
-                NOT(friend.CALLASSOCIATION(
-                    association -[:TYPE i== "WorksFor"]>> dataPoint.CALLDATAPOINT(dataPoint.HAS("LABEL") AND dataPoint.:LABEL i== "Cafe")
-                ))
+                friend.age > person.age
             ) {
-                output.PLUS(friend);
-                output.PLUS(person -[association.:TYPE = "IsFriend"]>> friend);
+                DataStructure friendEmployers = friend.CALLASSOCIATION(association -[:TYPE i== "WorksFor"]>> dataPoint);
+                Bool friendWorksInCafe = False;
+                
+                THROUGH (DataPoint employer : friendEmployers) {
+                    CONDIF (employer.HAS("LABEL") AND employer.:LABEL i== "Cafe") {
+                        friendWorksInCafe = True;
+                    }
+                }
+                
+                CONDIF (friendWorksInCafe i== False) {
+                    output.PLUS(friend);
+                    output.PLUS(person -[association.:TYPE = "IsFriend"]>> friend);
+                }
             }
         }
     }
