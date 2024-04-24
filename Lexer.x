@@ -38,12 +38,12 @@ tokens :-
   HAS                                  { \x _ -> Key KeyHasToken x                   } -- Keyword for property queries on nodes/edges
   CALLDATAPOINT                        { \x _ -> Key KeyCallDataPointToken x         } -- Keyword for querying nodes
   PLUS                                 { \x _ -> Key KeyPlusToken x                  } -- Keyword for adding nodes/edges to output
-  NOT                                  { \x _ -> Key KeyNotToken x                   } -- Keyword for logical negation
+  NOT                                  { \x _ -> Key KeyNotToken x                   } -- Keyword for logical negation (?)
 
   -- Operators
   "OR"                                 { \x _ -> Key KeyLogicalOr x                  } -- Logical OR operator
   "AND"                                { \x _ -> Key KeyLogicalAnd x                 } -- Logical AND operator
-  "NEGATE"                             { \x _ -> Key KeyLogicalNegate x              } -- Logical NOT-negation operator
+  "NEGATE"                             { \x _ -> Key KeyLogicalNegate x              } -- Logical NOT-negation operator (?)
   "("                                  { \x _ -> Key KeyBracketLeft x                } -- Left parenthesis
   ")"                                  { \x _ -> Key KeyBracketRight x               } -- Right parenthesis
   "{"                                  { \x _ -> Key KeyBraceLeft x                  } -- Left brace
