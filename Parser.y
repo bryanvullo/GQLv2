@@ -40,11 +40,11 @@ import Lexer
   '-'                                   { Key KeyNumericMinus              _ }
   '>='                                  { Key KeyInequalitySlackGreater    _ }
   DataPoint                             { Key KeyDataPointToken            _ }
-  '>>'                                  { Key KeyAssociation               _ }
+  '>>'                                  { Key KeyDirection                 _ }
   '['                                   { Key KeyBracketLeftSquare         _ }
   ']'                                   { Key KeyBracketRightSquare        _ }
-  ','                                   { Key KeyComma                     _ }
-  ':'                                   { Key KeyColon                     _ }
+  ','                                   { Key KeySeparatorComma                     _ }
+  ':'                                   { Key KeySeparatorColon                     _ }
 
 %right '='
 %left 'OR'
