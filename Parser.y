@@ -1,196 +1,252 @@
 {
-module Parser (parser, XX) where
+module Parser where
 import Lexer
 }
 
 %name parser
 %tokentype { Token }
-
 %error { parseError }
 
+-- Token definitions
 %token
- ACCESS                         { Tok _ TokACCESS           }
- FIND                           { Tok _ TokFIND             }
- OUT                            { Tok _ TokOUT              }
- CONDITION                      { Tok _ TokCond             }
- CONDITIONELIF                  { Tok _ TokCondE            }
- LOOPF                          { Tok _ TokLoopF            }
- ARITH                          { Tok _ TokArith            }
- Gr                             { Tok _ TokGr               }
- Num                            { Tok _ TokNum              }
- Chars                          { Tok _ TokChars            }
- B                              { Tok _ TokB                }
- FIdent                         { Tok _ (TokFIdent $$)      }
- GrN                            { Tok _ TokGrN              }
- Rel                            { Tok _ TokRel              }
- True                           { Tok _ TokBT               }
- False                          { Tok _ TokBF               }
- ident                          { Tok _ (TokIdent $$)       }
- num                            { Tok _ (TokInt $$)         }
- chars                          { Tok _ (TokString $$)      }
- Reg                            { Tok _ (TokReg $$)         }
- '"'                            { Tok _ TokQuote            }
- '&&'                           { Tok _ TokConj             }
- '||'                           { Tok _ TokLogO             }
- '('                            { Tok _ TokBracketLeft      }
- ')'                            { Tok _ TokBracketRight     }
- ';'                            { Tok _ TokColS             }
- '!='                           { Tok _ TokIneq             }
- ','                            { Tok _ TokSep              }
- '.'                            { Tok _ TokBrk              }
- '>='                           { Tok _ TokEqualityEqG      }
- '<='                           { Tok _ TokEqualityEqL      }
- '>'                            { Tok _ TokEqualityG        }
- '<'                            { Tok _ TokEqualityL        }
- '='                            { Tok _ TokSet              }
- '=='                           { Tok _ TokExact            }
- '['                            { Tok _ TokBracketLeftS     }
- ']'                            { Tok _ TokBracketRightS    }
- '->'                           { Tok _ TokDirectedR        }
- '-'                            { Tok _ TokHyph             }
- ':'                            { Tok _ TokHeaderColN       }
- '{'                            { Tok _ TokBracketLeftC     }
- '}'                            { Tok _ TokBracketRightC    }
- '_'                            { Tok _ TokUnderscore       }
+  int                         { Key (KeyNum $$)      _ }
+  ACCESS                    { Key KeyACCESSToken        _ }
+  CASE                       { Key KeyCASEToken           _ }
+  STDOUT                       { Key KeySTDOUTToken           _ }
+  'AND'                        { Key KeyLogicalAnd             _ }
+  'OR'                        { Key KeyLogicalOr              _ }
+  '('                         { Key KeyBracketLeft          _ }
+  ')'                         { Key KeyBracketRight          _ }
+  DataStructure                   { Key KeyDataStructureToken       _ }
+  Num                 { Key KeyNumToken     _ }
+  Chars                  { Key KeyCharsToken      _ }
+  Bool                 { Key KeyBoolToken     _ }
+  '{'                         { Key KeyBraceLeft          _ }
+  '}'                         { Key KeyBraceRight          _ }
+  CONDIF                          { Key KeyCONDIFToken              _ }
+  CONDELIF                        { Key KeyCONDELIFToken            _ }
+  THROUGH                         { Key KeyTHROUGHToken             _ }
+  ':'                         { Key KeySeparatorColon           _ }
+  identity                         { Key (KeyIdentity $$)     _ }
+  '>='                        { Key KeyInequalitySlackGreater             _ }
+  '<='                        { Key KeyInequalitySlackLesser             _ }
+  '>'                         { Key KeyInequalityStrictGreater              _ }
+  '<'                         { Key KeyInequalityStrictLesser              _ }
+  '='                         { Key KeySet          _ }
+  '=='                        { Key KeyIdentical          _ }
+  '['                         { Key KeyBracketLeftSquare             _ }
+  ']'                         { Key KeyBracketRightSquare             _ }
+  '->'                        { Key KeyDirectionalRight          _ }
+  '-'                         { Key KeyNumericMinus            _ }
+  regular                       { Key (KeyRegularExpression $$)     _ }
+  PLUS                         { Key KeyPlusToken             _ }
+  '.'                         { Key KeyPeriod             _ }
+  header                    { Key (KeyHeader $$)  _ }
+  chars                      { Key (KeyChars $$)    _ }
+  True                        { Key KeyBoolTrue       _ }
+  False                       { Key KeyBoolFalse      _ }
+  ';'                         { Key KeySeparatorColonSemi       _ }
+  '!='                        { Key KeyIdenticalNot       _ }
+  ','                         { Key KeySeparatorComma           _ }
+  DataPoint                    { Key KeyDataPointToken        _ }
+  Association                { Key KeyAssociationToken    _ }
+  CALLASSOCIATION                 { Key KeyCallAssociationToken     _ }
+  CONTAINS                    { Key KeyContainsToken        _ }
+  CALLDATAPOINT                     { Key KeyCallDataPointToken         _ }
+  '+'                         { Key KeyNumericAdd            _ }
+  '*'                         { Key KeyNumericMultiply            _ }
+  '/'                         { Key KeyNumericDivide          _ }
+  '=+'                        { Key KeyNumericIncrease       _ }
+  '=-'                        { Key KeyNumericDecrease       _ }
+  NOT                     { Key KeyNotToken         _ }
 
-%right '||'
-%right '&&'
+-- Operator precedence
+%right '=' '=+' '=-'
+%left ','
+%left ':'
+%right 'OR'
+%right 'AND'
+%nonassoc '==' '!='
+%nonassoc '>' '<' '>=' '<='
+%left '+' '-'
+%left '*' '/'
+%left '.'
 
 %%
 
-XX
- : X                        { [$1]      }
- | X XX                     { ($1 : $2) }
+-- Grammar rules
 
-X
- : Y ';'                    { Y $1 }
- | ConditionX               { $1   }
- | LoopFX                   { $1   }
+-- Queries
+Queries
+  : Query Queries               { ($1 : $2) }
+  | {- empty -}                     { [] }
 
-Y
- : Class ident '=' Y                        { IdentCl $1 $2 $4  }
- | ident '=' Y                              { Ident $1 $3       }
- | Class ident                              { IdentFin $1 $2    }
- | ident                                    { IdentT $1         }
- | num                                      { Int $1            }
- | FIdent                                   { IdentT $1         }
- | chars                                    { String $1         }
- | ident '.' FIND '(' ident '->' YBool ')'  { FINDCall $1 $5 $7 }
- | ident '.' ARITH '(' AddGrN ')'            { ArithCall $1 $5  }
- | ACCESS chars                              { ACCESS $2        }
- | OUT '(' ident ')'                         { OUT $3           }
- | YBool                                     { YBool $1         }
- | ident '.' ident                           { IdentChar $1 $3  }
- | ident '.' FIdent                          { IdentChar $1 $3  }
+-- Query
+Query
+  : Expr ';'                        { Expr $1 }
+  | CONDIFQuery                     { $1 }
+  | THROUGHQuery                    { $1 }
 
-YBool
- : True                                      { Bool True               }
- | False                                     { Bool False              }
- | Y '==' Y                                  { Exact $1 $3             }
- | Y '!=' Y                                  { Ineq $1 $3              }
- | Y '<' Y                                   { EqualityL $1 $3         }
- | Y '>' Y                                   { EqualityG $1 $3         }
- | Y '<=' Y                                  { EqualityEqL $1 $3       }
- | Y '>=' Y                                  { EqualityEqG $1 $3       }
- | YBool '&&' YBool                          { LogA $1 $3              }
- | YBool '||' YBool                          { LogO $1 $3              }
- | '-' '[' YBool ']' '->' ident              { RelCallFin $3 $6        }
- | ident '-' '[' YBool ']' '->'              { RelCallNew $1 $4        }
- | '(' YBool ')'                             { $2                      }
- | ident '-' '[' YBool ']' '->' ident        { RelCall $1 $4 $7        }
- | ident '.' FIdent '==' chars               { FIdentExact $1 $3 $5    }
- | ident '-' '[' YBool ']' '->' '_'          { RelCallNewUnderscore $1 $4 }
- | FIdent '=' chars                          { FIdentAssign $1 $3      }
+-- Expressions
+Expr
+  : ExtractExpr                     { $1 }
+  | FuncExpr                        { $1 }
+  | FuncAppExpr                     { $1 }
+  | BoolExpr       %shift           { BoolExpr $1 }
+  | SetExpr                      { $1 }
+  | LiteralExpr                     { $1 }
+  | '(' Expr ')'                    { $2 }
 
-AddGrN
- : ident                                     { GrNDup $1  }
- | SetGrNNT                                  { AddGrN $1  }
+-- Literal Expressions
+LiteralExpr
+  : identity                             { Var $1 }
+  | MathExpr                        { MathExpr $1 }
+  | header                        { Var $1 }
+  | chars                          { Chars $1 }
+  | regular                           { RegularExpression $1 }
 
-SetGrNNT
- : SetGrNT                                   { [$1]          }
- | SetGrNT ',' SetGrNNT                      { ($1 : $3)     }
+-- Setment Expressions
+SetExpr
+  : Type identity '=' Expr               { TypedSet $1 $2 $4 }
+  | Expr '=' Expr                   { Set $1 $3 }
+  | Type identity               %shift   { Declare $1 $2 }
+  | Expr '=+' Expr                  { IncrementSet $1 $3 }
+  | Expr '=-' Expr                  { DecrementSet $1 $3 }
+  | Expr '.' CALLDATAPOINT '(' Expr ')'   { CallDataPoint $1 $5 }
 
-SetGrNT
- : ident '=' Y                               { SetGrNT $1 $3   }
- | FIdent '=' Y                              { SetGrNT $1 $3   }
- | ident '-' '[' SetGrNNT ']' '->' ident     { RelSet $1 $4 $7 }
+-- Extract Expressions
+ExtractExpr
+  : Expr '.' identity                    { CallProperty $1 $3 }
+  | Expr '.' header               { CallProperty $1 $3 }
 
-ConditionX
- : CONDITION '(' YBool ')' '{' XX '}'                          { ConditionBXX $3 $6         }
- | CONDITION '(' YBool ')' '{' XX '}' CONDITIONELIF '{' XX '}' { ConditionBXXEXX $3 $6 $10  }
+-- Function Expressions
+FuncExpr
+  : ACCESS '(' chars ')'         { ACCESS $3 }
+  | STDOUT '(' identity ')'               { STDOUT $3 }
 
-LoopFX
- : LOOPF '(' Class ident ':' ident ')' '{' XX '}'              { LoopFBlock $3 $4 $6 $9 }
+-- Function Application Expressions
+FuncAppExpr
+  : Expr '.' CASE '(' BoolExpr ')'        { CASEQuery $1 $5 }
+  | Expr '.' PLUS '(' Expr ')'              { PlusQuery $1 $5 }
+  | Expr '.' CALLASSOCIATION '(' BoolExpr ')'  { CallAssociation $1 $5 }
+  | Expr '.' NOT '(' Expr ')'          { Not $1 $5 }
 
-Class
- : Gr        { Class $1 }
- | Num       { Class $1 }
- | Chars     { Class $1 }
- | B         { Class $1 }
- | GrN       { Class $1 }
- | Rel       { Class $1 }
+-- Math Expressions
+MathExpr
+  : MathTerm                        { $1 }
+  | MathExpr '+' MathExpr           { PlusPlus $1 $3 }
+  | MathExpr '-' MathExpr           { Subtraction $1 $3 }
+
+MathTerm
+  : MathExpr '*' MathExpr           { Multiplication $1 $3 }
+  | MathExpr '/' MathExpr           { Divison $1 $3 }
+  | int                             { IntLit $1 }
+
+-- Bool Expressions
+BoolExpr
+  : SimpleBoolExpr 'AND' BoolExpr    { And $1 $3 }
+  | SimpleBoolExpr 'OR' BoolExpr    { Or $1 $3 }
+  | SimpleBoolExpr     %shift       { $1 }
+
+SimpleBoolExpr
+  : True                            { BoolLit True }
+  | False                           { BoolLit False }
+  | Expr '==' Expr                  { Equals $1 $3 }
+  | Expr '!=' Expr                  { NotEquals $1 $3 }
+  | Expr '<' Expr                   { LessThan $1 $3 }
+  | Expr '>' Expr                   { GreaterThan $1 $3 }
+  | Expr '<=' Expr                  { LTEquals $1 $3 }
+  | Expr '>=' Expr                  { GTEquals $1 $3 }
+  | '-' '[' BoolExpr ']' '->' identity   { EndAssociationQuery $3 $6 }
+  | identity '-' '[' BoolExpr ']' '->'   { StartAssociationQuery $1 $4 }
+  | '(' BoolExpr ')'                { $2 }
+  | identity '-' '[' BoolExpr ']' '->' identity { AssociationQuery $1 $4 $7 }
+  | Expr '.' CONTAINS '(' CharsList ')'  { Contains $1 $5 }
+
+-- If Query
+CONDIFQuery
+  : CONDIF '(' BoolExpr ')' '{' Queries '}'                         { CONDIFBlock $3 $6 }
+  | CONDIF '(' BoolExpr ')' '{' Queries '}' CONDELIF '{' Queries '}'    { CONDELIFBlock $3 $6 $10 }
+
+-- THROUGH Query
+THROUGHQuery
+  : THROUGH '(' Type identity ':' Expr ')' '{' Queries '}'         { THROUGHBlock $3 $4 $6 $9 }
+
+-- Chars List
+CharsList
+  : chars                          { [$1] }
+  | chars ',' CharsList           { ($1 : $3) }
+
+-- Type
+Type
+  : DataStructure                       { TypeConstr $1 }
+  | Num                     { TypeConstr $1 }
+  | Chars                      { TypeConstr $1 }
+  | Bool                     { TypeConstr $1 }
+  | DataPoint                        { TypeConstr $1 }
+  | Association                    { TypeConstr $1 }
 
 {
-
 parseError :: [Token] -> a
-parseError [] = error "Parse error detected\n"
-parseError (Tok (AlexPn _ r c) t : _) = error $ "Error " ++ show t ++ " @ " ++ show r ++ " - " ++ show c ++ "\n"
+parseError [] = error "Parse error at end of input\n"
+parseError (Key t (AlexPn _ x y) : _) = error $ "Error " ++ show t ++ ", see " ++ show x ++ ":" ++ show y ++ "\n"
 
-type XX = [X]
+type Queries
+  = [Query]
 
-data X
- = Y Y
- | ConditionBXX YBool XX
- | ConditionBXXEXX YBool XX XX
- | LoopFBlock Class String String XX
- deriving (Eq, Show)
+data Query
+  = Expr Expr
+  | CONDIFBlock BoolExpr Queries
+  | CONDELIFBlock BoolExpr Queries Queries
+  | THROUGHBlock Type String Expr Queries
+  deriving (Eq, Show)
 
-data Y
- = IdentCl Class String Y
- | Ident String Y
- | IdentFin Class String
- | IdentT String
- | Int Int
- | String String
- | FINDCall String String YBool
- | ArithCall String GrN
- | ACCESS String
- | OUT String
- | YBool YBool
- | IdentChar String String
- deriving (Eq, Show)
+data Expr
+  = TypedSet Type String Expr
+  | Set Expr Expr
+  | Declare Type String
+  | Var String
+  | MathExpr MathExpr
+  | Chars String
+  | RegularExpression String
+  | CASEQuery Expr BoolExpr
+  | PlusQuery Expr Expr
+  | ACCESS String
+  | STDOUT String
+  | BoolExpr BoolExpr
+  | CallProperty Expr String
+  | CallAssociation Expr BoolExpr
+  | IncrementSet Expr Expr
+  | DecrementSet Expr Expr
+  | Not Expr Expr
+  | CallDataPoint Expr Expr
+  deriving (Eq, Show)
 
-data YBool
- = Bool Bool
- | Exact Y Y
- | Ineq Y Y
- | EqualityL Y Y
- | EqualityG Y Y
- | EqualityEqL Y Y
- | EqualityEqG Y Y
- | LogA YBool YBool
- | LogO YBool YBool
- | RelCallFin YBool String
- | RelCallNew String YBool
- | RelCall String YBool String
- | FIdentExact String String String
- | RelCallNewUnderscore String YBool
- | Underscore
- | FIdentAssign String String
- deriving (Eq, Show)
- 
-data GrN
- = GrNDup String
- | AddGrN [SetGrNT]
- deriving (Eq, Show)
+data MathExpr
+  = IntLit Int
+  | PlusPlus MathExpr MathExpr
+  | Subtraction MathExpr MathExpr
+  | Multiplication MathExpr MathExpr
+  | Divison MathExpr MathExpr
+  deriving (Eq, Show)
 
-data SetGrNT
- = SetGrNT String Y
- | RelSet String [SetGrNT] String
- deriving (Eq, Show)
+data BoolExpr
+  = BoolLit Bool
+  | Equals Expr Expr
+  | NotEquals Expr Expr
+  | LessThan Expr Expr
+  | GreaterThan Expr Expr
+  | LTEquals Expr Expr
+  | GTEquals Expr Expr
+  | And BoolExpr BoolExpr
+  | Or BoolExpr BoolExpr
+  | EndAssociationQuery BoolExpr String
+  | StartAssociationQuery String BoolExpr
+  | AssociationQuery String BoolExpr String
+  | Contains Expr [String]
+  deriving (Eq, Show)
 
-data Class
- = Class Token
- deriving (Eq, Show)
-
+data Type
+  = TypeConstr Token
+  deriving (Eq, Show)
 }

@@ -4,113 +4,130 @@ module Lexer where
 
 %wrapper "posn"
 
-$digit = 0-9
-$alpha = [a-zA-Z]
+-- Character classes
+$int = 0-9
+$char = [a-zA-Z]
+$sym = [ \. \/ \\ \' \_]
 
+-- Token definitions
 tokens :-
- ACCESS                                 { \p _ -> Tok p TokACCESS                              }
- FIND                                   { \p _ -> Tok p TokFIND                                }
- OUT                                    { \p _ -> Tok p TokOUT                                 }
- CONDITION                              { \p _ -> Tok p TokCond                                }
- CONDITIONELIF                          { \p _ -> Tok p TokCondE                               }
- LOOPF                                  { \p _ -> Tok p TokLoopF                               }
- ARITH                                  { \p _ -> Tok p TokArith                               }
- Gr                                     { \p _ -> Tok p TokGr                                  }
- Num                                    { \p _ -> Tok p TokNum                                 }
- String                                 { \p _ -> Tok p TokChars                               }
- Boolean                                { \p _ -> Tok p TokB                                   }
- True                                   { \p _ -> Tok p TokBT                                  }
- False                                  { \p _ -> Tok p TokBF                                  }
- GrN                                    { \p _ -> Tok p TokGrN                                 }
- Rel                                    { \p _ -> Tok p TokRel                                 }
- ">="                                   { \p _ -> Tok p TokEqualityEqG                         }
- "<="                                   { \p _ -> Tok p TokEqualityEqL                         }
- \>                                     { \p _ -> Tok p TokEqualityG                           }
- \<                                     { \p _ -> Tok p TokEqualityL                           }
- \=                                     { \p _ -> Tok p TokSet                                 }
- "=="                                   { \p _ -> Tok p TokExact                               }
- \[                                     { \p _ -> Tok p TokBracketLeftS                        }
- \]                                     { \p _ -> Tok p TokBracketRightS                       }
- "<-"                                   { \p _ -> Tok p TokDirectedL                           }
- "->"                                   { \p _ -> Tok p TokDirectedR                           }
- \-                                     { \p _ -> Tok p TokHyph                                }
- r\".*\"                                { \p s -> Tok p (TokReg (drop 2 $ init s))             }
- \;                                     { \p _ -> Tok p TokColS                                }
- \!=                                    { \p _ -> Tok p TokIneq                                }
- \,                                     { \p _ -> Tok p TokSep                                 }
- \.                                     { \p _ -> Tok p TokBrk                                 }
- \:[A-Z]+                               { \p s -> Tok p (TokFIdent (drop 1 s))                 }
- \'($alpha|$digit|\.)*\'                { \p s -> Tok p (TokString (drop 1 $ init s))          }
- \"($alpha*)+\"                         { \p s -> Tok p (TokStringLiteral (drop 1 $ init s))   }
- \"                                     { \p _ -> Tok p TokQuote                               }
- "||"                                   { \p _ -> Tok p TokLogO                                }
- "&&"                                   { \p _ -> Tok p TokConj                                }
- \(                                     { \p _ -> Tok p TokBracketLeft                         }
- \)                                     { \p _ -> Tok p TokBracketRight                        }
- \{                                     { \p _ -> Tok p TokBracketLeftC                        }
- \}                                     { \p _ -> Tok p TokBracketRightC                       }
- \:                                     { \p _ -> Tok p TokHeaderColN                          }
- \_                                     { \p _ -> Tok p TokUnderscore                          }
- [a-z]($alpha|$digit|_)*                { \p s -> Tok p (TokIdent s)                           }
- $digit+                                { \p s -> Tok p (TokInt (read s :: Int))               }
- $white+                                ;
- "--".*                                 ;
+
+  -- Ignore whitespace and comments
+  $white+                         ;
+  "//".*                          ;
+
+  -- Numeric literals
+  $int+                           { \x intChar -> Key (KeyNum (read intChar)) x }
+
+  -- Keywords
+  ACCESS                          { \x _ -> Key KeyACCESSToken x }
+  CASE                            { \x _ -> Key KeyCASEToken x }
+  STDOUT                             { \x _ -> Key KeySTDOUTToken x }
+  DataStructure                   { \x _ -> Key KeyDataStructureToken x }
+  Num                             { \x _ -> Key KeyNumToken x }
+  Chars                           { \x _ -> Key KeyCharsToken x }
+  Bool                            { \x _ -> Key KeyBoolToken x }
+  CONDIF                              { \x _ -> Key KeyCONDIFToken x }
+  CONDELIF                            { \x _ -> Key KeyCONDELIFToken x }
+  THROUGH                             { \x _ -> Key KeyTHROUGHToken x }
+  DataPoint                            { \x _ -> Key KeyDataPointToken x }
+  Association                        { \x _ -> Key KeyAssociationToken x }
+  CALLASSOCIATION                     { \x _ -> Key KeyCallAssociationToken x }
+  CONTAINS                        { \x _ -> Key KeyContainsToken x }
+  CALLDATAPOINT                         { \x _ -> Key KeyCallDataPointToken x }
+  PLUS                             { \x _ -> Key KeyPlusToken x }
+  NOT                         { \x _ -> Key KeyNotToken x }
+
+  -- Operators
+  "OR"                            { \x _ -> Key KeyLogicalOr x }
+  "AND"                           { \x _ -> Key KeyLogicalAnd x }
+  \(                              { \x _ -> Key KeyBracketLeft x }
+  \)                              { \x _ -> Key KeyBracketRight x }
+  \{                              { \x _ -> Key KeyBraceLeft x }
+  \}                              { \x _ -> Key KeyBraceRight x }
+  \:                              { \x _ -> Key KeySeparatorColon x }
+  ">="                            { \x _ -> Key KeyInequalitySlackGreater x }
+  "<="                            { \x _ -> Key KeyInequalitySlackLesser x }
+  \>                              { \x _ -> Key KeyInequalityStrictGreater x }
+  \<                              { \x _ -> Key KeyInequalityStrictLesser x }
+  \=                              { \x _ -> Key KeySet x }
+  "=="                            { \x _ -> Key KeyIdentical x }
+  \[                              { \x _ -> Key KeyBracketLeftSquare x }
+  \]                              { \x _ -> Key KeyBracketRightSquare x }
+  "->"                            { \x _ -> Key KeyDirectionalRight x }
+  \-                              { \x _ -> Key KeyNumericMinus x }
+  \+                              { \x _ -> Key KeyNumericAdd x }
+  \*                              { \x _ -> Key KeyNumericMultiply x }
+  \/                              { \x _ -> Key KeyNumericDivide x }
+  "=+"                            { \x _ -> Key KeyNumericIncrease x }
+  "=-"                            { \x _ -> Key KeyNumericDecrease x }
+  \,                              { \x _ -> Key KeySeparatorComma x }
+  \;                              { \x _ -> Key KeySeparatorColonSemi x }
+  "!="                            { \x _ -> Key KeyIdenticalNot x }
+  \.                              { \x _ -> Key KeyPeriod x }
+
+  -- Identifiers and literals
+  [a-z]($char|$int)*            { \x identifier -> Key (KeyIdentity identifier) x }
+  r\".*\"                         { \x rational -> Key (KeyRegularExpression $ show $ drop 2 $ take ((length rational) - 1) rational) x }
+  \:([A-Z]|\_)+                   { \x header -> Key (KeyHeader $ show $ drop 1 header) x }
+  \"($char|$int|$sym)*\"{ \x chars -> Key (KeyChars $ show $ drop 1 $ take ((length chars) - 1) chars) x }
+  True                            { \x _ -> Key KeyBoolTrue x }
+  False                           { \x _ -> Key KeyBoolFalse x }
 
 {
-data TokenClass
- = TokACCESS
- | TokFIND
- | TokOUT
- | TokQuote
- | TokLogO
- | TokConj
- | TokBracketLeft
- | TokBracketRight
- | TokGr
- | TokNum
- | TokChars
- | TokStringLiteral String
- | TokB
- | TokBracketLeftC
- | TokBracketRightC
- | TokCond
- | TokCondE
- | TokLoopF
- | TokHeaderColN
- | TokIdent String
- | TokEqualityEqG
- | TokEqualityEqL
- | TokEqualityG
- | TokEqualityL
- | TokSet
- | TokExact
- | TokBracketLeftS
- | TokBracketRightS
- | TokDirectedL
- | TokDirectedR
- | TokHyph
- | TokReg String
- | TokArith
- | TokBrk
- | TokFIdent String
- | TokString String
- | TokBT
- | TokBF
- | TokColS
- | TokIneq
- | TokSep
- | TokInt Int
- | TokGrN
- | TokRel
- | TokUnderscore
- deriving (Eq, Show)
+data Token = Key TokenType AlexPosn
+  deriving (Eq, Show)
 
-data Token = Tok AlexPosn TokenClass
- deriving (Eq, Show)
-
-tokenPosn :: Token -> String
-tokenPosn (Tok (AlexPn _ line column) _) = show line ++ ":" ++ show column
-
-lex :: String -> [Token]
-lex str = alexScanTokens str
+data TokenType
+  = KeyNum Int
+  | KeyACCESSToken
+  | KeyCASEToken
+  | KeySTDOUTToken
+  | KeyLogicalOr
+  | KeyLogicalAnd
+  | KeyBracketLeft
+  | KeyBracketRight
+  | KeyDataStructureToken
+  | KeyNumToken
+  | KeyCharsToken
+  | KeyBoolToken
+  | KeyBraceLeft
+  | KeyBraceRight
+  | KeyCONDIFToken
+  | KeyCONDELIFToken
+  | KeyTHROUGHToken
+  | KeySeparatorColon
+  | KeyIdentity String
+  | KeyInequalitySlackGreater
+  | KeyInequalitySlackLesser
+  | KeyInequalityStrictGreater
+  | KeyInequalityStrictLesser
+  | KeySet
+  | KeyIdentical
+  | KeyBracketLeftSquare
+  | KeyBracketRightSquare
+  | KeyDirectionalRight
+  | KeyNumericMinus
+  | KeyRegularExpression String
+  | KeyPlusToken
+  | KeyPeriod
+  | KeyHeader String
+  | KeyChars String
+  | KeyBoolTrue
+  | KeyBoolFalse
+  | KeySeparatorColonSemi
+  | KeyIdenticalNot
+  | KeySeparatorComma
+  | KeyDataPointToken
+  | KeyAssociationToken
+  | KeyCallAssociationToken
+  | KeyContainsToken
+  | KeyCallDataPointToken
+  | KeyNumericAdd
+  | KeyNumericMultiply
+  | KeyNumericDivide
+  | KeyNumericIncrease
+  | KeyNumericDecrease
+  | KeyNotToken
+  deriving (Eq, Show)
 }

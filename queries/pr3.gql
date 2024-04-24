@@ -1,24 +1,15 @@
-Gr gr = ACCESS 'table.n4j';
-
-Gr out;
-
-Gr n_prime = gr.FIND(relationship -> relationship.:TYPE == 'Beat');
-
-LOOPF (Gr n_prime : n_prime) {
-    Gr n_source = n_prime - [:TYPE == 'Beat'] ->_;
-    
-    Gr n_double_prime = gr.FIND(relationship ->
-        relationship.:STARTID == n_source.:STARTID &&
-        relationship.:TYPE == 'DrewWith'
-    );
-    
-    LOOPF (Gr r : n_double_prime) {
-        Gr n_double_node = r - [:TYPE == 'DrewWith'] ->_;
-        
-        CONDITION (n_source.points != null && n_double_node.points == n_source.points) {
-            out = out.ARITH(:ID = n_double_node.:ID, points = n_double_node.points);
-        }
+Graph graph = READFILE ("table.n4j");
+Graph result;
+FOR (Node n : graph) {
+  FOR (Node n2 : graph) {
+    FOR (Node n3 : graph) { 
+      IF (n.points != null &&
+          n.points == n3.points &&
+          ( n3-[:TYPE=="DrewWith"]->n2 && n2-[:TYPE=="Beat"]->n ||
+            n2-[:TYPE=="DrewWith"]->n3 && n2-[:TYPE=="Beat"]->n)) {
+        result.ADD(n);
+      }
     }
+  }
 }
-
-OUT(out);
+PRINT (result);

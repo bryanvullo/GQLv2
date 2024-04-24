@@ -1,18 +1,12 @@
-Graph graph = READFILE "loyalty.n4j"
-
-FOR (Node p : graph) {
-    FOR (Node b : graph) {
-        IF (p-[:CustomerOf]->b) {
-            FOR (Node q : graph) {
-                IF (p-[:Recommended]->q && q-[:CustomerOf]->b) {
-                    Integer bonus = b.bonus
-                    REMOVE(p-[:Recommended]->q)
-                    p-[:CustomerOf{reward: reward + bonus}]->b
-                    q-[:CustomerOf{reward: reward + bonus}]->b
-                }
-            }
-        }
+Graph graph = READFILE("networks.n4j");
+Graph initial = graph.MATCH(firstname == r"^(A|B|C)");
+Graph second;
+FOR (Relation isFriendRelation : initial.GETRELATION(:TYPE == "IsFriend")) {
+  IF (((initial.MATCH(:ID == isFriendRelation.:START_ID).age) < (initial.MATCH(:ID == isFriendRelation.:END_ID).age))) { // Check if Friend is older than themselves
+    IF (initial.GETNODE(initial.GETRELATION(:TYPE == "WorksFor").MATCH(:START_ID == isFriendRelation.:END_ID).:END_ID).:LABEL.CONTAINS("Cafe")) { // Check if friend works in cafe
+      second.ADD(initial.GETNODE(isFriendRelation.:START_ID));
+      second.ADD(isFriendRelation);
     }
+  }
 }
-
-PRINT(graph)
+PRINT(second);

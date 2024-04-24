@@ -1,6 +1,6 @@
 import System.Environment (getArgs)
-import Parser (parser)
-import Lexer (Token, lex)
+import Parser
+import Lexer (alexScanTokens)
 import InputParser (parseInput, Tables, Table, Row, ID, Labels)
 import InputLexer (lexInput, Token(..))
 
@@ -10,5 +10,6 @@ main = do
     contents <- readFile filename
     -- let inputResult = parseInput $ lexInput contents
     -- print inputResult
-    let result = parser $ Lexer.lex contents
-    print result  
+    let tokens = alexScanTokens contents
+    let result = parser tokens
+    print result

@@ -1,21 +1,12 @@
-Graph graph = READFILE "network.n4j"
-
-String regex = r"^[ABC].*"
-
-Graph result
-
-FOR (Node person : graph) {
-    IF (person.firstName MATCHES regex) {
-        FOR (Node friend : graph) {
-            IF (person-[:IsFriend]->friend && 
-                friend.age > person.age && 
-                NOT EXISTS(friend-[:WorksFor]->(:Cafe))) {
-                result.ADD(person)
-                result.ADD(friend)
-                result.ADD(person-[:IsFriend]->friend)
-            }
-        }
+Graph graph = READFILE("networks.n4j");
+Graph initial = graph.MATCH(firstname == r"^(A|B|C)");
+Graph second;
+FOR (Relation isFriendRelation : initial.GETRELATION(:TYPE == "IsFriend")) {
+  IF (((initial.MATCH(:ID == isFriendRelation.:START_ID).age) < (initial.MATCH(:ID == isFriendRelation.:END_ID).age))) { // Check if Friend is older than themselves
+    IF (initial.GETNODE(initial.GETRELATION(:TYPE == "WorksFor").MATCH(:START_ID == isFriendRelation.:END_ID).:END_ID).:LABEL.CONTAINS("Cafe")) { // Check if friend works in cafe
+      second.ADD(initial.GETNODE(isFriendRelation.:START_ID));
+      second.ADD(isFriendRelation);
     }
+  }
 }
-
-PRINT(result)
+PRINT(second);

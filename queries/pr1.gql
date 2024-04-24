@@ -1,9 +1,5 @@
-Gr gr = ACCESS 'access.n4j';
+DataStructure nodes = ACCESS("./access.n4j");
 
-Gr out;
+nodes = nodes.CASE (:LABEL=="Visitor" OR age <= 25);
 
-out = gr.FIND(node -> 
-    node.age <= 25 || node.:LABEL == 'Visitor'
-);
-
-OUT(out);
+STDOUT(nodes);

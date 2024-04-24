@@ -14,6 +14,14 @@ Write-Host "Start Testing PR3" -ForegroundColor Blue
 .\GQL .\queries\pr3.gql
 Write-Host "End Testing PR3" -ForegroundColor Blue
 
+Write-Host "Start Testing PR4" -ForegroundColor Blue
+.\GQL .\queries\pr4.gql
+Write-Host "End Testing PR4" -ForegroundColor Blue
+
+Write-Host "Start Testing PR5" -ForegroundColor Blue
+.\GQL .\queries\pr5.gql
+Write-Host "End Testing PR5" -ForegroundColor Blue
+
 .\ScriptPSClean.ps1
 
 Write-Host "End Testing Process" -ForegroundColor Blue

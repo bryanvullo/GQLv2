@@ -1,32 +1,16 @@
-Gr gr = ACCESS 'tasks.n4j';
-
-Gr out = gr.FIND(relationship -> 
-    relationship.:TYPE == 'ToComplete' && relationship.priority >= 8
-);
-
-Gr new_nodes = out.FIND(node -> 
-    node.:LABEL == 'Staff' && 
-    node - [:TYPE == 'CanDo' && available == true] -> _
-);
-
-LOOPF (Gr n : new_nodes) {
-    out = n - [:TYPE = 'PossiblyAllocated'] -> out;
+Graph graph = READFILE("tasks.n4j");
+Graph result = graph; // This makes copy
+FOR (Node nT : graph) {
+  IF (-[priority >= 8]-> nT) { // nT is a target of some relationship with field priority with val >= 8
+    FOR (Node nS : graph) {
+      IF (nS -[available == True]->) {
+        Relation rel;
+        rel.:TYPE = "PossiblyAllocated";
+        rel.:START_ID = nS;
+        rel.:END_ID = nT;
+        result.ADD(rel);
+      }
+    }
+  }
 }
-
-out = gr.ARITH(
-    :ID = :ID,
-    site = site,
-    :LABEL = :LABEL,
-    
-    description = description,
-    duration = duration,
-    
-    name = name,
-    
-    priority = priority,
-    :TYPE = :TYPE,
-    
-    available = available
-);
-
-OUT(out);
+PRINT (result);
