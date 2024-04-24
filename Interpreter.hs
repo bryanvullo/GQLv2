@@ -26,8 +26,19 @@ data Kont =
 
 type Control = (X, Env, Kont)
 
-interpret :: QQ -> Tables -> Tables
-interpret qq tables = undefined
+interpret :: QQ -> Tables
+interpret qq = 
+    where 
+        --find access statement 
+        access = findAccess qq
+        case access of 
+            X $ ClassFinalSet _ name (ACCESS file) -> do
+                contents <- readFile file
+                let newGraph = parseInput $ lexInput contents
+                interpret statements newGraph
+
+findAccess :: QQ -> Q 
+findAccess qq = head $ filter (\x -> case x of X $ ClassFinalSet _ name (ACCESS file))
 
 interpretCEK :: Control -> Tables
 interpretCEK control = undefined
