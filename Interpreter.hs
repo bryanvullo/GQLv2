@@ -125,10 +125,10 @@ getNodeTypes rows = undefined
 getEdgeTypes :: [Row] -> [Row]
 getEdgeTypes rows = undefined
 
-parseInputFile :: String -> Either String Tables
-parseInputFile fileName = do
-    contents <- readFile fileName
-    let tokens = lexInput contents
-    case parseInput tokens of
-        Left err -> Left err
-        Right tables -> Right tables
+-- parseInputFile :: String -> Either String Tables
+-- parseInputFile fileName = do
+--     contents <- readFile fileName
+--     let tokens = lexInput contents
+--     case parseInput tokens of
+--         Left err -> Left err
+--         Right tables -> Right tables
