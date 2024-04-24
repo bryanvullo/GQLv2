@@ -1,6 +1,6 @@
 module Interpreter (interpret) where
 
-import InputParser (parseInput, Tables, Row(..), ID(..), Value(..), Labels, Relationship, Type(..))
+import InputParser (parseInput, Tables, Table, Row(..), ID(..), Value(..), Labels, Relationship, Type(..))
 import Parser (QQ, Q(..), X(..), NumericXX(..), BoolXX(..), Class(..))
 import InputLexer (lexInput, Token(..))
 import Data.List (isInfixOf)
@@ -23,7 +23,7 @@ data Kont =
 
 type Control = (QQ, Env, Kont)
 
-data Data = G [Table] | N Row | B Bool | I Int | S String
+data Data = G [Table] | N Row | B Bool | I Int | S String | Nil
 
 interpret :: QQ -> Tables
 interpret qq = interpretCEK (newQQ, [name, newGraph], KEmpty)
@@ -37,7 +37,7 @@ findAccess :: QQ -> Q
 findAccess qq = head $ filter (\x -> x == X ( ClassFinalSet _ name (ACCESS file))) qq
 
 interpretCEK :: Control -> Tables
-interpretCEK control = undefined
+interpretCEK (( s@(X _) : statements) , env, kont) = 
 
 interpretQ :: Q -> Tables -> Tables
 interpretQ q tables = undefined
