@@ -169,9 +169,11 @@ STDOUT (output);
 // Terminal output for problems
 
 Start Testing PR1
-[X (ClassFinalSet Graph "access" (ACCESS "./access.n4j")),
+[
+X (ClassFinalSet Graph "access" (ACCESS "./access.n4j")),
 X (Set (Identifier "access") (CASEQ (Identifier "access") (LogicalOr (LogicalAnd (Has (Identifier "dataPoint") ["LABEL"]) (Identical (CallAttribute (Identifier "dataPoint") "LABEL") (Chars "Visitor"))) (LogicalAnd (Has (Identifier "dataPoint") ["age"]) (InequalitySlackLesser (CallAttribute (Identifier "dataPoint") "age") (NumericXX (NumericTerminal 25))))))),
-X (STDOUT "access")]
+X (STDOUT "access")
+]
 
 End Testing PR1
 
