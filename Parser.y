@@ -150,19 +150,20 @@ BoolXX
   | LogicalBoolXX     %shift            { $1               }      -- Boolean term expression
 
 LogicalBoolXX
-  : True                                      { BoolTerminal True             }  -- Boolean literal "True"  
-  | False                                     { BoolTerminal False            }  -- Boolean literal "False"
-  | X 'i==' X                                 { Identical $1 $3               }  -- Strict equality expression  
-  | X '!==' X                                 { IdenticalNot $1 $3            }  -- Strict inequality expression
-  | X '<' X                                   { InequalityStrictLesser $1 $3  }  -- Strict less than expression
-  | X '>' X                                   { InequalityStrictGreater $1 $3 }  -- Strict greater than expression
-  | X '<=' X                                  { InequalitySlackLesser $1 $3   }  -- Less than or equal expression
-  | X '>=' X                                  { InequalitySlackGreater $1 $3  }  -- Greater than or equal expression
-  | '-' '[' BoolXX ']' '>>' identity          { AssociationEndQ $3 $6         }  -- Edge target query expression
-  | identity '-' '[' BoolXX ']' '>>'          { AssociationStartQ $1 $4       }  -- Edge source query expression
-  | '(' BoolXX ')'                            { $2                            }  -- Parenthesized boolean expression 
-  | identity '-' '[' BoolXX ']' '>>' identity { AssociationQ $1 $4 $7         }  -- Edge query expression
-  | X '.' HAS '(' CharsQ ')'                  { Has $1 $5                     }  -- Node/edge property query expression  
+  : True                                            { BoolTerminal True              }  -- Boolean literal "True"  
+  | False                                           { BoolTerminal False             }  -- Boolean literal "False"
+  | X 'i==' X                                       { Identical $1 $3                }  -- Strict equality expression  
+  | X '!==' X                                       { IdenticalNot $1 $3             }  -- Strict inequality expression
+  | X '<' X                                         { InequalityStrictLesser $1 $3   }  -- Strict less than expression
+  | X '>' X                                         { InequalityStrictGreater $1 $3  }  -- Strict greater than expression
+  | X '<=' X                                        { InequalitySlackLesser $1 $3    }  -- Less than or equal expression
+  | X '>=' X                                        { InequalitySlackGreater $1 $3   }  -- Greater than or equal expression
+  | '-' '[' BoolXX ']' '>>' identity                { AssociationEndQ $3 $6          }  -- Edge target query expression
+  | identity '-' '[' BoolXX ']' '>>'                { AssociationStartQ $1 $4        }  -- Edge source query expression
+  | '(' BoolXX ')'                                  { $2                             }  -- Parenthesized boolean expression 
+  | identity '-' '[' BoolXX ']' '>>' identity       { AssociationQ $1 $4 $7          }  -- Edge query expression
+  | X '.' HAS '(' CharsQ ')'                        { Has $1 $5                      }  -- Node/edge property query expression  
+  | identity '-' '[' BoolXX ']' '>>' '[' CharsQ ']' { AssociationNodeLabelQ $1 $4 $8 }  -- Edge query with target node label filter
 
 -- Conditional expressions 
 CONDIFQ
@@ -245,6 +246,7 @@ data BoolXX
   | AssociationEndQ BoolXX String
   | AssociationStartQ String BoolXX  
   | AssociationQ String BoolXX String
+  | AssociationNodeLabelQ String BoolXX [String]
   | Has X [String]  
   deriving (Eq, Show)
 

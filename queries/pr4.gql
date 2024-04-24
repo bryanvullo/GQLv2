@@ -1,0 +1,23 @@
+DataStructure network = ACCESS("./network.n4j");
+DataStructure outputGraph;
+
+THROUGH (DataPoint person : network) {
+    CONDIF (
+        person.HAS("firstName") AND 
+        (person.firstName >= "A" AND person.firstName <= "C")
+    ) {
+        THROUGH (DataPoint friend : network) {
+            CONDIF (
+                (person -[:CLASS i== "IsFriend"]>> friend) AND
+                (friend.age > person.age) AND
+                NEGATE (friend -[:CLASS i== "WorksFor"]>> [:LABEL "Cafe"])
+            ) {
+                outputGraph.PLUS(person);
+                outputGraph.PLUS(friend);
+                outputGraph.PLUS(person -["IsFriend"]>> friend);
+            }
+        }
+    }
+}
+
+STDOUT(outputGraph);
