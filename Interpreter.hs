@@ -46,7 +46,7 @@ interpretCEK (x, env, k) =
             let result1 = interpretCEK (x1, env, KSet "temp1" x2 env k)
                 (ClassFinalSet _ _ x2', env', _) = result1
                 result2 = interpretCEK (x2', env', k)
-                updatedTables = updateTable (tables result1) (tables result2)
+                updatedTables = updateTable (tables env) (tables env')
                 updatedEnv = Env updatedTables (variables env)
             in interpretCEK (ClassFinalSet Graph "result" (ACCESS ""), updatedEnv, k)
         ClassShow cls label ->
@@ -106,7 +106,7 @@ interpretCEK (x, env, k) =
             interpretCEK (ClassFinalSet cls label x', env', KSeq qs env k) =
                 let updatedEnv = Env (tables env') ((label, ClassFinalSet cls label x') : variables env)
                 in interpretCEK (ClassFinalSet cls label x', updatedEnv, KSeq qs env k)
-            interpretCEK (BoolXX boolXX, env', KCond ifQQ elseQQ env k) =
+            interpretCEK (BoolXX boolXX, env', KCond boolXX' ifQQ elseQQ env k) =
                 if interpretBoolXX boolXX (tables env')
                     then interpretCEK (ClassFinalSet Graph "result" (ACCESS ""), env', KSeq ifQQ env k)
                     else interpretCEK (ClassFinalSet Graph "result" (ACCESS ""), env', KSeq elseQQ env k)
@@ -150,7 +150,7 @@ interpretCEK (x, env, k) =
                     updatedEnv = Env dataPoints (variables env')
                 in interpretCEK (ClassFinalSet Graph "result" (ACCESS ""), updatedEnv, k)
 
-interpretNumericXX :: NumericXX -> Tables -> Row
+interpretNumericXX :: NumericXX -> Tables -> Value
 interpretNumericXX (NumericTerminal n) _ = IntValue n
 interpretNumericXX (PlusPlus n1 n2) tables =
     let IntValue v1 = interpretNumericXX n1 tables
@@ -297,15 +297,15 @@ findTable label tables = fromJust (lookup (Id label) (zip (map getId tables) tab
        getId ((RelationshipData startId _ _ _):_) = startId
        getId _ = error "Invalid table format"
 
-updateTable :: [Row] -> [Row] -> [Row]
+updateTable :: Tables -> Tables -> Tables
 updateTable _ [] = []
 updateTable [] _ = []
 updateTable ((Data id values):rows) ((Data _ newValues):newRows) =
-   Data id (updateValues values newValues) : updateTable rows newRows
+    Data id (updateValues values newValues) : updateTable rows newRows
 updateTable ((LabeledData id values labels):rows) ((LabeledData _ newValues newLabels):newRows) =
-   LabeledData id (updateValues values newValues) (labels ++ newLabels) : updateTable rows newRows
+    LabeledData id (updateValues values newValues) (labels ++ newLabels) : updateTable rows newRows
 updateTable ((RelationshipData startId values endId rel):rows) ((RelationshipData _ newValues _ _):newRows) =
-   RelationshipData startId (updateValues values newValues) endId rel : updateTable rows newRows
+    RelationshipData startId (updateValues values newValues) endId rel : updateTable rows newRows
 updateTable _ _ = error "Invalid table format for update"
 
 updateValues :: [Value] -> [Value] -> [Value]
@@ -336,8 +336,8 @@ getValue attr (v@(BoolValue x):vs)
    | otherwise = getValue attr vs
 getValue attr (_:vs) = getValue attr vs
 
-filterTable :: (Row -> Bool) -> [Row] -> [Row]
-filterTable predicate = filter predicate
+filterTable :: (Row -> Bool) -> Tables -> Tables
+filterTable predicate = map (filter predicate)
 
 isMatchingRow :: Row -> String -> Bool
 isMatchingRow (Data id _) regex = isMatching (idToString id) regex
@@ -350,7 +350,7 @@ isMatchingRow (RelationshipData startId _ endId rel) regex =
 isMatchingRow _ _ = False
 
 isMatching :: String -> String -> Bool
-isMatching str regex = str =~ regex
+isMatching str regex = str == regex
 
 idToString :: ID -> String
 idToString (Id str) = str
