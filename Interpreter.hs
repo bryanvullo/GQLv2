@@ -51,7 +51,8 @@ interpretCEK ( s@(X (Set x1 x2)):statements, env, kont) =
     interpretCEK (statements, env, KSetL x2 env kont)
 interpretCEK ( s@(X (ClassShow dType name)):statements, env, kont) = 
     interpretCEK (statements, (name,Nill):env, kont)
-
+interpretCEK ( s@(X (Identifier name)):statements, env, kont) = 
+    interpretCEK (statements, (name,Nill):env, kont)
 
 interpretQ :: Q -> Tables -> Tables
 interpretQ q tables = undefined
