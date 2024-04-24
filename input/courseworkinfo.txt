@@ -167,24 +167,71 @@ output = output.CALLASSOCIATION(association -[:CLASS !== "Recommended"]>> dataPo
 STDOUT (output);
 
 // Terminal output for problems
+
 Start Testing PR1
-[X (ClassFinalSet Graph "access" (ACCESS "./access.n4j")),X (Set (Identifier "access") (CASEQ (Identifier "access") (LogicalOr (LogicalAnd (Has (Identifier "dataPoint") ["LABEL"]) (Identical (CallAttribute (Identifier "dataPoint") "LABEL") (Chars "Visitor"))) (LogicalAnd (Has (Identifier "dataPoint") ["age"]) (InequalitySlackLesser (CallAttribute (Identifier "dataPoint") "age") (NumericXX (NumericTerminal 25))))))),X (STDOUT "access")]
+[X (ClassFinalSet Graph "access" (ACCESS "./access.n4j")),
+X (Set (Identifier "access") (CASEQ (Identifier "access") (LogicalOr (LogicalAnd (Has (Identifier "dataPoint") ["LABEL"]) (Identical (CallAttribute (Identifier "dataPoint") "LABEL") (Chars "Visitor"))) (LogicalAnd (Has (Identifier "dataPoint") ["age"]) (InequalitySlackLesser (CallAttribute (Identifier "dataPoint") "age") (NumericXX (NumericTerminal 25))))))),
+X (STDOUT "access")]
+
 End Testing PR1
 
 Start Testing PR2
-[X (ClassFinalSet Graph "tasks" (ACCESS "./tasks.n4j")),X (ClassFinalSet Graph "tasksCopy" (Identifier "tasks")),X (Set (Identifier "tasks") (CASEQ (Identifier "tasks") (LogicalAnd (Has (Identifier "dataPoint") ["priority"]) (InequalitySlackGreater (CallAttribute (Identifier "dataPoint") "priority") (NumericXX (NumericTerminal 8)))))),THROUGHQ Node "highPriorityTask" (Identifier "tasks") [THROUGHQ Node "availableTask" (Identifier "tasks") [CONDIFQ (LogicalAnd (Has (Identifier "availableTask") ["available"]) (Identical (CallAttribute (Identifier "availableTask") "available") (BoolXX (BoolTerminal True)))) [X (ClassShow Edge "possiblyAllocated"),X (Set (CallAttribute (Identifier "possiblyAllocated") "CLASS") (Chars "PossiblyAllocated")),X (Set (CallAttribute (Identifier "possiblyAllocated") "START_ID") (Identifier "availableTask")),X (Set (CallAttribute (Identifier "possiblyAllocated") "END_ID") (Identifier "highPriorityTask")),X (PlusQ (Identifier "tasksCopy") (Identifier "possiblyAllocated"))]]],X (STDOUT "tasksCopy")]
+
+[
+X (ClassFinalSet Graph "tasks" (ACCESS "./tasks.n4j")),
+X (ClassFinalSet Graph "tasksCopy" (Identifier "tasks")),
+X (Set (Identifier "tasks") (CASEQ (Identifier "tasks") (LogicalAnd (Has (Identifier "dataPoint") ["priority"]) (InequalitySlackGreater (CallAttribute (Identifier "dataPoint") "priority") (NumericXX (NumericTerminal 8)))))),
+THROUGHQ Node "highPriorityTask" (Identifier "tasks") [THROUGHQ Node "availableTask" (Identifier "tasks") [CONDIFQ (LogicalAnd (Has (Identifier "availableTask") ["available"]) (Identical (CallAttribute (Identifier "availableTask") "available") (BoolXX (BoolTerminal True)))) [X (ClassShow Edge "possiblyAllocated"),
+X (Set (CallAttribute (Identifier "possiblyAllocated") "CLASS") (Chars "PossiblyAllocated")),
+X (Set (CallAttribute (Identifier "possiblyAllocated") "START_ID") (Identifier "availableTask")),
+X (Set (CallAttribute (Identifier "possiblyAllocated") "END_ID") (Identifier "highPriorityTask")),
+X (PlusQ (Identifier "tasksCopy") (Identifier "possiblyAllocated"))]]],
+X (STDOUT "tasksCopy")
+]
+
 End Testing PR2
 
 Start Testing PR3
-[X (ClassFinalSet Graph "table" (ACCESS "./table.n4j")),X (ClassShow Graph "output"),THROUGHQ Node "team" (Identifier "table") [CONDIFQ (LogicalAnd (Has (Identifier "team") ["points"]) (IdenticalNot (CallAttribute (Identifier "team") "points") (Identifier "null"))) [THROUGHQ Node "drawnTeam" (Identifier "table") [CONDIFQ (LogicalAnd (Has (Identifier "drawnTeam") ["points"]) (Identical (CallAttribute (Identifier "drawnTeam") "points") (CallAttribute (Identifier "team") "points"))) [THROUGHQ Node "beatenTeam" (Identifier "table") [CONDIFQ (LogicalOr (LogicalAnd (AssociationQ "drawnTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "beatenTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam")) (LogicalAnd (AssociationQ "beatenTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "drawnTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam"))) [X (PlusQ (Identifier "output") (Identifier "team"))]]]]]],X (STDOUT "output")]
+
+[
+X (ClassFinalSet Graph "table" (ACCESS "./table.n4j")),
+X (ClassShow Graph "output"),
+THROUGHQ Node "team" (Identifier "table") [CONDIFQ (LogicalAnd (Has (Identifier "team") ["points"]) (IdenticalNot (CallAttribute (Identifier "team") "points") (Identifier "null"))) [THROUGHQ Node "drawnTeam" (Identifier "table") [CONDIFQ (LogicalAnd (Has (Identifier "drawnTeam") ["points"]) (Identical (CallAttribute (Identifier "drawnTeam") "points") (CallAttribute (Identifier "team") "points"))) [THROUGHQ Node "beatenTeam" (Identifier "table") [CONDIFQ (LogicalOr (LogicalAnd (AssociationQ "drawnTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "beatenTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam")) (LogicalAnd (AssociationQ "beatenTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "drawnTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam"))) [X (PlusQ (Identifier "output") (Identifier "team"))]]]]]],
+X (STDOUT "output")
+]
+
 End Testing PR3
 
 Start Testing PR4
-[X (ClassFinalSet Graph "network" (ACCESS "./network.n4j")),X (ClassShow Graph "output"),THROUGHQ Node "person" (Identifier "network") [CONDIFQ (LogicalAnd (Has (Identifier "person") ["firstName"]) (LogicalAnd (InequalitySlackGreater (CallAttribute (Identifier "person") "firstName") (Chars "A")) (InequalitySlackLesser (CallAttribute (Identifier "person") "firstName") (Chars "C")))) [X (PlusQ (Identifier "output") (Identifier "person")),THROUGHQ Node "friend" (CallAssociation (Identifier "person") (AssociationQ "association" (Identical (Identifier "TYPE") (Chars "IsFriend")) "dataPoint")) [CONDIFQ (LogicalAnd (Has (Identifier "friend") ["age"]) (LogicalAnd (Has (Identifier "person") ["age"]) (InequalityStrictGreater (CallAttribute (Identifier "friend") "age") (CallAttribute (Identifier "person") "age")))) [X (ClassFinalSet Graph "friendEmployers" (CallAssociation (Identifier "friend") (AssociationQ "association" (Identical (Identifier "TYPE") (Chars "WorksFor")) "dataPoint"))),X (ClassFinalSet Bool "friendWorksInCafe" (BoolXX (BoolTerminal False))),THROUGHQ Node "employer" (Identifier "friendEmployers") [CONDIFQ (LogicalAnd (Has (Identifier "employer") ["LABEL"]) (Identical (CallAttribute (Identifier "employer") "LABEL") (Chars "Cafe"))) [X (Set (Identifier "friendWorksInCafe") (BoolXX (BoolTerminal True)))]],CONDIFQ (Identical (Identifier "friendWorksInCafe") (BoolXX (BoolTerminal False))) [X (PlusQ (Identifier "output") (Identifier "friend")),X (PlusQ (Identifier "output") (BoolXX (AssociationQ "person" (Identical (CallAttribute (Identifier "association") "TYPE") (Chars "IsFriend")) "friend")))]]]]],X (STDOUT "output")]
+
+[
+X (ClassFinalSet Graph "network" (ACCESS "./network.n4j")),
+X (ClassShow Graph "output"),
+THROUGHQ Node "person" (Identifier "network") [CONDIFQ (LogicalAnd (Has (Identifier "person") ["firstName"]) (LogicalAnd (InequalitySlackGreater (CallAttribute (Identifier "person") "firstName") (Chars "A")) (InequalitySlackLesser (CallAttribute (Identifier "person") "firstName") (Chars "C")))) [X (PlusQ (Identifier "output") (Identifier "person")),
+THROUGHQ Node "friend" (CallAssociation (Identifier "person") (AssociationQ "association" (Identical (Identifier "TYPE") (Chars "IsFriend")) "dataPoint")) [CONDIFQ (LogicalAnd (Has (Identifier "friend") ["age"]) (LogicalAnd (Has (Identifier "person") ["age"]) (InequalityStrictGreater (CallAttribute (Identifier "friend") "age") (CallAttribute (Identifier "person") "age")))) [X (ClassFinalSet Graph "friendEmployers" (CallAssociation (Identifier "friend") (AssociationQ "association" (Identical (Identifier "TYPE") (Chars "WorksFor")) "dataPoint"))),
+X (ClassFinalSet Bool "friendWorksInCafe" (BoolXX (BoolTerminal False))),
+THROUGHQ Node "employer" (Identifier "friendEmployers") [CONDIFQ (LogicalAnd (Has (Identifier "employer") ["LABEL"]) (Identical (CallAttribute (Identifier "employer") "LABEL") (Chars "Cafe"))) [X (Set (Identifier "friendWorksInCafe") (BoolXX (BoolTerminal True)))]],
+CONDIFQ (Identical (Identifier "friendWorksInCafe") (BoolXX (BoolTerminal False))) [X (PlusQ (Identifier "output") (Identifier "friend")),
+X (PlusQ (Identifier "output") (BoolXX (AssociationQ "person" (Identical (CallAttribute (Identifier "association") "TYPE") (Chars "IsFriend")) "friend")))]]]]],
+X (STDOUT "output")
+]
+
 End Testing PR4
 
 Start Testing PR5
-[X (ClassFinalSet Graph "loyalty" (ACCESS "./loyalty.n4j")),X (ClassFinalSet Graph "output" (Identifier "loyalty")),THROUGHQ Node "p" (Identifier "loyalty") [THROUGHQ Node "b" (CallDataPoint (Identifier "p") (BoolXX (AssociationQ "dataPoint" (Identical (CallAttribute (Identifier "association") "CLASS") (Chars "CustomerOf")) "anyNode"))) [X (ClassFinalSet Graph "recommendedCustomers" (CallDataPoint (Identifier "p") (BoolXX (AssociationQ "dataPoint" (Identical (CallAttribute (Identifier "association") "CLASS") (Chars "Recommended")) "anyNode")))),THROUGHQ Node "q" (CallDataPoint (Identifier "recommendedCustomers") (BoolXX (AssociationQ "dataPoint" (Identical (CallAttribute (Identifier "association") "CLASS") (Chars "CustomerOf")) "b"))) [X (ClassFinalSet Graph "pCustomerOf" (CallAssociation (Identifier "p") (AssociationQ "association" (Identical (Identifier "CLASS") (Chars "CustomerOf")) "b"))),X (ClassFinalSet Graph "qCustomerOf" (CallAssociation (Identifier "q") (AssociationQ "association" (Identical (Identifier "CLASS") (Chars "CustomerOf")) "b"))),X (NumericIncrease (CallAttribute (Identifier "pCustomerOf") "reward") (CallAttribute (Identifier "b") "bonus")),X (NumericIncrease (CallAttribute (Identifier "qCustomerOf") "reward") (CallAttribute (Identifier "b") "bonus"))]]],X (Set (Identifier "output") (CallAssociation (Identifier "output") (AssociationQ "association" (IdenticalNot (Identifier "CLASS") (Chars "Recommended")) "dataPoint"))),X (STDOUT "output")]
+
+[
+X (ClassFinalSet Graph "loyalty" (ACCESS "./loyalty.n4j")),
+X (ClassFinalSet Graph "output" (Identifier "loyalty")),
+THROUGHQ Node "p" (Identifier "loyalty") [THROUGHQ Node "b" (CallDataPoint (Identifier "p") (BoolXX (AssociationQ "dataPoint" (Identical (CallAttribute (Identifier "association") "CLASS") (Chars "CustomerOf")) "anyNode"))) [X (ClassFinalSet Graph "recommendedCustomers" (CallDataPoint (Identifier "p") (BoolXX (AssociationQ "dataPoint" (Identical (CallAttribute (Identifier "association") "CLASS") (Chars "Recommended")) "anyNode")))),
+THROUGHQ Node "q" (CallDataPoint (Identifier "recommendedCustomers") (BoolXX (AssociationQ "dataPoint" (Identical (CallAttribute (Identifier "association") "CLASS") (Chars "CustomerOf")) "b"))) [X (ClassFinalSet Graph "pCustomerOf" (CallAssociation (Identifier "p") (AssociationQ "association" (Identical (Identifier "CLASS") (Chars "CustomerOf")) "b"))),
+X (ClassFinalSet Graph "qCustomerOf" (CallAssociation (Identifier "q") (AssociationQ "association" (Identical (Identifier "CLASS") (Chars "CustomerOf")) "b"))),
+X (NumericIncrease (CallAttribute (Identifier "pCustomerOf") "reward") (CallAttribute (Identifier "b") "bonus")),
+X (NumericIncrease (CallAttribute (Identifier "qCustomerOf") "reward") (CallAttribute (Identifier "b") "bonus"))]]],
+X (Set (Identifier "output") (CallAssociation (Identifier "output") (AssociationQ "association" (IdenticalNot (Identifier "CLASS") (Chars "Recommended")) "dataPoint"))),
+X (STDOUT "output")
+]
+
 End Testing PR5
 
 // GQL.HS
