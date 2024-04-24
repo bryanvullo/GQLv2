@@ -1,8 +1,10 @@
 module Interpreter (interpret) where
 
-import InputParser (Tables, Row(..), ID(..), Value(..), Labels, Relationship, Type(..))
+import InputParser (parseInput, Tables, Row(..), ID(..), Value(..), Labels, Relationship, Type(..))
 import Parser (QQ, Q(..), X(..), NumericXX(..), BoolXX(..), Class(..))
 import InputLexer (lexInput, Token(..))
+import Data.List (isInfixOf)
+import Text.Regex.TDFA ((=~))
 
 data Env = Env {
     tables :: Tables,
@@ -68,10 +70,13 @@ isMatchingRow :: Row -> String -> Bool
 isMatchingRow row regex = undefined
 
 isMatching :: String -> String -> Bool
-isMatching str regex = undefined
+isMatching str regex = str =~ regex
+
+isSubstring :: String -> String -> Bool
+isSubstring substr str = substr `isInfixOf` str
 
 idToString :: ID -> String
-idToString id = undefined
+idToString (Id str) = str
 
 numericIncrease :: [Row] -> Int -> [Row]
 numericIncrease rows value = undefined
@@ -108,3 +113,11 @@ getNodeTypes rows = undefined
 
 getEdgeTypes :: [Row] -> [Row]
 getEdgeTypes rows = undefined
+
+parseInputFile :: String -> Either String Tables
+parseInputFile fileName = do
+    contents <- readFile fileName
+    let tokens = lexInput contents
+    case parseInput tokens of
+        Left err -> Left err
+        Right tables -> Right tables
