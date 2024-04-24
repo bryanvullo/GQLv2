@@ -57,7 +57,7 @@ tokens :-
   "i=="                                { \x _ -> Key KeyIdentical x                  } -- Strict equality test
   "["                                  { \x _ -> Key KeyBracketLeftSquare x          } -- Left square bracket
   "]"                                  { \x _ -> Key KeyBracketRightSquare x         } -- Right square bracket  
-  ">>"                                 { \x _ -> Key KeyDirection                    } -- Right arrow for edges
+  ">>"                                 { \x _ -> Key KeyDirectionalRight x                    } -- Right arrow for edges
   "-"                                  { \x _ -> Key KeyNumericMinus x               } -- Subtraction operator
   "+"                                  { \x _ -> Key KeyNumericPlus x                } -- Addition operator
   "*"                                  { \x _ -> Key KeyNumericMultiply x            } -- Multiplication operator
@@ -113,7 +113,7 @@ data TokenType
   | KeyIdentical
   | KeyBracketLeftSquare
   | KeyBracketRightSquare
-  | KeyDirection
+  | KeyDirectionalRight
   | KeyNumericMinus
   | KeyRegular String
   | KeyPlusToken  
