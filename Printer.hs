@@ -3,8 +3,8 @@ module Printer
     where
 
 import InputParser
-import GHC.Runtime.Eval (Term(val))
-import Text.Printf (printf)
+-- import GHC.Runtime.Eval (Term(val))
+-- import Text.Printf (printf)
 
 printOutput :: Tables -> IO ()
 printOutput (t:tables) = do
