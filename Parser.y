@@ -182,12 +182,12 @@ CharsQ
 
 -- Type annotations
 Class  
-  : DataStructure                       { Graph }     -- Graph data structure type
-  | Num                                 { Num }     -- Numeric type  
+  : DataStructure                       { Graph  }     -- Graph data structure type
+  | Num                                 { Num    }     -- Numeric type  
   | Chars                               { String }     -- String type
-  | Bool                                { Bool }     -- Boolean type
-  | DataPoint                           { Node }     -- Node type
-  | Association                         { Edge }     -- Edge type  
+  | Bool                                { Bool   }     -- Boolean type
+  | DataPoint                           { Node   }     -- Node type
+  | Association                         { Edge   }     -- Edge type  
 
 {
 
