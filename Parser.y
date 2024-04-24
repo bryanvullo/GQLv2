@@ -15,7 +15,7 @@ import Lexer
   STDOUT                                { Key KeySTDOUTToken               _ } -- Keyword for standard output
   'AND'                                 { Key KeyLogicalAnd                _ } -- Logical AND operator
   'OR'                                  { Key KeyLogicalOr                 _ } -- Logical OR operator
-  'NEGATE'                              { Key KeyLogicalNegate             _ } -- Logical negation operator (?)
+  'NEGATE'                              { Key KeyLogicalNegate             _ } -- Logical negation operator
   '('                                   { Key KeyBracketLeft               _ } -- Left parenthesis
   ')'                                   { Key KeyBracketRight              _ } -- Right parenthesis
   DataStructure                         { Key KeyDataStructureToken        _ } -- Keyword for the Graph data structure
@@ -54,12 +54,12 @@ import Lexer
   CALLASSOCIATION                       { Key KeyCallAssociationToken      _ } -- Keyword for querying edges
   HAS                                   { Key KeyHasToken                  _ } -- Keyword for property queries on nodes/edges 
   CALLDATAPOINT                         { Key KeyCallDataPointToken        _ } -- Keyword for querying nodes  
+  NOT                                   { Key KeyNotToken                  _ } -- Keyword for excluding nodes/edges
   '+'                                   { Key KeyNumericPlus               _ } -- Addition operator
   '*'                                   { Key KeyNumericMultiply           _ } -- Multiplication operator
   '/'                                   { Key KeyNumericDivide             _ } -- Division operator
   '=+'                                  { Key KeyNumericIncrease           _ } -- Increment operator  
   '=-'                                  { Key KeyNumericDecrease           _ } -- Decrement operator
-  NOT                                   { Key KeyNotToken                  _ } -- Logical negation operator (?)
 
 -- Operator precedence and associativity rules  
 %right '=' '=+' '=-'  
@@ -129,7 +129,7 @@ StatementTryXX
   : X '.' CASE '(' BoolXX ')'            { CASEQ $1 $5           }  -- Case expression  
   | X '.' PLUS '(' X ')'                 { PlusQ $1 $5           }  -- Node/edge addition expression
   | X '.' CALLASSOCIATION '(' BoolXX ')' { CallAssociation $1 $5 }  -- Edge query expression
-  | X '.' NOT '(' X ')'                  { Not $1 $5             }  -- Logical negation expression  
+  | X '.' NOT '(' X ')'                  { Not $1 $5             }  -- Exclusion expression
 
 -- Numeric expressions
 NumericXX
