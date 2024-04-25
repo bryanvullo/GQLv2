@@ -80,7 +80,7 @@ Statement
     | STDOUT '(' argument ')'  { Print $3       }  -- Print statement
         
 Expr
-    : FuncAppExpr               { $1             }  -- Function application expression
+    : Application               { $1             }  -- Function application expression
     | BoolExpr                  { BoolExpr $1    }  -- Boolean expression
     | AssignExpr                { AssignExpr $1  }  -- Assignment expression
     | Assignable                { Assignable $1  }  -- Assignable expression
@@ -99,7 +99,7 @@ Assignable
     | argument '.' argument                  { GetProperty $1 $3     }  -- Property access
     | argument '.' HEADER                    { GetProperty $1 $3     }  -- Property access with header
 
-FuncAppExpr
+Application
     : argument '.' CASE '(' BoolExpr ')'           { MatchQuery $1 $5      }  -- Match query
     | argument '.' PLUS '(' Expr ')'               { AddQuery $1 $5        }  -- Add query
     | argument '.' CALLASSOCIATION '(' BoolExpr ')'{ GetRelation $1 $5     }  -- Get relation  

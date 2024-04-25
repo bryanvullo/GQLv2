@@ -3,8 +3,8 @@ import Parser
 import Lexer
 import InputParser (parseInput, Tables, Table, Row, ID, Labels)
 import InputLexer (lexInput, Token(..))
-import Interpreter (interpret)
-import Printer (printOutput)
+-- import Interpreter (interpret)
+-- import Printer (printOutput)
 
 main :: IO ()
 main = do
@@ -21,8 +21,8 @@ main = do
     -- print inputResult
 
     -- interpret the query
-    let output = interpret result
-    print output
+    -- let output = interpret result
+    -- print output
 
     -- after we interpret we print the output
     -- let result = parseInput $ lexInput contents
