@@ -21,9 +21,8 @@ main = do
     -- print inputResult
 
     -- interpret the query
-    -- let output = interpret result
-    -- print output
+    let output = interpret result
+    print output
 
     -- after we interpret we print the output
-    -- let result = parseInput $ lexInput contents
-    -- printOutput result
+    printOutput output

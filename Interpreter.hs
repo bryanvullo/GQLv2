@@ -43,8 +43,12 @@ data Data = G [Table] | N Row | B Bool | I Int | S String | Nil
     deriving (Eq, Show)
 
 interpret :: Start -> Tables
-interpret (StartExpr var file statements) = interpret' (statements, initialEnv, KEmpty)
+interpret (StartExpr var file statements) = tables
     where
+        (Just G tables) = case result of
+            ([Print var], env, _) -> lookup var env -- print statement found
+            _ -> Just G [] --empty table (no print statement found)
+        result = interpret' (statements, initialEnv, KEmpty)
         fileData = getFile file
         initialEnv = [(var, G fileData)]
 
