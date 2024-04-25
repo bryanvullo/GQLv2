@@ -10,12 +10,13 @@ main :: IO ()
 main = do
     (filename:_) <- getArgs
     contents <- readFile filename
-    -- let inputResult = parseInput $ lexInput contents
-    -- print inputResult
     let tokens = alexScanTokens contents
     let result = parser tokens
     print result 
     
+    -- let inputResult = parseInput $ lexInput contents
+    -- print inputResult
+
     -- interpret the query
     -- let output = interpret result
     -- print output
