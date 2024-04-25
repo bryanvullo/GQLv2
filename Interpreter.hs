@@ -95,10 +95,10 @@ interpret' (Expression (String str):stmts, env, kont) = undefined
 interpret' (Expression (Regex regex):stmts, env, kont) = undefined
     where 
         field = Reg regex
-interpret' (Expression (CaseQuery str bExpr):stmts, env, KSet sExpr env' kont) = 
+interpret' (Expression (CaseQuery str bExpr):stmts, env, KSet sExpr env' kont) = undefined
     where
         graph = G $ matchTables g bExpr
-        interpretSExpr sExpr env' kont
+        set = interpretSExpr sExpr env' kont
 
         Just (G g) = lookup str env
         matchTables str bExpr = map (matchRows bExpr) g
@@ -130,6 +130,9 @@ interpretSetter (IncrSet sExpr expr) env kont = undefined
 interpretSetter (DecrSet sExpr expr) env kont = undefined
 interpretSetter (Set sExpr expr) env kont = (expr, env, KSet sExpr env kont)
 interpretSetter (Declare t str) env kont = undefined
+
+interpretSExpr :: SetterExpression -> Env -> Kont -> Env    
+interpretSExpr = undefined
 
 getHeaderTypes :: Row -> Types 
 getHeaderTypes (Header types) = types
