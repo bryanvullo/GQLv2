@@ -35,8 +35,8 @@ tokens :-
   -- Operators and punctuation
   \(                            { \p _ -> Key KeyBracketLeft p }
   \)                            { \p _ -> Key KeyBracketRight p }
-  ">="                          { \p _ -> Key KeyGreaterEqual p }
-  "<="                          { \p _ -> Key KeyLessEqual p }
+  ">>"                          { \p _ -> Key KeyGreaterEqual p }
+  "<<"                          { \p _ -> Key KeyLessEqual p }
   ">"                           { \p _ -> Key KeyGreater p }
   "<"                           { \p _ -> Key KeyLess p }
   "="                           { \p _ -> Key KeyAssign p }
@@ -47,7 +47,6 @@ tokens :-
   "^"                           { \p _ -> Key KeyEdge p }
   "{"                           { \p _ -> Key KeyBraceLeft p }
   "}"                           { \p _ -> Key KeyBraceRight p }
-  ":$alpha+"                    { \p s -> Key (KeyColonIdentifier s) p }
   ":"                           { \p _ -> Key KeyColon p }
 
   -- Literals
@@ -96,7 +95,6 @@ data TokenType
   | KeyBraceLeft
   | KeyBraceRight
   | KeyColon
-  | KeyColonIdentifier String
   deriving (Eq, Show)
 
 }

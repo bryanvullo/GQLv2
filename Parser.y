@@ -42,7 +42,6 @@ import Lexer
   '{'                   { Key KeyBraceLeft        _ }
   '}'                   { Key KeyBraceRight       _ }
   ':'                   { Key KeyColon            _ }
-  HeaderField           { Key (KeyColonIdentifier $$) _ }
 
 %right '='
 %left OR AND
@@ -63,9 +62,9 @@ Expr : DataStruct            { $1 }
      | Access                { $1 }
      | Stdout                { $1 }
      | Identifier            { $1 }
-     | Case                  { $1 }
      | Plus                  { $1 }
      | '(' Expr ')'          { $2 }
+     | Case                  { $1 }
 
 DataStruct : Graph identity '=' Access    { DataStructSet $2 $4 }
            | Graph identity               { DataStructShow $2   }
@@ -75,10 +74,11 @@ Access : ACCESS '(' chars ')'             { Access $3 }
 Stdout : STDOUT '(' identity ')'          { Stdout $3 }
 
 Identifier : identity                     { Identifier $1 }
+           | identity '.' identity        { HeaderAttribute $1 $3}
 
-Case : Expr '.' CASE '(' BoolExpr ')'     { Case $1 $5   }
+Case : identity '.' CASE '(' BoolExpr ')'     { Case $1 $5   }
 
-Plus : Expr '.' PLUS '(' Expr ')'         { Plus $1 $5   }
+Plus : Identifier '.' PLUS '(' Expr ')'         { Plus $1 $5   }
 
 BoolExpr : BoolTerm AND BoolExpr           { And $1 $3       }
          | BoolTerm OR BoolExpr            { Or $1 $3        }
@@ -91,7 +91,6 @@ BoolTerm : Expr '.' HAS '(' chars ')'            { Has $1 $5          }
          | Expr '<<' Expr                        { LessEqual $1 $3    }
          | Expr '>' Expr                         { Greater $1 $3      }  
          | Expr '<' Expr                         { Less $1 $3         }
-         | Expr HeaderField 'i==' Expr           { HeaderFieldExpr $1 $2 $4 }
          | True                                  { BoolLit True       }
          | False                                 { BoolLit False      }
          | identity '-' Association '^' Expr     { EdgeBoolTerm $1 $5 }
@@ -128,7 +127,9 @@ data Expr
   | Access String
   | Stdout String
   | Identifier String
-  | Case Expr BoolExpr
+  | Attribute String String
+  | HeaderAttribute String String
+  | Case String BoolExpr
   | Plus Expr Expr
   | Edge String Association Expr
   deriving (Eq, Show)
@@ -145,7 +146,6 @@ data BoolExpr
   | Less Expr Expr
   | BoolLit Bool
   | EdgeBoolTerm String Expr
-  | HeaderFieldExpr Expr String Expr
   deriving (Eq, Show)
 
 data Condif = Condif BoolExpr [Statement]

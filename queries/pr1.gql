@@ -1,8 +1,3 @@
-Graph access = ACCESS("./access.n4j")
-
-access = access.CASE(
-  (identity.HAS("LABEL") AND identity.:LABEL i== "Visitor") OR 
-  (identity.HAS("age") AND identity.age << 25)
-)
-
-STDOUT(access)
+Graph graph = ACCESS("./access.n4j")
+graph = graph.CASE(LABEL i== "Visitor" OR age << 25)
+STDOUT(graph)

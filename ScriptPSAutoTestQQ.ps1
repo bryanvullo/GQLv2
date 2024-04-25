@@ -1,3 +1,5 @@
+cls
+
 Write-Host "Start Testing Process" -ForegroundColor Blue
 .\ScriptPSClean.ps1
 .\ScriptPSBuild.ps1
