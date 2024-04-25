@@ -74,80 +74,80 @@ Program
     | {- empty -}        { []      }  -- Empty program
 
 Statement
-    : Expr                     { Expr $1        }  -- Expression statement
+    : Expression                     { Expression $1        }  -- Expression statement
     | IfStatement              { $1             }  -- If statement
     | ForStatement             { $1             }  -- For loop statement  
     | STDOUT '(' argument ')'  { Print $3       }  -- Print statement
         
-Expr
-    : Application               { $1             }  -- Function application expression
-    | BoolExpr                  { BoolExpr $1    }  -- Boolean expression
-    | AssignExpr                { AssignExpr $1  }  -- Assignment expression
-    | Assignable                { Assignable $1  }  -- Assignable expression
-    | LiteralExpr               { $1             }  -- Literal expression
-    | '(' Expr ')'              { $2             }  -- Parenthesized expression
+Expression
+    : Application               { $1                    }  -- Function application expression
+    | BooleanExpression         { BooleanExpression $1  }  -- Boolean expression
+    | SetterExpression          { SetterExpression $1   }  -- Assignment expression
+    | SettableExpression        { SettableExpression $1 }  -- SettableExpression expression
+    | LitExpression             { $1                    }  -- Literal expression
+    | '(' Expression ')'        { $2                    }  -- Parenthesized expression
 
-AssignExpr
-    : Type argument '=' Expr                 { TypedAssign $1 $2 $4  }  -- Typed assignment
-    | Assignable '=' Expr                    { Assign $1 $3          }  -- Regular assignment
-    | Type argument                          { Declare $1 $2         }  -- Variable declaration
-    | Assignable '++' Expr                   { IncrementAssign $1 $3 }  -- Increment assignment
-    | Assignable '--' Expr                   { DecrementAssign $1 $3 }  -- Decrement assignment
+SetterExpression
+    : Type argument '=' Expression            { TypedSet $1 $2 $4     }  -- Typed assignment
+    | SettableExpression '=' Expression       { Set $1 $3             }  -- Regular assignment
+    | Type argument                           { Declare $1 $2         }  -- Variable declaration
+    | SettableExpression '++' Expression      { IncrSet $1 $3 }  -- Increment assignment
+    | SettableExpression '--' Expression      { DecrSet $1 $3 }  -- Decrement assignment
 
-Assignable
+SettableExpression
     : argument                               { Var $1                }  -- Variable
     | argument '.' argument                  { GetProperty $1 $3     }  -- Property access
     | argument '.' HEADER                    { GetProperty $1 $3     }  -- Property access with header
 
 Application
-    : argument '.' CASE '(' BoolExpr ')'           { MatchQuery $1 $5      }  -- Match query
-    | argument '.' PLUS '(' Expr ')'               { AddQuery $1 $5        }  -- Add query
-    | argument '.' CALLASSOCIATION '(' BoolExpr ')'{ GetRelation $1 $5     }  -- Get relation  
-    | argument '.' NEGATE '(' Expr ')'             { Exclude $1 $5         }  -- Exclude expression
+    : argument '.' CASE '(' BooleanExpression ')'           { MatchQuery $1 $5      }  -- Match query
+    | argument '.' PLUS '(' Expression ')'                        { AddQuery $1 $5        }  -- Add query
+    | argument '.' CALLASSOCIATION '(' BooleanExpression ')'{ GetRelation $1 $5     }  -- Get relation  
+    | argument '.' NEGATE '(' Expression ')'                      { Exclude $1 $5         }  -- Exclude expression
 
-LiteralExpr
-    : MathExpr                                    { MathExpr $1           }  -- Mathematical expression
-    | HEADER                                      { Assignable (Var $1)   }  -- Header literal
+LitExpression
+    : NumExpression                                    { NumExpression $1           }  -- Mathematical expression
+    | HEADER                                      { SettableExpression (Var $1)   }  -- Header literal
     | chars                                       { String $1             }  -- String literal
     | RegularExpression                           { Regex $1              }  -- Regular expression literal
-    | argument '.' CALLDATAPOINT '(' Expr ')'     { GetNode $1 $5         }  -- Get node expression
+    | argument '.' CALLDATAPOINT '(' Expression ')'     { GetNode $1 $5         }  -- Get node expression
 
-MathExpr
+NumExpression
     : MathTerm                    { $1                }  -- Mathematical term
-    | MathExpr PLUS MathExpr      { Addition $1 $3    }  -- Addition
-    | MathExpr SUBT MathExpr      { Subtraction $1 $3 }  -- Subtraction
+    | NumExpression PLUS NumExpression      { Addition $1 $3    }  -- Addition
+    | NumExpression SUBT NumExpression      { Subtraction $1 $3 }  -- Subtraction
 
 MathTerm 
-    : MathExpr MULT MathExpr      { Multiplication $1 $3 }  -- Multiplication
-    | MathExpr DIV MathExpr       { Division $1 $3       }  -- Division
+    : NumExpression MULT NumExpression      { Multiplication $1 $3 }  -- Multiplication
+    | NumExpression DIV NumExpression       { Division $1 $3       }  -- Division
     | n                           { Int $1               }  -- Integer literal
 
-BoolExpr
-    : Expr AND Expr               { And $1 $3        }  -- Logical AND  
-    | Expr OR Expr                { Or $1 $3         }  -- Logical OR
+BooleanExpression
+    : Expression AND Expression               { And $1 $3        }  -- Logical AND  
+    | Expression OR Expression                { Or $1 $3         }  -- Logical OR
     | SimpleBoolExpr              { $1               }  -- Simple boolean expression
 
 SimpleBoolExpr
-    : True                                    { Bool True               }  -- Boolean true literal
-    | False                                   { Bool False              }  -- Boolean false literal
-    | Expr 'i==' Expr                         { Equals $1 $3            }  -- Equality comparison
-    | Expr '!==' Expr                         { NotEquals $1 $3         }  -- Inequality comparison  
-    | Expr '<' Expr                           { LessThan $1 $3          }  -- Less than comparison
-    | Expr '>' Expr                           { GreaterThan $1 $3       }  -- Greater than comparison
-    | Expr '<<' Expr                          { LTEquals $1 $3          }  -- Less than or equal to comparison
-    | Expr '>>' Expr                          { GTEquals $1 $3          }  -- Greater than or equal to comparison
-    | '{' BoolExpr '}' '^' argument           { EndRelationQuery $2 $5  }  -- End relation query
-    | argument '{' BoolExpr '}' '^'           { StartRelationQuery $1 $3}  -- Start relation query
-    | '(' BoolExpr ')'                        { $2                      }  -- Parenthesized boolean expression
-    | argument '{' BoolExpr '}' '^' argument  { RelationQuery $1 $3 $6  }  -- Relation query
-    | Expr '.' HAS '(' StringList ')'         { Contains $1 $5          }  -- Contains expression
+    : True                                             { Bool True               }  -- Boolean true literal
+    | False                                            { Bool False              }  -- Boolean false literal
+    | Expression 'i==' Expression                      { Equals $1 $3            }  -- Equality comparison
+    | Expression '!==' Expression                      { NotEquals $1 $3         }  -- Inequality comparison  
+    | Expression '<' Expression                        { LessThan $1 $3          }  -- Less than comparison
+    | Expression '>' Expression                        { GreaterThan $1 $3       }  -- Greater than comparison
+    | Expression '<<' Expression                       { LTEquals $1 $3          }  -- Less than or equal to comparison
+    | Expression '>>' Expression                       { GTEquals $1 $3          }  -- Greater than or equal to comparison
+    | '{' BooleanExpression '}' '^' argument           { EndRelationQuery $2 $5  }  -- End relation query
+    | argument '{' BooleanExpression '}' '^'           { StartRelationQuery $1 $3}  -- Start relation query
+    | '(' BooleanExpression ')'                        { $2                      }  -- Parenthesized boolean expression
+    | argument '{' BooleanExpression '}' '^' argument  { RelationQuery $1 $3 $6  }  -- Relation query
+    | Expression '.' HAS '(' StringList ')'            { Contains $1 $5          }  -- Contains expression
 
 IfStatement
-    : CONDIF '(' BoolExpr ')' '{' Program '}'                          { IfBlock $3 $6         }  -- If block
-    | CONDIF '(' BoolExpr ')' '{' Program '}' CONDELIF '{' Program '}' { IfElseBlock $3 $6 $10 }  -- If-else block
+    : CONDIF '(' BooleanExpression ')' '{' Program '}'                          { IfBlock $3 $6         }  -- If block
+    | CONDIF '(' BooleanExpression ')' '{' Program '}' CONDELIF '{' Program '}' { IfElseBlock $3 $6 $10 }  -- If-else block
 
 ForStatement  
-    : THROUGH '(' Type argument ':' Expr ')' '{' Program '}'           { ForBlock $3 $4 $6 $9  }  -- For loop block
+    : THROUGH '(' Type argument ':' Expression ')' '{' Program '}'           { ForBlock $3 $4 $6 $9  }  -- For loop block
 
 StringList
     : chars                    { [$1]     }  -- Single string in the list
@@ -177,62 +177,62 @@ type Program
   = [Statement]
 
 data Statement
-  = Expr Expr
-  | IfBlock BoolExpr Program
-  | IfElseBlock BoolExpr Program Program
-  | ForBlock Type String Expr Program  
+  = Expression Expression
+  | IfBlock BooleanExpression Program
+  | IfElseBlock BooleanExpression Program Program
+  | ForBlock Type String Expression Program  
   | Print String
   deriving(Eq, Show)
 
-data Expr
-  = MathExpr MathExpr
+data Expression
+  = NumExpression NumExpression
   | String String
   | Regex String
-  | MatchQuery String BoolExpr
-  | AddQuery String Expr
-  | BoolExpr BoolExpr
-  | GetRelation String BoolExpr
-  | Exclude String Expr
-  | GetNode String Expr
-  | AssignExpr AssignExpr
-  | Assignable Assignable  
+  | MatchQuery String BooleanExpression
+  | AddQuery String Expression
+  | BooleanExpression BooleanExpression
+  | GetRelation String BooleanExpression
+  | Exclude String Expression
+  | GetNode String Expression
+  | SetterExpression SetterExpression
+  | SettableExpression SettableExpression  
   deriving(Eq, Show)
 
-data AssignExpr
-  = TypedAssign Type String Expr
-  | IncrementAssign Assignable Expr
-  | DecrementAssign Assignable Expr
-  | Assign Assignable Expr
+data SetterExpression
+  = TypedSet Type String Expression
+  | IncrSet SettableExpression Expression
+  | DecrSet SettableExpression Expression
+  | Set SettableExpression Expression
   | Declare Type String
   deriving(Eq, Show)
 
-data Assignable
+data SettableExpression
   = Var String
   | GetProperty String String
   deriving(Eq, Show)
 
-data MathExpr
+data NumExpression
   = Int Int
-  | Addition MathExpr MathExpr
-  | Subtraction MathExpr MathExpr
-  | Multiplication MathExpr MathExpr
-  | Division MathExpr MathExpr
+  | Addition NumExpression NumExpression
+  | Subtraction NumExpression NumExpression
+  | Multiplication NumExpression NumExpression
+  | Division NumExpression NumExpression
   deriving(Eq, Show)
 
-data BoolExpr  
+data BooleanExpression  
   = Bool Bool
-  | Equals Expr Expr
-  | NotEquals Expr Expr
-  | LessThan Expr Expr
-  | GreaterThan Expr Expr 
-  | LTEquals Expr Expr
-  | GTEquals Expr Expr
-  | And Expr Expr
-  | Or Expr Expr
-  | EndRelationQuery BoolExpr String
-  | StartRelationQuery String BoolExpr
-  | RelationQuery String BoolExpr String
-  | Contains Expr [String]  
+  | Equals Expression Expression
+  | NotEquals Expression Expression
+  | LessThan Expression Expression
+  | GreaterThan Expression Expression 
+  | LTEquals Expression Expression
+  | GTEquals Expression Expression
+  | And Expression Expression
+  | Or Expression Expression
+  | EndRelationQuery BooleanExpression String
+  | StartRelationQuery String BooleanExpression
+  | RelationQuery String BooleanExpression String
+  | Contains Expression [String]  
   deriving(Eq, Show)
 
 data Type
