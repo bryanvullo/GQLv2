@@ -102,7 +102,7 @@ Through : THROUGH '(' DataPoint identity ':' Expr ')' '{' Statements '}'  { Thro
 Assign : identity '=' Expr                              { Assign $1 $3 }
 
 Statements : Statement Statements     { $1 : $2 }
-           | {- empty -}              { []     }
+           | {- empty -}              { []      }
 
 {
 parseError :: [Token] -> a

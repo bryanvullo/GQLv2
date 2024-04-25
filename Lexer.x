@@ -44,7 +44,7 @@ tokens :-
   "!=="                         { \p _ -> Key KeyNotEqual p }
   "."                           { \p _ -> Key KeyDot p }
   "-"                           { \p _ -> Key KeyMinus p }
-  ">>"                          { \p _ -> Key KeyEdge p }
+  "^"                          { \p _ -> Key KeyEdge p }
   "{"                           { \p _ -> Key KeyBraceLeft p }
   "}"                           { \p _ -> Key KeyBraceRight p }
   ":"                           { \p _ -> Key KeyColon p }
