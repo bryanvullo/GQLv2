@@ -1,21 +1,17 @@
-Graph table = ACCESS("./table.n4j")
-Graph output
+Graph graph = ACCESS("table.n4j")
+Graph result
 
-THROUGH(DataPoint team : table) {
-  CONDIF(team.HAS("points") AND team.points !== null) {
-    THROUGH(DataPoint drawnTeam : table) {
-      CONDIF(drawnTeam.HAS("points") AND drawnTeam.points i== team.points) {
-        THROUGH(DataPoint beatenTeam : table) {
-          CONDIF(
-            (drawnTeam - Association ^ beatenTeam AND team - Association ^ beatenTeam) OR
-            (beatenTeam - Association ^ drawnTeam AND team - Association ^ beatenTeam)
-          ) {
-            output = output.PLUS(team)
-          }
-        }
+THROUGH (Node n : graph) {
+  THROUGH (Node n2 : graph) {
+    THROUGH (Node n3 : graph) { 
+      CONDIF (n.points !== null AND
+          n.points i== n3.points AND
+          ( n3{:TYPE i== "DrewWith"}^n2 AND n2{:TYPE i== "Beat"}^n OR
+            n2{:TYPE i== "DrewWith"}^n3 AND n2{:TYPE i== "Beat"}^n)) {
+        result.PLUS(n)
       }
     }
   }
 }
 
-STDOUT(output)
+STDOUT (result)

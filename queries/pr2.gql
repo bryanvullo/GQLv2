@@ -1,14 +1,14 @@
 Graph graph = ACCESS("tasks.n4j")
 Graph result = graph
-THROUGH (DataPoint nT : graph) {
-  CONDIF (-(priority >> 8)^ nT) { 
-    THROUGH (DataPoint nS : graph) {
-      CONDIF (nS -(available i== True)^ $) {
-        Association rel
+THROUGH (Node nT : graph) {
+  CONDIF ({priority >> 8}^ nT) { 
+    THROUGH (Node nS : graph) {
+      CONDIF (nS {available i== True}^) {
+        Relation rel
         rel.:TYPE = "PossiblyAllocated"
         rel.:START_ID = nS
         rel.:END_ID = nT
-        result.ADD(rel)
+        result.PLUS(rel)
       }
     }
   }

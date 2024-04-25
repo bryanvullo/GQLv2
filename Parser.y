@@ -10,17 +10,25 @@ import Lexer
 %token
   n                     { Key (KeyNum $$)         _ }
   ACCESS                { Key KeyACCESSToken      _ }
-  CASE                  { Key KeyCASEToken        _ }
+  CASE                  { Key KeyCaseToken        _ }
   STDOUT                { Key KeySTDOUTToken      _ }
   AND                   { Key KeyLogicalAnd       _ }
   OR                    { Key KeyLogicalOr        _ }
   '('                   { Key KeyBracketLeft      _ }
   ')'                   { Key KeyBracketRight     _ }
-  Graph                 { Key KeyGraphToken       _ }
+  GraphType             { Key KeyGraphTypeToken   _ }
+  IntegerType           { Key KeyIntegerTypeToken _ }
+  StringType            { Key KeyStringTypeToken  _ }
+  BooleanType           { Key KeyBooleanTypeToken _ }
+  NodeType              { Key KeyNodeTypeToken    _ }
+  RelationType          { Key KeyRelationTypeToken _}
   HAS                   { Key KeyHasToken         _ }
   CONDIF                { Key KeyCONDIFToken      _ }
+  CONDELIF              { Key KeyCONDELIFToken    _ }
   THROUGH               { Key KeyTHROUGHToken     _ }
-  identity              { Key (KeyIdentity $$)    _ }
+  HEADER                { Key (KeyHeaderToken $$) _ }
+  NEGATE                { Key KeyNegateToken      _ }
+  argument              { Key (KeyArgument $$)    _ }
   '>>'                  { Key KeyGreaterEqual     _ }
   '<<'                  { Key KeyLessEqual        _ }
   '>'                   { Key KeyGreater          _ }
@@ -29,109 +37,117 @@ import Lexer
   'i=='                 { Key KeyEqual            _ }
   '!=='                 { Key KeyNotEqual         _ }
   PLUS                  { Key KeyPlusToken        _ }
+  SUBT                  { Key KeySubtractToken    _ }
+  MULT                  { Key KeyMultiplyToken    _ }
+  DIV                   { Key KeyDivideToken      _ }
   '.'                   { Key KeyDot              _ }
-  chars                 { Key (KeyChars $$)       _ }
+  chars                 { Key (KeyChar $$)       _ }
   True                  { Key KeyTrue             _ }
   False                 { Key KeyFalse            _ }
-  '-'                   { Key KeyMinus            _ }
-  DataPoint             { Key KeyDataPointToken   _ }
-  Association           { Key KeyAssociationToken _ }
+  '-'                   { Key KeyHyphen           _ }
   CALLASSOCIATION       { Key KeyCallAssocToken   _ }
   CALLDATAPOINT         { Key KeyCallDataToken    _ }
   '^'                   { Key KeyEdge             _ }
   '{'                   { Key KeyBraceLeft        _ }
   '}'                   { Key KeyBraceRight       _ }
   ':'                   { Key KeyColon            _ }
+  '+='                  { Key KeyIncToken         _ }
+  '-='                  { Key KeyDecToken         _ }
+  RegularExpression     { Key (KeyRegularToken $$)     _ }
 
-%right '='
-%left OR AND
-%nonassoc '>' '<' '>>' '<<' 'i==' '!==' 
-%left '+' '-'
-
+%right '=' '+=' '-='
+%left '-'
+%left ':'
+%right OR
+%right AND
+%nonassoc 'i==' '!=='
+%nonassoc '>' '<' '>>' '<<'
+%left PLUS SUBT
+%left MULT DIV
+%left '.'
 %%
 
-Start : Graph identity '=' ACCESS '(' chars ')' Program { StartProgram XXX}
+Start : GraphType argument '=' ACCESS '(' chars ')' Program { GQLType $2 $6 $8 }
 
 Program : Statement Program  { $1 : $2 }
-        | {- empty -}        { []     }
+        | {- empty -}        { []      }
 
 Statement : Expr                    { Expr $1        }
-          | Condif                  { CondifStmt $1  }
-          | Through                 { ThroughStmt $1 }
-          | STDOUT '(' identity ')' { Stdout $3      }
+          | IfStatement                  { $1  }
+          | ForStatement                 { $1 }
+          | STDOUT '(' argument ')' { Print $3      }
         
-Expr : FuncAppExpr                           { $1 }
-    | BoolExpr       %shift                 { BoolExpr $1 }
-    | AssignExpr                            { AssignExpr $1 }
-    | Assignable                            { Assignable $1 }
-    | LiteralExpr                           { $1 }
-    | '(' Expr ')'                          { $2 }
+Expr : FuncAppExpr                          { $1 }
+     | BoolExpr       %shift                 { BoolExpr $1 }
+     | AssignExpr                            { AssignExpr $1 }
+     | Assignable                            { Assignable $1 }
+     | LiteralExpr                           { $1 }
+     | '(' Expr ')'                          { $2 }
 
-AssignExpr
-  : Type var '=' Expr                     { TypedAssign $1 $2 $4 }
-  | Assignable '=' Expr                   { Assign $1 $3 }
-  | Type var               %shift         { Declare $1 $2 }
-  | Assignable '+=' Expr                  { IncrementAssign $1 $3 }
-  | Assignable '-=' Expr                  { DecrementAssign $1 $3 }
+AssignExpr : Type argument '=' Expr                     { TypedAssign $1 $2 $4 }
+           | Assignable '=' Expr                        { Assign $1 $3 }
+           | Type argument               %shift         { Declare $1 $2 }
+           | Assignable '+=' Expr                       { IncrementAssign $1 $3 }
+           | Assignable '-=' Expr                       { DecrementAssign $1 $3 }
 
 Assignable
-  : var                 %shift           { Var $1 }
-  | var '.' var                          { GetProperty $1 $3 }
-  | var '.' bigField                     { GetProperty $1 $3 }
+  : argument                 %shift             { Var $1 }
+  | argument '.' argument                          { GetProperty $1 $3 }
+  | argument '.' HEADER                         { GetProperty $1 $3 }
 
 FuncAppExpr
-  : var '.' MATCH '(' BoolExpr ')'        { MatchQuery $1 $5 }
-  | var '.' ADD '(' Expr ')'              { AddQuery $1 $5 }
-  | var '.' GETRELATION '(' BoolExpr ')'  { GetRelation $1 $5 }
-  | var '.' EXCLUDE '(' Expr ')'          { Exclude $1 $5 }
+  : argument '.' CASE '(' BoolExpr ')'        { MatchQuery $1 $5 }
+  | argument '.' PLUS '(' Expr ')'              { AddQuery $1 $5 }
+  | argument '.' CALLASSOCIATION '(' BoolExpr ')'  { GetRelation $1 $5 }
+  | argument '.' NEGATE '(' Expr ')'          { Exclude $1 $5 }
 
 LiteralExpr
-  : MathExpr                              { MathExpr $1 }
-  | bigField                              { Assignable (Var $1) }
-  | string                                { String $1 }
-  | regex                                 { Regex $1 }
-  | var '.' GETNODE '(' Expr ')'         { GetNode $1 $5 }
+  : MathExpr                                   { MathExpr $1         }
+  | HEADER                                     { Assignable (Var $1) }
+  | chars                                      { String $1           }
+  | RegularExpression                          { Regex $1            }
+  | argument '.' CALLDATAPOINT '(' Expr ')'    { GetNode $1 $5       }
 
 MathExpr
   : MathTerm                    { $1 }
-  | MathExpr '+' MathExpr       { Addition $1 $3 }
-  | MathExpr '-' MathExpr       { Subtraction $1 $3 }
+  | MathExpr PLUS MathExpr       { Addition $1 $3 }
+  | MathExpr SUBT MathExpr       { Subtraction $1 $3 }
 
 MathTerm
-  : MathExpr '*' MathExpr       { Multiplication $1 $3 }
-  | MathExpr '/' MathExpr       { Division $1 $3 }
-  | int                         { Int $1 }
+  : MathExpr MULT MathExpr       { Multiplication $1 $3 }
+  | MathExpr DIV MathExpr       { Division $1 $3 }
+  | n                         { Int $1 }
 
 BoolExpr
-  : Expr '&&' Expr            { And $1 $3 }
-  | Expr '||' Expr            { Or $1 $3 }
+  : Expr AND Expr            { And $1 $3 }
+  | Expr OR Expr            { Or $1 $3 }
   | SimpleBoolExpr     %shift               { $1 }
 
 SimpleBoolExpr
   : True                                   { Bool True }
   | False                                  { Bool False }
-  | Expr '==' Expr                         { Equals $1 $3 }
-  | Expr '!=' Expr                         { NotEquals $1 $3}
+  | Expr 'i==' Expr                         { Equals $1 $3 }
+  | Expr '!==' Expr                         { NotEquals $1 $3}
   | Expr '<' Expr                          { LessThan $1 $3 }
   | Expr '>' Expr                          { GreaterThan $1 $3 }
-  | Expr '<=' Expr                         { LTEquals $1 $3 }
-  | Expr '>=' Expr                         { GTEquals $1 $3 }
-  | '-' '[' BoolExpr ']' '->' var          { EndRelationQuery $3 $6 }
-  | var '-' '[' BoolExpr ']' '->'          { StartRelationQuery $1 $4 }
+  | Expr '<<' Expr                         { LTEquals $1 $3 }
+  | Expr '>>' Expr                         { GTEquals $1 $3 }
+  | '{' BoolExpr '}' '^' argument          { EndRelationQuery $2 $5 }
+  | argument '{' BoolExpr '}' '^'          { StartRelationQuery $1 $3 }
   | '(' BoolExpr ')'                       { $2 }
-  | var '-' '[' BoolExpr ']' '->' var      { RelationQuery $1 $4 $7}
-  | Expr '.' CONTAINS '(' StringList ')'   { Contains $1 $5 }
+  | argument '{' BoolExpr '}' '^' argument      { RelationQuery $1 $3 $6}
+  | Expr '.' HAS '(' StringList ')'   { Contains $1 $5 }
 
 IfStatement
-  : IF '(' BoolExpr ')' '{' Program '}'                         { IfBlock $3 $6 }
-  | IF '(' BoolExpr ')' '{' Program '}' ELSE '{' Program '}'    { IfElseBlock $3 $6 $10 }
+  : CONDIF '(' BoolExpr ')' '{' Program '}'                         { IfBlock $3 $6 }
+  | CONDIF '(' BoolExpr ')' '{' Program '}' CONDELIF '{' Program '}'    { IfElseBlock $3 $6 $10 }
 
 ForStatement
-  : FOR '(' Type var ':' Expr ')' '{' Program '}'         { ForBlock $3 $4 $6 $9 }
+  : THROUGH '(' Type argument ':' Expr ')' '{' Program '}'         { ForBlock $3 $4 $6 $9 }
 
 StringList
-  : string                   { [$1] }
-  | string ',' StringList    { ($1 : $3) }
+  : chars                   { [$1] }
+  | chars '-' StringList    { ($1 : $3) }
 
 Type
   : GraphType         { Type $1 }
@@ -145,7 +161,7 @@ Type
 
 parseError :: [Token] -> a
 parseError [] = error "Kmt parse error at end of input you paigan"
-parseError (t:_) = error $ "You dizzy parse error at Ln " ++ show (getLn (getPos t)) ++ " Col " ++ show (getCol (getPos t)) ++ " token: " ++ show t
+parseError (t:_) = error $ "You dizzy, parse error,  at Ln " ++ show (getLn (getPos t)) ++ " Col " ++ show (getCol (getPos t)) ++ " token: " ++ show t
   where
     getPos (Key _ p) = p
     getLn (AlexPn _ l _) = l
