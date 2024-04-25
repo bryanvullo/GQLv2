@@ -44,9 +44,10 @@ tokens :-
   "!=="                         { \p _ -> Key KeyNotEqual p }
   "."                           { \p _ -> Key KeyDot p }
   "-"                           { \p _ -> Key KeyMinus p }
-  "^"                          { \p _ -> Key KeyEdge p }
+  "^"                           { \p _ -> Key KeyEdge p }
   "{"                           { \p _ -> Key KeyBraceLeft p }
   "}"                           { \p _ -> Key KeyBraceRight p }
+  ":$alpha+"                    { \p s -> Key (KeyColonIdentifier s) p }
   ":"                           { \p _ -> Key KeyColon p }
 
   -- Literals
@@ -95,6 +96,7 @@ data TokenType
   | KeyBraceLeft
   | KeyBraceRight
   | KeyColon
+  | KeyColonIdentifier String
   deriving (Eq, Show)
 
 }

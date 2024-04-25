@@ -13,7 +13,7 @@ main = do
     -- let inputResult = parseInput $ lexInput contents
     -- print inputResult
     let tokens = alexScanTokens contents
-    let result = tokens
+    let result = parser tokens
     print result 
     
     -- interpret the query

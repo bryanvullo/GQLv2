@@ -42,6 +42,7 @@ import Lexer
   '{'                   { Key KeyBraceLeft        _ }
   '}'                   { Key KeyBraceRight       _ }
   ':'                   { Key KeyColon            _ }
+  HeaderField           { Key (KeyColonIdentifier $$) _ }
 
 %right '='
 %left OR AND
@@ -90,6 +91,7 @@ BoolTerm : Expr '.' HAS '(' chars ')'            { Has $1 $5          }
          | Expr '<<' Expr                        { LessEqual $1 $3    }
          | Expr '>' Expr                         { Greater $1 $3      }  
          | Expr '<' Expr                         { Less $1 $3         }
+         | Expr HeaderField 'i==' Expr           { HeaderFieldExpr $1 $2 $4 }
          | True                                  { BoolLit True       }
          | False                                 { BoolLit False      }
          | identity '-' Association '^' Expr     { EdgeBoolTerm $1 $5 }
@@ -143,6 +145,7 @@ data BoolExpr
   | Less Expr Expr
   | BoolLit Bool
   | EdgeBoolTerm String Expr
+  | HeaderFieldExpr Expr String Expr
   deriving (Eq, Show)
 
 data Condif = Condif BoolExpr [Statement]
