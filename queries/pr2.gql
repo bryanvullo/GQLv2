@@ -1,16 +1,16 @@
-Graph tasks = ACCESS("./tasks.n4j")
-Graph tasksCopy = tasks
-
-tasks = tasks.CASE(
-  identity.HAS("priority") AND identity.priority >> 8
-)
-
-THROUGH(DataPoint highPriorityTask : tasks) {
-  THROUGH(DataPoint availableTask : tasksCopy) {
-    CONDIF(availableTask.HAS("available") AND availableTask.available i== True) {
-      availableTask - Association ^ highPriorityTask
+Graph graph = ACCESS("tasks.n4j")
+Graph result = graph
+THROUGH (DataPoint nT : graph) {
+  CONDIF (-(priority >> 8)^ nT) { 
+    THROUGH (DataPoint nS : graph) {
+      CONDIF (nS -(available i== True)^ $) {
+        Association rel
+        rel.:TYPE = "PossiblyAllocated"
+        rel.:START_ID = nS
+        rel.:END_ID = nT
+        result.ADD(rel)
+      }
     }
   }
 }
-
-STDOUT(tasksCopy)
+STDOUT (result)

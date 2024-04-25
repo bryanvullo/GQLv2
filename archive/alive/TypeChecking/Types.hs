@@ -1,0 +1,128 @@
+module TypeChecking.Types where
+
+-- import Parsing.Grammar
+-- import Lexing.Tokens
+
+-- type Environment = [(String, TypeChecking.Types.Type)]
+-- type Environments = [Environment] -- stack of environments
+
+-- typecheck :: Program -> Bool
+-- typecheck program = typecheckProgram program []
+
+-- typecheckProgram :: Program -> Environments -> Bool
+-- typecheckProgram [] _ = True
+-- typecheckProgram (stmt:stmts) envs = case stmt of
+--     Expr expr -> case typecheckExpr expr envs of
+--         Just _ -> typecheckProgram stmts envs
+--         Nothing -> False
+--     IfBlock cond ifStmts -> typecheckBoolExpr cond envs && typecheckProgram ifStmts envs && typecheckProgram stmts envs
+--     IfElseBlock cond ifStmts elseStmts -> typecheckBoolExpr cond envs && typecheckProgram ifStmts envs && typecheckProgram elseStmts envs && typecheckProgram stmts envs
+--     ForBlock (Parsing.Grammar.Type t) var expr forStmts -> case t of
+--         Tn TokenNodeType _ -> case typecheckExpr expr envs of
+--             Just GraphType -> typecheckProgram forStmts ([(var, NodeType)] : envs) && typecheckProgram stmts envs
+--             _ -> False
+--         Tn TokenRelationType _ -> case typecheckExpr expr envs of
+--             Just GraphType -> typecheckProgram forStmts ([(var, RelationType)] : envs) && typecheckProgram stmts envs
+--             _ -> False
+--         _ -> False
+
+-- typecheckExpr :: Expr -> Environments -> Maybe TypeChecking.Types.Type
+-- typecheckExpr (TypedAssign (Parsing.Grammar.Type t) _ expr) envs = case typecheckExpr expr envs of
+--     Just exprType -> if exprType == tokenToType t then Just exprType else Nothing
+--     Nothing -> Nothing
+-- typecheckExpr (Assign expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just t1, Just t2) -> if t1 == t2 then Just t1 else Nothing
+--     _ -> Nothing
+-- typecheckExpr (Declare (Parsing.Grammar.Type t) _) envs = Just $ tokenToType t
+-- typecheckExpr (Var var) envs = lookup var (concat envs)
+-- typecheckExpr (MathExpr mathExpr) envs = typecheckMathExpr mathExpr envs
+-- typecheckExpr (String _) _ = Just StringType
+-- typecheckExpr (Regex _) _ = Just StringType
+-- typecheckExpr (MatchQuery expr boolExpr) envs = case (typecheckExpr expr envs, typecheckBoolExpr boolExpr envs) of
+--     (Just GraphType, True) -> Just GraphType
+--     _ -> Nothing
+-- typecheckExpr (AddQuery expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just GraphType, Just GraphType) -> Just GraphType
+--     _ -> Nothing
+-- typecheckExpr (ReadFile _) _ = Just GraphType
+-- typecheckExpr (Print _) _ = Just UnitType
+-- typecheckExpr (BoolExpr boolExpr) envs = if typecheckBoolExpr boolExpr envs then Just BooleanType else Nothing
+-- typecheckExpr (GetProperty expr _) envs = case typecheckExpr expr envs of
+--     Just NodeType -> Just UndefinedType
+--     Just RelationType -> Just UndefinedType
+--     _ -> Nothing
+-- typecheckExpr (GetRelation expr boolExpr) envs = case (typecheckExpr expr envs, typecheckBoolExpr boolExpr envs) of
+--     (Just GraphType, True) -> Just GraphType
+--     _ -> Nothing
+-- typecheckExpr (IncrementAssign expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just IntegerType, Just IntegerType) -> Just IntegerType
+--     _ -> Nothing
+-- typecheckExpr (DecrementAssign expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just IntegerType, Just IntegerType) -> Just IntegerType
+--     _ -> Nothing
+-- typecheckExpr (Exclude expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just GraphType, Just GraphType) -> Just GraphType
+--     _ -> Nothing
+-- typecheckExpr (GetNode expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just GraphType, Just NodeType) -> Just NodeType
+--     _ -> Nothing
+
+-- typecheckMathExpr :: MathExpr -> Environments -> Maybe TypeChecking.Types.Type
+-- typecheckMathExpr (Int _) _ = Just IntegerType
+-- typecheckMathExpr (Addition expr1 expr2) envs = case (typecheckMathExpr expr1 envs, typecheckMathExpr expr2 envs) of
+--     (Just IntegerType, Just IntegerType) -> Just IntegerType
+--     _ -> Nothing
+-- typecheckMathExpr (Subtraction expr1 expr2) envs = case (typecheckMathExpr expr1 envs, typecheckMathExpr expr2 envs) of
+--     (Just IntegerType, Just IntegerType) -> Just IntegerType
+--     _ -> Nothing
+-- typecheckMathExpr (Multiplication expr1 expr2) envs = case (typecheckMathExpr expr1 envs, typecheckMathExpr expr2 envs) of
+--     (Just IntegerType, Just IntegerType) -> Just IntegerType
+--     _ -> Nothing
+-- typecheckMathExpr (Division expr1 expr2) envs = case (typecheckMathExpr expr1 envs, typecheckMathExpr expr2 envs) of
+--     (Just IntegerType, Just IntegerType) -> Just IntegerType
+--     _ -> Nothing
+
+-- typecheckBoolExpr :: BoolExpr -> Environments -> Bool
+-- typecheckBoolExpr (Bool _) _ = True
+-- typecheckBoolExpr (Equals expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just t1, Just t2) -> t1 == t2
+--     _ -> False
+-- typecheckBoolExpr (NotEquals expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just t1, Just t2) -> t1 == t2
+--     _ -> False
+-- typecheckBoolExpr (LessThan expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just IntegerType, Just IntegerType) -> True
+--     _ -> False
+-- typecheckBoolExpr (GreaterThan expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just IntegerType, Just IntegerType) -> True
+--     _ -> False
+-- typecheckBoolExpr (LTEquals expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just IntegerType, Just IntegerType) -> True
+--     _ -> False
+-- typecheckBoolExpr (GTEquals expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just IntegerType, Just IntegerType) -> True
+--     _ -> False
+-- typecheckBoolExpr (And expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just BooleanType, Just BooleanType) -> True
+--     _ -> False
+-- typecheckBoolExpr (Or expr1 expr2) envs = case (typecheckExpr expr1 envs, typecheckExpr expr2 envs) of
+--     (Just BooleanType, Just BooleanType) -> True
+--     _ -> False
+-- typecheckBoolExpr (EndRelationQuery boolExpr var) envs = typecheckBoolExpr boolExpr ([(var, RelationType)] : envs)
+-- typecheckBoolExpr (StartRelationQuery var boolExpr) envs = typecheckBoolExpr boolExpr ([(var, NodeType)] : envs)
+-- typecheckBoolExpr (RelationQuery startVar boolExpr endVar) envs = typecheckBoolExpr boolExpr ([(startVar, NodeType), (endVar, NodeType)] : envs)
+-- typecheckBoolExpr (Contains expr vars) envs = case typecheckExpr expr envs of
+--     Just StringType -> True
+--     _ -> False
+
+-- tokenToType :: Token -> TypeChecking.Types.Type
+-- tokenToType (Tn TokenIntegerType _) = IntegerType
+-- tokenToType (Tn TokenStringType _) = StringType
+-- tokenToType (Tn TokenBooleanType _) = BooleanType
+-- tokenToType (Tn TokenGraphType _) = GraphType
+-- tokenToType (Tn TokenNodeType _) = NodeType
+-- tokenToType (Tn TokenRelationType _) = RelationType
+-- tokenToType _ = UndefinedType
+
+-- data Type = IntegerType | StringType | BooleanType | GraphType | NodeType | RelationType | UnitType | UndefinedType
+--     deriving (Eq, Show)

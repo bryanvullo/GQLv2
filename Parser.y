@@ -56,8 +56,7 @@ Program : Statement Program  { $1 : $2 }
 Statement : Expr              { Expr $1    }
           | Condif            { CondifStmt $1  }
           | Through           { ThroughStmt $1 }
-          | Assign            { AssignStmt $1  }
-
+        
 Expr : DataStruct            { $1 }
      | Access                { $1 }
      | Stdout                { $1 }
@@ -66,9 +65,12 @@ Expr : DataStruct            { $1 }
      | '(' Expr ')'          { $2 }
      | Case                  { $1 }
      | Value                 { $1 }
+     | Assign                {  $1  }
+
 
 DataStruct : Graph identity '=' Access    { DataStructSet $2 $4 }
            | Graph identity               { DataStructShow $2   }
+           | Graph identity '=' Identifier { DataStructSet $2 $4 }
 
 Access : ACCESS '(' chars ')'             { Access $3 }
 
@@ -94,7 +96,7 @@ BoolTerm : Expr '.' HAS '(' chars ')'            { Has $1 $5          }
          | Expr '<' Expr                         { Less $1 $3         }
          | True                                  { BoolLit True       }
          | False                                 { BoolLit False      }
-         | identity '-' Association '^' Expr     { EdgeBoolTerm $1 $5 }
+         | identity '-' '(' Association ')' '^' Expr     { EdgeBoolTerm $1 $7 }
          | '(' BoolExpr ')'                      { $2                 }
 
 Value : chars                            { ValueString $1}
@@ -106,7 +108,7 @@ Condif : CONDIF '(' BoolExpr ')' '{' Statements '}'      { Condif $3 $6 }
 
 Through : THROUGH '(' DataPoint identity ':' Expr ')' '{' Statements '}'  { Through DataPoint $4 $6 $9 }
 
-Assign : identity '=' Expr                              { Assign $1 $3 }
+Assign : identity '=' Expr                              { DataStructSet $1 $3 }
 
 Statements : Statement Statements     { $1 : $2 }
            | {- empty -}              { []      }
@@ -124,7 +126,6 @@ data Statement
   = Expr Expr
   | CondifStmt Condif  
   | ThroughStmt Through
-  | AssignStmt Assign
   deriving (Eq, Show)
 
 data Expr
@@ -161,9 +162,6 @@ data Condif = Condif BoolExpr [Statement]
   deriving (Eq, Show)
 
 data Through = Through DataPoint String Expr [Statement]  
-  deriving (Eq, Show)
-
-data Assign = Assign String Expr
   deriving (Eq, Show)
 
 data DataPoint = DataPoint
