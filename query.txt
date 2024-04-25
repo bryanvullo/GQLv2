@@ -1,3 +1,26 @@
-[X (ClassFinalSet Graph "access" (ACCESS "./access.n4j")),
-X (Set (Identifier "access") (CASEQ (Identifier "access") (LogicalOr (LogicalAnd (Has (Identifier "dataPoint") ["LABEL"]) (Identical (CallAttribute (Identifier "dataPoint") "LABEL") (Chars "Visitor"))) (LogicalAnd (Has (Identifier "dataPoint") ["age"]) (InequalitySlackLesser (CallAttribute (Identifier "dataPoint") "age") (NumericXX (NumericTerminal 25))))))),
-X (STDOUT "access")]
+[Expr (ClassFinalSet Graph "access" (ACCESS "./access.n4j")),
+Expr (Set (Identifier "access") (CASEQ (Identifier "access") (LogicalOr (LogicalAnd (Has (Identifier "dataPoint") ["LABEL"]) (Identical (CallAttribute (Identifier "dataPoint") "LABEL") (Chars "Visitor"))) (LogicalAnd (Has (Identifier "dataPoint") ["age"]) (InequalitySlackLesser (CallAttribute (Identifier "dataPoint") "age") (NumericXX (NumericTerminal 25))))))),
+Expr (STDOUT "access")]
+
+[Expr (ClassFinalSet Graph "tasks" (ACCESS "./tasks.n4j")),
+Expr (ClassFinalSet Graph "tasksCopy" (Identifier "tasks")),
+Expr (Set (Identifier "tasks") (CASEQ (Identifier "tasks") (LogicalAnd (Has (Identifier "dataPoint") ["priority"]) (InequalitySlackGreater (CallAttribute (Identifier "dataPoint") "priority") (NumericXX (NumericTerminal 8)))))),
+THROUGHQ Node "highPriorityTask" (Identifier "tasks") [
+    THROUGHQ Node "availableTask" (Identifier "tasks") [
+        CONDIFQ (LogicalAnd (Has (Identifier "availableTask") ["available"]) (Identical (CallAttribute (Identifier "availableTask") "available") (BoolXX (BoolTerminal True)))) 
+        [Expr (ClassShow Edge "possiblyAllocated"),
+        Expr (Set (CallAttribute (Identifier "possiblyAllocated") "CLASS") (Chars "PossiblyAllocated")),
+        Expr (Set (CallAttribute (Identifier "possiblyAllocated") "START_ID") (Identifier "availableTask")),
+        Expr (Set (CallAttribute (Identifier "possiblyAllocated") "END_ID") (Identifier "highPriorityTask")),
+        Expr (PlusQ (Identifier "tasksCopy") (Identifier "possiblyAllocated"))]
+]],
+Expr (STDOUT "tasksCopy")]
+
+[Expr (ClassFinalSet Graph "table" (ACCESS "./table.n4j")),
+Expr (ClassShow Graph "output"),
+THROUGHQ Node "team" (Identifier "table") [
+    CONDIFQ (LogicalAnd (Has (Identifier "team") ["points"]) (IdenticalNot (CallAttribute (Identifier "team") "points") (Identifier "null"))) [
+        THROUGHQ Node "drawnTeam" (Identifier "table") 
+            [CONDIFQ (LogicalAnd (Has (Identifier "drawnTeam") ["points"]) (Identical (CallAttribute (Identifier "drawnTeam") "points") (CallAttribute (Identifier "team") "points"))) [
+                THROUGHQ Node "beatenTeam" (Identifier "table") [
+                    CONDIFQ (LogicalOr (LogicalAnd (AssociationQ "drawnTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "beatenTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam")) (LogicalAnd (AssociationQ "beatenTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "drawnTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam"))) [Expr (PlusQ (Identifier "output") (Identifier "team"))]]]]]],Expr (STDOUT "output")]

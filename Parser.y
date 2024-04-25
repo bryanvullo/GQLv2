@@ -83,7 +83,7 @@ Program
 
 -- Statement 
 Statement
-  : X ';'                               { X $1 }       -- Expression statement
+  : X ';'                               { Expr $1 }       -- Expression statement
   | CONDIFQ                             { $1   }       -- Conditional if statement
   | THROUGHQ                            { $1   }       -- Loop over data  
 
@@ -168,12 +168,12 @@ LogicalBoolXX
 
 -- Conditional expressions 
 CONDIFQ
-  : CONDIF '(' BoolXX ')' '{' QQ '}'                          { CONDIFQ $3 $6        }  -- Conditional if expression  
-  | CONDIF '(' BoolXX ')' '{' QQ '}' CONDELIF '{' QQ '}'      { CONDELIFQ $3 $6 $10  }  -- Conditional if-else expression
+  : CONDIF '(' BoolXX ')' '{' Program '}'                          { CONDIFQ $3 $6        }  -- Conditional if expression  
+  | CONDIF '(' BoolXX ')' '{' Program '}' CONDELIF '{' Program '}'      { CONDELIFQ $3 $6 $10  }  -- Conditional if-else expression
 
 -- Loops over data
 THROUGHQ  
-  : THROUGH '(' Class identity ':' X ')' '{' QQ '}'           { THROUGHQ $3 $4 $6 $9 }  -- Loop over data
+  : THROUGH '(' Class identity ':' X ')' '{' Program '}'           { THROUGHQ $3 $4 $6 $9 }  -- Loop over data
 
 -- Comma-separated string literals  
 CharsQ
@@ -195,34 +195,34 @@ parseError :: [Token] -> a
 parseError [] = error "Parse error at end of input\n"
 parseError (Key t (AlexPn _ x y) : _) = error $ "Error " ++ show t ++ ", see " ++ show x ++ ":" ++ show y ++ "\n"
 
-type QQ = [Q]
+type Program = [Statement]
 
-data Q
-  = X X  
-  | CONDIFQ BoolXX QQ
-  | CONDELIFQ BoolXX QQ QQ  
-  | THROUGHQ Class String X QQ
+data Statement
+  = Expr Expr  
+  | CONDIFQ BoolXX Program
+  | CONDELIFQ BoolXX Program Program  
+  | THROUGHQ Class String Expr Program
   deriving (Eq, Show)  
 
-data X
-  = ClassFinalSet Class String X
-  | Set X X  
+data Expr
+  = ClassFinalSet Class String Expr
+  | Set Expr Expr  
   | ClassShow Class String
   | Identifier String
   | NumericXX NumericXX
   | Chars String
   | Regular String
-  | CASEQ X BoolXX  
-  | PlusQ X X
+  | CASEQ Expr BoolXX  
+  | PlusQ Expr Expr
   | ACCESS String  
   | STDOUT String
   | BoolXX BoolXX
-  | CallAttribute X String  
-  | CallAssociation X BoolXX
-  | NumericIncrease X X
-  | NumericDecrease X X
-  | Not X X  
-  | CallDataPoint X X
+  | CallAttribute Expr String  
+  | CallAssociation Expr BoolXX
+  | NumericIncrease Expr Expr
+  | NumericDecrease Expr Expr
+  | Not Expr Expr  
+  | CallDataPoint Expr Expr
   deriving (Eq, Show)
 
 data NumericXX  
@@ -235,12 +235,12 @@ data NumericXX
 
 data BoolXX
   = BoolTerminal Bool  
-  | Identical X X
-  | IdenticalNot X X
-  | InequalityStrictLesser X X
-  | InequalityStrictGreater X X
-  | InequalitySlackLesser X X  
-  | InequalitySlackGreater X X
+  | Identical Expr Expr
+  | IdenticalNot Expr Expr
+  | InequalityStrictLesser Expr Expr
+  | InequalityStrictGreater Expr Expr
+  | InequalitySlackLesser Expr Expr  
+  | InequalitySlackGreater Expr Expr
   | LogicalAnd BoolXX BoolXX
   | LogicalOr BoolXX BoolXX
   | LogicalNegate BoolXX  
@@ -248,7 +248,7 @@ data BoolXX
   | AssociationStartQ String BoolXX  
   | AssociationQ String BoolXX String
   | AssociationNodeLabelQ String BoolXX [String]
-  | Has X [String]  
+  | Has Expr [String]  
   deriving (Eq, Show)
 
 data Class  
