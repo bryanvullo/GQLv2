@@ -1,12 +1,12 @@
-Graph graph = ACCESS("./loyalty.n4j")
+DataGraph graph = ACCESS("./loyalty.n4j")
 
 THROUGH (Node p : graph) {
   THROUGH (Node q : graph) {
     THROUGH (Node b : graph) {
       CONDIF (p {:TYPE i== "CustomerOf"}^ b) {
         CONDIF ((p {:TYPE i== "CustomerOf"}^ q) AND (q {:TYPE i== "CustomerOf"}^ b)) {
-          graph.CALLASSOCIATION(:TYPE i== "CustomerOf").CASE(:START_ID i== p AND :END_ID i== b).reward += b.bonus
-          graph.CALLASSOCIATION(:TYPE i== "CustomerOf").CASE(:START_ID i== q AND :END_ID i== b).reward += b.bonus
+          graph.CALLASSOCIATION(:TYPE i== "CustomerOf").CASE(:START_ID i== p AND :END_ID i== b).reward ++ b.bonus
+          graph.CALLASSOCIATION(:TYPE i== "CustomerOf").CASE(:START_ID i== q AND :END_ID i== b).reward ++ b.bonus
         }
       }
     }

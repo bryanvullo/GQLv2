@@ -1,5 +1,6 @@
-Graph graph = ACCESS("tasks.n4j")
-Graph result = graph
+DataGraph graph = ACCESS("tasks.n4j")
+DataGraph result = graph
+
 THROUGH (Node nT : graph) {
   CONDIF ({priority >> 8}^ nT) { 
     THROUGH (Node nS : graph) {

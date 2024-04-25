@@ -1,5 +1,5 @@
-Graph graph = ACCESS("table.n4j")
-Graph result
+DataGraph graph = ACCESS("table.n4j")
+DataGraph result
 
 THROUGH (Node n : graph) {
   THROUGH (Node n2 : graph) {

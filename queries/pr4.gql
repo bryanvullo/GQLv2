@@ -1,14 +1,16 @@
-Graph networks = ACCESS("networks.n4j")
-Graph initial = networks.CASE(firstname i== r"^(A|B|C)")
-Graph second
+DataGraph graph = ACCESS("networks.n4j")
+DataGraph initial = graph.CASE(firstname i== r"^(A|B|C)")
+DataGraph second
 
 THROUGH (Relation isFriendRelation : initial.CALLASSOCIATION(:TYPE i== "IsFriend")) {
-  CONDIF (((initial.CASE(:ID i== isFriendRelation.:START_ID).age) < (initial.CASE(:ID i== isFriendRelation.:END_ID).age))) {
-    CONDIF (initial.GETNODE(initial.CALLASSOCIATION(:TYPE i== "WorksFor").CASE(:START_ID i== isFriendRelation.:END_ID).:END_ID).:LABEL.CONTAINS("Cafe")) {
-      second.PLUS(initial.GETNODE(isFriendRelation.:START_ID))
-      second.PLUS(isFriendRelation)
-    }
-  }
+    DataGraph f1 = initial.CASE(:ID i== isFriendRelation.:START_ID)
+    DataGraph f2 = initial.CASE(:ID i== isFriendRelation.:END_ID)
+        CONDIF (f1.age < f2.age) {
+            CONDIF (initial.CALLDATAPOINT(initial.CALLASSOCIATION(:TYPE i== "WorksFor").CASE(:START_ID i== isFriendRelation.:END_ID).:END_ID).:LABEL.CONTAINS("Cafe")) {
+            second.PLUS(initial.CALLDATAPOINT(isFriendRelation.:START_ID))
+            second.PLUS(isFriendRelation)
+            }
+        }
 }
 
-PRINT(second)
+STDOUT(second)

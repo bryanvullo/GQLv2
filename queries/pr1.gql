@@ -1,3 +1,3 @@
-Graph graph = ACCESS("access.n4j")
+DataGraph graph = ACCESS("access.n4j")
 graph = graph.CASE(:LABEL i== "Visitor" OR age << 25)
 STDOUT(graph)
