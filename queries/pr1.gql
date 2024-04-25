@@ -1,8 +1,8 @@
-DataStructure access = ACCESS("./access.n4j");
+Graph access = ACCESS("./access.n4j")
 
-access = access.CASE (
-    (dataPoint.HAS("LABEL") AND dataPoint.:LABEL i== "Visitor") OR
-    (dataPoint.HAS("age") AND dataPoint.age <= 25)
-);
+access = access.CASE(
+  (identity.HAS("LABEL") AND identity.:LABEL i== "Visitor") OR 
+  (identity.HAS("age") AND identity.age << 25)
+)
 
-STDOUT (access);
+STDOUT(access)

@@ -1,20 +1,16 @@
-DataStructure tasks = ACCESS("./tasks.n4j");
-DataStructure tasksCopy = tasks;
+Graph tasks = ACCESS("./tasks.n4j")
+Graph tasksCopy = tasks
 
-tasks = tasks.CASE (
-    dataPoint.HAS("priority") AND dataPoint.priority >= 8
-);
+tasks = tasks.CASE(
+  identity.HAS("priority") AND identity.priority >> 8
+)
 
-THROUGH (DataPoint highPriorityTask : tasks) {
-    THROUGH (DataPoint availableTask : tasks) {
-        CONDIF (availableTask.HAS("available") AND availableTask.available i== True) {
-            Association possiblyAllocated;
-            possiblyAllocated.:CLASS = "PossiblyAllocated";
-            possiblyAllocated.:START_ID = availableTask;
-            possiblyAllocated.:END_ID = highPriorityTask;
-            tasksCopy.PLUS(possiblyAllocated);
-        }
+THROUGH(DataPoint highPriorityTask : tasks) {
+  THROUGH(DataPoint availableTask : tasksCopy) {
+    CONDIF(availableTask.HAS("available") AND availableTask.available i== True) {
+      availableTask - Association ^ highPriorityTask
     }
+  }
 }
 
-STDOUT (tasksCopy);
+STDOUT(tasksCopy)

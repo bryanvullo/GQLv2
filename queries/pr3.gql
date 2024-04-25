@@ -1,21 +1,21 @@
-DataStructure table = ACCESS("./table.n4j");
-DataStructure output;
+Graph table = ACCESS("./table.n4j")
+Graph output
 
-THROUGH (DataPoint team : table) {
-    CONDIF (team.HAS("points") AND team.points !== null) {
-        THROUGH (DataPoint drawnTeam : table) {
-            CONDIF (drawnTeam.HAS("points") AND drawnTeam.points i== team.points) {
-                THROUGH (DataPoint beatenTeam : table) {
-                    CONDIF (
-                        (drawnTeam -[:CLASS i== "DrewWith"]>> beatenTeam AND team -[:CLASS i== "Beat"]>> beatenTeam) OR
-                        (beatenTeam -[:CLASS i== "DrewWith"]>> drawnTeam AND team -[:CLASS i== "Beat"]>> beatenTeam)
-                    ) {
-                        output.PLUS(team);
-                    }
-                }
-            }
+THROUGH(DataPoint team : table) {
+  CONDIF(team.HAS("points") AND team.points !== null) {
+    THROUGH(DataPoint drawnTeam : table) {
+      CONDIF(drawnTeam.HAS("points") AND drawnTeam.points i== team.points) {
+        THROUGH(DataPoint beatenTeam : table) {
+          CONDIF(
+            (drawnTeam - Association ^ beatenTeam AND team - Association ^ beatenTeam) OR
+            (beatenTeam - Association ^ drawnTeam AND team - Association ^ beatenTeam)
+          ) {
+            output = output.PLUS(team)
+          }
         }
+      }
     }
+  }
 }
 
-STDOUT(output);
+STDOUT(output)

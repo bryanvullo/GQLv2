@@ -52,214 +52,104 @@ Your interpreter is to take a le name (the program in your language) as a single
 in a directory where we also provide our own versions of graph.n4j. We will then compare the contents of stdout against our expected outputs. Whitespace and formatting is unimportant as long as the output is adheres to the prescribed simple Neo4j output format and contains no other text. We will parse your outputs and compare them against expected outputs as Graphs. For that reason, order of entries in the output le does not matter
 
 // pr1.gql
-DataStructure access = ACCESS("./access.n4j");
+Graph access = ACCESS("./access.n4j")
 
-access = access.CASE (
-    (dataPoint.HAS("LABEL") AND dataPoint.:LABEL i== "Visitor") OR
-    (dataPoint.HAS("age") AND dataPoint.age <= 25)
-);
+access = access.CASE(
+  (identity.HAS("LABEL") AND identity.:LABEL i== "Visitor") OR 
+  (identity.HAS("age") AND identity.age << 25)
+)
 
-STDOUT (access);
+STDOUT(access)
 
 // pr2.gql
-DataStructure tasks = ACCESS("./tasks.n4j");
-DataStructure tasksCopy = tasks;
+Graph tasks = ACCESS("./tasks.n4j")
+Graph tasksCopy = tasks
 
-tasks = tasks.CASE (
-    dataPoint.HAS("priority") AND dataPoint.priority >= 8
-);
+tasks = tasks.CASE(
+  identity.HAS("priority") AND identity.priority >> 8
+)
 
-THROUGH (DataPoint highPriorityTask : tasks) {
-    THROUGH (DataPoint availableTask : tasks) {
-        CONDIF (availableTask.HAS("available") AND availableTask.available i== True) {
-            Association possiblyAllocated;
-            possiblyAllocated.:CLASS = "PossiblyAllocated";
-            possiblyAllocated.:START_ID = availableTask;
-            possiblyAllocated.:END_ID = highPriorityTask;
-            tasksCopy.PLUS(possiblyAllocated);
-        }
+THROUGH(DataPoint highPriorityTask : tasks) {
+  THROUGH(DataPoint availableTask : tasksCopy) {
+    CONDIF(availableTask.HAS("available") AND availableTask.available i== True) {
+      availableTask - Association ^ highPriorityTask
     }
+  }
 }
 
-STDOUT (tasksCopy);
+STDOUT(tasksCopy)
 
 // pr3.gql
-DataStructure table = ACCESS("./table.n4j");
-DataStructure output;
+Graph table = ACCESS("./table.n4j")
+Graph output
 
-THROUGH (DataPoint team : table) {
-    CONDIF (team.HAS("points") AND team.points !== null) {
-        THROUGH (DataPoint drawnTeam : table) {
-            CONDIF (drawnTeam.HAS("points") AND drawnTeam.points i== team.points) {
-                THROUGH (DataPoint beatenTeam : table) {
-                    CONDIF (
-                        (drawnTeam -[:CLASS i== "DrewWith"]>> beatenTeam AND team -[:CLASS i== "Beat"]>> beatenTeam) OR
-                        (beatenTeam -[:CLASS i== "DrewWith"]>> drawnTeam AND team -[:CLASS i== "Beat"]>> beatenTeam)
-                    ) {
-                        output.PLUS(team);
-                    }
-                }
-            }
+THROUGH(DataPoint team : table) {
+  CONDIF(team.HAS("points") AND team.points !== null) {
+    THROUGH(DataPoint drawnTeam : table) {
+      CONDIF(drawnTeam.HAS("points") AND drawnTeam.points i== team.points) {
+        THROUGH(DataPoint beatenTeam : table) {
+          CONDIF(
+            (drawnTeam - Association ^ beatenTeam AND team - Association ^ beatenTeam) OR
+            (beatenTeam - Association ^ drawnTeam AND team - Association ^ beatenTeam)
+          ) {
+            output = output.PLUS(team)
+          }
         }
+      }
     }
+  }
 }
 
-STDOUT(output);
+STDOUT(output)
 
 // pr4.gql
-DataStructure network = ACCESS("./network.n4j");
-DataStructure output;
+Graph network = ACCESS("./network.n4j")
+Graph output
 
-THROUGH (DataPoint person : network) {
-    CONDIF (
-        person.HAS("firstName") AND
-        (
-            person.firstName >= "A" AND person.firstName <= "C"
-        )
-    ) {
-        output.PLUS(person);
+THROUGH(DataPoint person : network) {
+  CONDIF(
+    person.HAS("firstName") AND 
+    (person.firstName >> "A" AND person.firstName << "C")
+  ) {
+    output = output.PLUS(person)
+
+    THROUGH(DataPoint friend : person ^ DataPoint) {
+      CONDIF(
+        friend.HAS("age") AND
+        person.HAS("age") AND
+        friend.age > person.age
+      ) {
+        Graph friendEmployers = friend ^ DataPoint
+        friendEmployers = friendEmployers.CASE(identity.HAS("LABEL") AND identity.:LABEL i== "Cafe")
         
-        THROUGH (DataPoint friend : person.CALLASSOCIATION(association -[:TYPE i== "IsFriend"]>> dataPoint)) {
-            CONDIF (
-                friend.HAS("age") AND
-                person.HAS("age") AND
-                friend.age > person.age
-            ) {
-                DataStructure friendEmployers = friend.CALLASSOCIATION(association -[:TYPE i== "WorksFor"]>> dataPoint);
-                Bool friendWorksInCafe = False;
-                
-                THROUGH (DataPoint employer : friendEmployers) {
-                    CONDIF (employer.HAS("LABEL") AND employer.:LABEL i== "Cafe") {
-                        friendWorksInCafe = True;
-                    }
-                }
-                
-                CONDIF (friendWorksInCafe i== False) {
-                    output.PLUS(friend);
-                    output.PLUS(person -[association.:TYPE i== "IsFriend"]>> friend);
-                }
-            }
+        CONDIF(friendEmployers i== False) {
+          output = output.PLUS(friend)
+          output = output.PLUS(person - Association ^ friend)
         }
+      }
     }
+  }
 }
 
-STDOUT(output);
+STDOUT(output)
 
 // pr5.gql
-DataStructure loyalty = ACCESS("./loyalty.n4j");
-DataStructure output = loyalty;
+Graph loyalty = ACCESS("./loyalty.n4j")
+Graph output = loyalty
 
-THROUGH (DataPoint p : loyalty) {
-    THROUGH (DataPoint b : p.CALLDATAPOINT(dataPoint -[association.:CLASS i== "CustomerOf"]>> anyNode)) {
-        DataStructure recommendedCustomers = p.CALLDATAPOINT(dataPoint -[association.:CLASS i== "Recommended"]>> anyNode);
-        THROUGH (DataPoint q : recommendedCustomers.CALLDATAPOINT(dataPoint -[association.:CLASS i== "CustomerOf"]>> b)) {
-            DataStructure pCustomerOf = p.CALLASSOCIATION(association -[:CLASS i== "CustomerOf"]>> b);
-            DataStructure qCustomerOf = q.CALLASSOCIATION(association -[:CLASS i== "CustomerOf"]>> b);
-            
-            pCustomerOf.reward =+ b.bonus;
-            qCustomerOf.reward =+ b.bonus;
-        }
+THROUGH(DataPoint p : loyalty) {
+  THROUGH(DataPoint b : p - Association ^ DataPoint) {
+    Graph recommendedCustomers = p - Association ^ DataPoint
+    THROUGH(DataPoint q : recommendedCustomers - Association ^ b) {
+      Graph pCustomerOf = p - Association ^ b
+      Graph qCustomerOf = q - Association ^ b
+
+      pCustomerOf.reward = pCustomerOf.reward.PLUS(b.bonus)
+      qCustomerOf.reward = qCustomerOf.reward.PLUS(b.bonus)
     }
+  }
 }
 
-output = output.CALLASSOCIATION(association -[:CLASS !== "Recommended"]>> dataPoint);
+output = output - Association ^ DataPoint
 
-STDOUT (output);
-
-// Terminal output for problems
-
-Start Testing PR1
-
-[
-X (ClassFinalSet Graph "access" (ACCESS "./access.n4j")),
-X (Set (Identifier "access") (CASEQ (Identifier "access") (LogicalOr (LogicalAnd (Has (Identifier "dataPoint") ["LABEL"]) (Identical (CallAttribute (Identifier "dataPoint") "LABEL") (Chars "Visitor"))) (LogicalAnd (Has (Identifier "dataPoint") ["age"]) (InequalitySlackLesser (CallAttribute (Identifier "dataPoint") "age") (NumericXX (NumericTerminal 25))))))),
-X (STDOUT "access")
-]
-
-End Testing PR1
-
-Start Testing PR2
-
-[
-X (ClassFinalSet Graph "tasks" (ACCESS "./tasks.n4j")),
-X (ClassFinalSet Graph "tasksCopy" (Identifier "tasks")),
-X (Set (Identifier "tasks") (CASEQ (Identifier "tasks") (LogicalAnd (Has (Identifier "dataPoint") ["priority"]) (InequalitySlackGreater (CallAttribute (Identifier "dataPoint") "priority") (NumericXX (NumericTerminal 8)))))),
-THROUGHQ Node "highPriorityTask" (Identifier "tasks") [THROUGHQ Node "availableTask" (Identifier "tasks") [CONDIFQ (LogicalAnd (Has (Identifier "availableTask") ["available"]) (Identical (CallAttribute (Identifier "availableTask") "available") (BoolXX (BoolTerminal True)))) [X (ClassShow Edge "possiblyAllocated"),
-X (Set (CallAttribute (Identifier "possiblyAllocated") "CLASS") (Chars "PossiblyAllocated")),
-X (Set (CallAttribute (Identifier "possiblyAllocated") "START_ID") (Identifier "availableTask")),
-X (Set (CallAttribute (Identifier "possiblyAllocated") "END_ID") (Identifier "highPriorityTask")),
-X (PlusQ (Identifier "tasksCopy") (Identifier "possiblyAllocated"))]]],
-X (STDOUT "tasksCopy")
-]
-
-End Testing PR2
-
-Start Testing PR3
-
-[
-X (ClassFinalSet Graph "table" (ACCESS "./table.n4j")),
-X (ClassShow Graph "output"),
-THROUGHQ Node "team" (Identifier "table") [CONDIFQ (LogicalAnd (Has (Identifier "team") ["points"]) (IdenticalNot (CallAttribute (Identifier "team") "points") (Identifier "null"))) [THROUGHQ Node "drawnTeam" (Identifier "table") [CONDIFQ (LogicalAnd (Has (Identifier "drawnTeam") ["points"]) (Identical (CallAttribute (Identifier "drawnTeam") "points") (CallAttribute (Identifier "team") "points"))) [THROUGHQ Node "beatenTeam" (Identifier "table") [CONDIFQ (LogicalOr (LogicalAnd (AssociationQ "drawnTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "beatenTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam")) (LogicalAnd (AssociationQ "beatenTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "drawnTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam"))) [X (PlusQ (Identifier "output") (Identifier "team"))]]]]]],
-X (STDOUT "output")
-]
-
-End Testing PR3
-
-Start Testing PR4
-
-[
-X (ClassFinalSet Graph "network" (ACCESS "./network.n4j")),
-X (ClassShow Graph "output"),
-THROUGHQ Node "person" (Identifier "network") [CONDIFQ (LogicalAnd (Has (Identifier "person") ["firstName"]) (LogicalAnd (InequalitySlackGreater (CallAttribute (Identifier "person") "firstName") (Chars "A")) (InequalitySlackLesser (CallAttribute (Identifier "person") "firstName") (Chars "C")))) [X (PlusQ (Identifier "output") (Identifier "person")),
-THROUGHQ Node "friend" (CallAssociation (Identifier "person") (AssociationQ "association" (Identical (Identifier "TYPE") (Chars "IsFriend")) "dataPoint")) [CONDIFQ (LogicalAnd (Has (Identifier "friend") ["age"]) (LogicalAnd (Has (Identifier "person") ["age"]) (InequalityStrictGreater (CallAttribute (Identifier "friend") "age") (CallAttribute (Identifier "person") "age")))) [X (ClassFinalSet Graph "friendEmployers" (CallAssociation (Identifier "friend") (AssociationQ "association" (Identical (Identifier "TYPE") (Chars "WorksFor")) "dataPoint"))),
-X (ClassFinalSet Bool "friendWorksInCafe" (BoolXX (BoolTerminal False))),
-THROUGHQ Node "employer" (Identifier "friendEmployers") [CONDIFQ (LogicalAnd (Has (Identifier "employer") ["LABEL"]) (Identical (CallAttribute (Identifier "employer") "LABEL") (Chars "Cafe"))) [X (Set (Identifier "friendWorksInCafe") (BoolXX (BoolTerminal True)))]],
-CONDIFQ (Identical (Identifier "friendWorksInCafe") (BoolXX (BoolTerminal False))) [X (PlusQ (Identifier "output") (Identifier "friend")),
-X (PlusQ (Identifier "output") (BoolXX (AssociationQ "person" (Identical (CallAttribute (Identifier "association") "TYPE") (Chars "IsFriend")) "friend")))]]]]],
-X (STDOUT "output")
-]
-
-End Testing PR4
-
-Start Testing PR5
-
-[
-X (ClassFinalSet Graph "loyalty" (ACCESS "./loyalty.n4j")),
-X (ClassFinalSet Graph "output" (Identifier "loyalty")),
-THROUGHQ Node "p" (Identifier "loyalty") [THROUGHQ Node "b" (CallDataPoint (Identifier "p") (BoolXX (AssociationQ "dataPoint" (Identical (CallAttribute (Identifier "association") "CLASS") (Chars "CustomerOf")) "anyNode"))) [X (ClassFinalSet Graph "recommendedCustomers" (CallDataPoint (Identifier "p") (BoolXX (AssociationQ "dataPoint" (Identical (CallAttribute (Identifier "association") "CLASS") (Chars "Recommended")) "anyNode")))),
-THROUGHQ Node "q" (CallDataPoint (Identifier "recommendedCustomers") (BoolXX (AssociationQ "dataPoint" (Identical (CallAttribute (Identifier "association") "CLASS") (Chars "CustomerOf")) "b"))) [X (ClassFinalSet Graph "pCustomerOf" (CallAssociation (Identifier "p") (AssociationQ "association" (Identical (Identifier "CLASS") (Chars "CustomerOf")) "b"))),
-X (ClassFinalSet Graph "qCustomerOf" (CallAssociation (Identifier "q") (AssociationQ "association" (Identical (Identifier "CLASS") (Chars "CustomerOf")) "b"))),
-X (NumericIncrease (CallAttribute (Identifier "pCustomerOf") "reward") (CallAttribute (Identifier "b") "bonus")),
-X (NumericIncrease (CallAttribute (Identifier "qCustomerOf") "reward") (CallAttribute (Identifier "b") "bonus"))]]],
-X (Set (Identifier "output") (CallAssociation (Identifier "output") (AssociationQ "association" (IdenticalNot (Identifier "CLASS") (Chars "Recommended")) "dataPoint"))),
-X (STDOUT "output")
-]
-
-End Testing PR5
-
-// GQL.HS
-import System.Environment (getArgs)
-import Parser
-import Lexer
-import InputParser (parseInput, Tables, Table, Row, ID, Labels)
-import InputLexer (lexInput, Token(..))
-import Interpreter (interpret)
-import Printer (printOutput)
-
-main :: IO ()
-main = do
-    (filename:_) <- getArgs
-    contents <- readFile filename
-    -- let inputResult = parseInput $ lexInput contents
-    -- print inputResult
-    let tokens = alexScanTokens contents
-    let result = parser tokens
-    print result 
-    
-    -- interpret the query
-    -- let output = interpret result
-    -- print output
-
-    -- after we interpret we print the output
-    -- let result = parseInput $ lexInput contents
-    -- printOutput result
+STDOUT(output)

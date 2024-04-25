@@ -1,19 +1,19 @@
-DataStructure loyalty = ACCESS("./loyalty.n4j");
-DataStructure output = loyalty;
+Graph loyalty = ACCESS("./loyalty.n4j")
+Graph output = loyalty
 
-THROUGH (DataPoint p : loyalty) {
-    THROUGH (DataPoint b : p.CALLDATAPOINT(dataPoint -[association.:CLASS i== "CustomerOf"]>> anyNode)) {
-        DataStructure recommendedCustomers = p.CALLDATAPOINT(dataPoint -[association.:CLASS i== "Recommended"]>> anyNode);
-        THROUGH (DataPoint q : recommendedCustomers.CALLDATAPOINT(dataPoint -[association.:CLASS i== "CustomerOf"]>> b)) {
-            DataStructure pCustomerOf = p.CALLASSOCIATION(association -[:CLASS i== "CustomerOf"]>> b);
-            DataStructure qCustomerOf = q.CALLASSOCIATION(association -[:CLASS i== "CustomerOf"]>> b);
-            
-            pCustomerOf.reward =+ b.bonus;
-            qCustomerOf.reward =+ b.bonus;
-        }
+THROUGH(DataPoint p : loyalty) {
+  THROUGH(DataPoint b : p - Association ^ DataPoint) {
+    Graph recommendedCustomers = p - Association ^ DataPoint
+    THROUGH(DataPoint q : recommendedCustomers - Association ^ b) {
+      Graph pCustomerOf = p - Association ^ b
+      Graph qCustomerOf = q - Association ^ b
+
+      pCustomerOf.reward = pCustomerOf.reward.PLUS(b.bonus)
+      qCustomerOf.reward = qCustomerOf.reward.PLUS(b.bonus)
     }
+  }
 }
 
-output = output.CALLASSOCIATION(association -[:CLASS !== "Recommended"]>> dataPoint);
+output = output - Association ^ DataPoint
 
-STDOUT (output);
+STDOUT(output)
