@@ -100,7 +100,7 @@ SettableExpression
     | argument '.' HEADER                    { GetProperty $1 $3     }  -- Property access with header
 
 Application
-    : argument '.' CASE '(' BooleanExpression ')'           { MatchQuery $1 $5      }  -- Match query
+    : argument '.' CASE '(' BooleanExpression ')'           { CaseQuery $1 $5      }  -- Match query
     | argument '.' PLUS '(' Expression ')'                        { AddQuery $1 $5        }  -- Add query
     | argument '.' CALLASSOCIATION '(' BooleanExpression ')'{ GetRelation $1 $5     }  -- Get relation  
     | argument '.' NEGATE '(' Expression ')'                      { Exclude $1 $5         }  -- Exclude expression
@@ -165,8 +165,8 @@ Type
 {
 
 parseError :: [Token] -> a
-parseError [] = error "Kmt parse error at end of input you paigan"
-parseError (t:_) = error $ "You dizzy fam, u got a parse error  at Ln " ++ show (getLn (getPos t)) ++ " Col " ++ show (getCol (getPos t)) ++ " token: " ++ show t ++ " Kmt parse error you paigan"
+parseError [] = error "parse error at end of input"
+parseError (t:_) = error $ "parse error  at Ln " ++ show (getLn (getPos t)) ++ " Col " ++ show (getCol (getPos t)) ++ " token: " ++ show t
   where
     getPos (Key _ p) = p
     getLn (AlexPn _ l _) = l  
@@ -188,7 +188,7 @@ data Expression
   = NumExpression NumExpression
   | String String
   | Regex String
-  | MatchQuery String BooleanExpression
+  | CaseQuery String BooleanExpression
   | AddQuery String Expression
   | BooleanExpression BooleanExpression
   | GetRelation String BooleanExpression

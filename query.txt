@@ -1,28 +1,14 @@
-[Expr (ClassFinalSet Graph "access" (ACCESS "./access.n4j")),
-Expr (Set (Identifier "access") (CASEQ (Identifier "access") (LogicalOr (LogicalAnd (Has (Identifier "dataPoint") ["LABEL"]) (Identical (CallAttribute (Identifier "dataPoint") "LABEL") (Chars "Visitor"))) (LogicalAnd (Has (Identifier "dataPoint") ["age"]) (InequalitySlackLesser (CallAttribute (Identifier "dataPoint") "age") (NumericXX (NumericTerminal 25))))))),
-Expr (STDOUT "access")]
+StartExpr "graph" "access.n4j" 
+[
+Expression (SetterExpression 
+    (Set (Var "graph") 
+    (MatchQuery "graph" 
+        (Or 
+            (BooleanExpression (Equals (SettableExpression (Var "LABEL")) (String "Visitor"))) 
+            (BooleanExpression (LTEquals (SettableExpression (Var "age")) (NumExpression (Int 25)))))))),
+Print "graph"
+]
 
-[Expr (ClassFinalSet Graph "tasks" (ACCESS "./tasks.n4j")),
-Expr (ClassFinalSet Graph "tasksCopy" (Identifier "tasks")),
-Expr (Set (Identifier "tasks") (CASEQ (Identifier "tasks") (LogicalAnd (Has (Identifier "dataPoint") ["priority"]) (InequalitySlackGreater (CallAttribute (Identifier "dataPoint") "priority") (NumericXX (NumericTerminal 8)))))),
-THROUGHQ Node "highPriorityTask" (Identifier "tasks") [
-    THROUGHQ Node "availableTask" (Identifier "tasks") [
-        CONDIFQ (LogicalAnd (Has (Identifier "availableTask") ["available"]) (Identical (CallAttribute (Identifier "availableTask") "available") (BoolXX (BoolTerminal True)))) 
-        [Expr (ClassShow Edge "possiblyAllocated"),
-        Expr (Set (CallAttribute (Identifier "possiblyAllocated") "CLASS") (Chars "PossiblyAllocated")),
-        Expr (Set (CallAttribute (Identifier "possiblyAllocated") "START_ID") (Identifier "availableTask")),
-        Expr (Set (CallAttribute (Identifier "possiblyAllocated") "END_ID") (Identifier "highPriorityTask")),
-        Expr (PlusQ (Identifier "tasksCopy") (Identifier "possiblyAllocated"))]
-]],
-Expr (STDOUT "tasksCopy")]
+StartExpr "graph" "tasks.n4j" [Expression (SetterExpression (TypedSet (Type (Key XDataGraph (AlexPn 38 2 1))) "result" (SettableExpression (Var "graph")))),ForBlock (Type (Key XNode (AlexPn 73 4 10))) "nT" (SettableExpression (Var "graph")) [IfBlock (EndRelationQuery (GTEquals (SettableExpression (Var "priority")) (NumExpression (Int 8))) "nT") [ForBlock (Type (Key XNode (AlexPn 139 6 14))) "nS" (SettableExpression (Var "graph")) [IfBlock (StartRelationQuery "nS" (Equals (SettableExpression (Var "available")) (BooleanExpression (Bool True)))) [Expression (SetterExpression (Declare (Type (Key XDataAssociation (AlexPn 208 8 9))) "rel")),Expression (SetterExpression (Set (GetProperty "rel" "TYPE") (String "PossiblyAllocated"))),Expression (SetterExpression (Set (GetProperty "rel" "START_ID") (SettableExpression (Var "nS")))),Expression (SetterExpression (Set (GetProperty "rel" "END_ID") (SettableExpression (Var "nT")))),Expression (AddQuery "result" (SettableExpression (Var "rel")))]]]],Print "result"]
 
-[Expr (ClassFinalSet Graph "table" (ACCESS "./table.n4j")),
-Expr (ClassShow Graph "output"),
-THROUGHQ Node "team" (Identifier "table") [
-    CONDIFQ (LogicalAnd (Has (Identifier "team") ["points"]) (IdenticalNot (CallAttribute (Identifier "team") "points") (Identifier "null"))) [
-        THROUGHQ Node "drawnTeam" (Identifier "table") 
-            [CONDIFQ (LogicalAnd (Has (Identifier "drawnTeam") ["points"]) (Identical (CallAttribute (Identifier "drawnTeam") "points") (CallAttribute (Identifier "team") "points"))) [
-                THROUGHQ Node "beatenTeam" (Identifier "table") [
-                    CONDIFQ (LogicalOr (LogicalAnd (AssociationQ "drawnTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "beatenTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam")) (LogicalAnd (AssociationQ "beatenTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "drawnTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam"))) [Expr (PlusQ (Identifier "output") (Identifier "team"))]]]]]],Expr (STDOUT "output")]
-
-[Expr (DataStructSet "graph" (Access "./access.n4j")),AssignStmt (Assign "graph" (Case "graph" (Or (Equal (Identifier "LABEL") (ValueString "Visitor")) (LessEqual (Identifier "age") (ValueInt 25))))),Expr (Stdout "graph")]
+StartExpr "graph" "table.n4j" [Expression (SetterExpression (Declare (Type (Key XDataGraph (AlexPn 38 2 1))) "result")),ForBlock (Type (Key XNode (AlexPn 65 4 10))) "n" (SettableExpression (Var "graph")) [ForBlock (Type (Key XNode (AlexPn 94 5 12))) "n2" (SettableExpression (Var "graph")) [ForBlock (Type (Key XNode (AlexPn 126 6 14))) "n3" (SettableExpression (Var "graph")) [IfBlock (And (BooleanExpression (NotEquals (SettableExpression (GetProperty "n" "points")) (SettableExpression (Var "null")))) (BooleanExpression (And (BooleanExpression (Equals (SettableExpression (GetProperty "n" "points")) (SettableExpression (GetProperty "n3" "points")))) (BooleanExpression (And (BooleanExpression (RelationQuery "n3" (Equals (SettableExpression (Var "TYPE")) (String "DrewWith")) "n2")) (BooleanExpression (Or (BooleanExpression (RelationQuery "n2" (Equals (SettableExpression (Var "TYPE")) (String "Beat")) "n")) (BooleanExpression (And (BooleanExpression (RelationQuery "n2" (Equals (SettableExpression (Var "TYPE")) (String "DrewWith")) "n3")) (BooleanExpression (RelationQuery "n2" (Equals (SettableExpression (Var "TYPE")) (String "Beat")) "n"))))))))))) [Expression (AddQuery "result" (SettableExpression (Var "n")))]]]],Print "result"]

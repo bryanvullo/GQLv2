@@ -21,7 +21,7 @@ main = do
     -- print inputResult
 
     -- interpret the query
-    let output = interpret result
+    output <- interpret result
     print output
 
     -- after we interpret we print the output
