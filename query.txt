@@ -24,3 +24,5 @@ THROUGHQ Node "team" (Identifier "table") [
             [CONDIFQ (LogicalAnd (Has (Identifier "drawnTeam") ["points"]) (Identical (CallAttribute (Identifier "drawnTeam") "points") (CallAttribute (Identifier "team") "points"))) [
                 THROUGHQ Node "beatenTeam" (Identifier "table") [
                     CONDIFQ (LogicalOr (LogicalAnd (AssociationQ "drawnTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "beatenTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam")) (LogicalAnd (AssociationQ "beatenTeam" (Identical (Identifier "CLASS") (Chars "DrewWith")) "drawnTeam") (AssociationQ "team" (Identical (Identifier "CLASS") (Chars "Beat")) "beatenTeam"))) [Expr (PlusQ (Identifier "output") (Identifier "team"))]]]]]],Expr (STDOUT "output")]
+
+[Expr (DataStructSet "graph" (Access "./access.n4j")),AssignStmt (Assign "graph" (Case "graph" (Or (Equal (Identifier "LABEL") (ValueString "Visitor")) (LessEqual (Identifier "age") (ValueInt 25))))),Expr (Stdout "graph")]

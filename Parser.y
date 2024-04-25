@@ -65,6 +65,7 @@ Expr : DataStruct            { $1 }
      | Plus                  { $1 }
      | '(' Expr ')'          { $2 }
      | Case                  { $1 }
+     | Value                 { $1 }
 
 DataStruct : Graph identity '=' Access    { DataStructSet $2 $4 }
            | Graph identity               { DataStructShow $2   }
@@ -95,6 +96,11 @@ BoolTerm : Expr '.' HAS '(' chars ')'            { Has $1 $5          }
          | False                                 { BoolLit False      }
          | identity '-' Association '^' Expr     { EdgeBoolTerm $1 $5 }
          | '(' BoolExpr ')'                      { $2                 }
+
+Value : chars                            { ValueString $1}
+      | n                                { ValueInt $1}
+      | True                             { ValueBool True}
+      | False                            { ValueBool False}
 
 Condif : CONDIF '(' BoolExpr ')' '{' Statements '}'      { Condif $3 $6 }
 
@@ -132,6 +138,9 @@ data Expr
   | Case String BoolExpr
   | Plus Expr Expr
   | Edge String Association Expr
+  | ValueString String
+  | ValueInt Int
+  | ValueBool Bool
   deriving (Eq, Show)
 
 data BoolExpr  
