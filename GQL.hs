@@ -14,6 +14,9 @@ main = do
     let result = parser tokens
     print result 
     
+
+    -- Code graveyard
+
     -- let inputResult = parseInput $ lexInput contents
     -- print inputResult
 
