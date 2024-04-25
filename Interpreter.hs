@@ -1,10 +1,10 @@
 module Interpreter (interpret) where
 
 -- Importing necessary modules
-import InputParser (parseInput, Tables, Table, Row(..), ID(..), Value(..), Labels, Relationship, Type(..))
-import Parser (Program, Statement(..), Expr(..), NumericXX(..), BoolXX(..), Class(..))
+import InputParser (parseInput, Tables, Table, Row(..), ID(..), Value(..), Labels, Relationship, Type(..), Types)
+import Parser (Program, Statement(..), Expr(..), AssignExpr(..), MathExpr(..), BoolExpr(..), Start(..), Assignable(..), Start)
 import InputLexer (lexInput, Token(..))
-import Data.List (isInfixOf)
+import Printer (printOutput)
 
 -- Environment
 type Env = [(String, Data)] -- Variable name, Data
@@ -12,357 +12,192 @@ type Env = [(String, Data)] -- Variable name, Data
 -- Continuation Stack
 data Kont
     = KEmpty
-    | KAssign String Env Kont
-    | KSetL Expr Env Kont
-    | KSetR String Env Kont
-    | KNumericXX NumericXX Env Kont
-    | KCase BoolXX Env Kont
-    | KPlus Env Kont
-    | KBoolXX BoolXX Env Kont
-    | KAttr String Env Kont
-    | KAssoc BoolXX Env Kont
-    | KIncrease Env Kont
-    | KDecrease Env Kont
-    | KNot Env Kont
-    | KDataPoint BoolXX Env Kont
-    | KCondIf BoolXX Program Program Env Kont
-    | KCondElseIf BoolXX Program Program Env Kont
-    | KThrough Class String Expr Program Env Kont
-    | KSeq Program Env Kont
+    | KIf Program Program Env Kont 
+    | KElif Program Program Program Env Kont
+    | KFor  Program Env Kont
+    deriving (Eq, Show)
+    -- | KAssign String Env Kont
+    -- | KSetL Expr Env Kont
+    -- | KSetR String Env Kont
+    -- | KNumericXX NumericXX Env Kont
+    -- | KCase BoolXX Env Kont
+    -- | KPlus Env Kont
+    -- | KBoolXX BoolXX Env Kont
+    -- | KAttr String Env Kont
+    -- | KAssoc BoolXX Env Kont
+    -- | KIncrease Env Kont
+    -- | KDecrease Env Kont
+    -- | KNot Env Kont
+    -- | KDataPoint BoolXX Env Kont
+    -- | KCondIf BoolXX Program Program Env Kont
+    -- | KCondElseIf BoolXX Program Program Env Kont
+    -- | KThrough Class String Expr Program Env Kont
+    -- | KSeq Program Env Kont
 
 -- Control State
 type Control = (Program, Env, Kont) -- Statements, Environment, Continuation
 
 -- Data Type
-data Data = G [Table] | N Row | B Bool | I Int | S String | Nil -- Graph, Node, Bool, Int, String, Nil
+data Data = G [Table] | N Row | B Bool | I Int | S String | Nil 
+    | Reg String | Field (Type, Value)
+    deriving (Eq, Show)
 
--- Interpreter Functions
-interpret :: Program -> Tables
-interpret qq = interpretCEK (newQQ, [name, newGraph], KEmpty)
+interpret :: Start -> Tables
+interpret (StartExpr var file statements) = interpret' (statements, initialEnv, KEmpty)
+    where
+        fileData = getFile file
+        initialEnv = [(var, G fileData)]
+
+getFile :: String -> String
+getFile file = do
+    contents <- readFile file
+    let fileData = parseInput $ lexInput contents
+    return fileData
+
+interpret' :: Control -> Control
+interpret' ([], env, kont) = ([], env, kont)
+interpret' (Print var:stmts, env, kont) = ([Print var], env, KEmpty)
+interpret' (IfBlock boolx block:stmts, env, kont)
+    | interpretBoolExpr boolx env
+        = interpret' (block++stmts, env, kont)
+    | otherwise 
+        = interpret' (stmts, env, kont)
+interpret' (IfElseBlock boolx block1 block2:stmts, env, kont)
+    | interpretBoolExpr boolx env
+        = interpret' (block1++stmts, env, kont)
+    | otherwise
+        = interpret' (block2++stmts, env, kont)
+--TODO implement For block
+interpret' (ForBlock varType var expr block) = undefined
+
+
+interpret' (Expr (MathExpr mExpr):stmts, env, kont) = undefined
     where 
-        --find access statement 
-        (Expr ( ClassFinalSet _ name (ACCESS file))) = findAccess qq
-        newGraph = parseInputFile file
-        newQQ = filter (\x -> x /= X ( ClassFinalSet _ _ (ACCESS _))) qq
+        result = interpretMathExpr mExpr
+        field = IntValue result
+interpret' (Expr (String str):stmts, env, kont) = undefined
+    where 
+        field = StringValue str
+interpret' (Expr (Regex regex):stmts, env, kont) = undefined
+    where 
+        field = Reg regex
+interpret' (Expr (MatchQuery str bExpr):stmts, env, kont) = G $ matchGraph g bExpr
+    where
+        (Just G g) = lookup str env
+        matchTables str bExpr = map (matchRows bExpr) g
+        -- matchTable bExpr table = map (matchRow bExpr header) rows
+        matchRows bExpr table = filter (matchRow bExpr header) rows
+            where 
+                    header = head table
+                    rows = tail table
+        matchRow bExpr header row = interpretBoolExpr bExpr newEnv
+            where 
+                row' = zip (getHeaderTypes header) (getRowValues row)
+                newEnv = map nodeConvert row'
+            
+interpret' (Expr (AddQuery str expr):stmts, env, kont) = undefined
+interpret' (Expr (BoolExpr bExpr):stmts, env, kont) = undefined
+interpret' (Expr (GetRelation str bExpr):stmts, env, kont) = undefined
+interpret' (Expr (Exclude str expr):stmts, env, kont) = undefined
+interpret' (Expr (GetNode str expt):stmts, env, kont) = undefined
+interpret' (Expr (AssignExpr assExpr):stmts, env, kont) = undefined
+interpret' (Expr (Assignable assignable):stmts, env, kont) = undefined
 
-findAccess :: Program -> Statement 
-findAccess qq = head $ filter (\x -> x == X ( ClassFinalSet _ _ (ACCESS _))) qq
+getHeaderTypes :: Row -> Types 
+getHeaderTypes (Header types) = types
+getHeaderTypes (LabeledHeader types) = types
+getHeaderTypes (RelationshipHeader types) = types
+getHeaderTypes _ = []
 
-interpretCEK :: Control -> Control
-interpretCEK ([], env, KEmpty) = ([], env, KEmpty)
-interpretCEK (s@(Expr (ClassFinalSet dType name x)):statements, env, kont) =
-    interpretCEK (x:statements, env, KAssign name env kont)
-interpretCEK (s@(Expr (Set x1 x2)):statements, env, kont) =
-    interpretCEK (x1:statements, env, KSetL x2 env kont)
-interpretCEK (s@(Expr (Identifier name)):statements, env, KSetL x2 value k) =
-    interpretCEK (x2:statements, env, KSetR name value k)
-interpretCEK (s@(Expr (CASEQ expr bool)):statements, env, kont) =
-    
-interpretCEK (s@(Expr (CallAttribute x attr)):statements, env, kont) =
-    interpretCEK (x:statements, env, KAttr attr env kont)
-interpretCEK (s@(Expr (ClassShow dType name)):statements, env, kont) =
-    interpretCEK (statements, (name, Nil):env, kont)
-interpretCEK (s@(Expr (Identifier name)):statements, env, kont) =
-    case lookup name env of
-        Just value -> interpretCEK (statements, env, kont)
-        Nothing -> error $ "Undefined variable: " ++ name
-interpretCEK (s@(Expr (NumericXX numXX)):statements, env, kont) =
-    interpretCEK (statements, env, KNumericXX numXX env kont)
-interpretCEK (s@(Expr (Chars str)):statements, env, kont) =
-    interpretCEK (statements, ("$str", S str):env, kont)
-interpretCEK (s@(Expr (Regular regex)):statements, env, kont) =
-    interpretCEK (statements, ("$regex", S regex):env, kont)
-interpretCEK (s@(Expr (CASEQ x boolXX)):statements, env, kont) =
-    interpretCEK (x:statements, env, KCase boolXX env kont)
-interpretCEK (s@(Expr (PlusQ x1 x2)):statements, env, kont) =
-    interpretCEK (x1:x2:statements, env, KPlus env kont)
-interpretCEK (s@(Expr (ACCESS fileName)):statements, env, kont) =
-    case parseInputFile fileName of
-        Left err -> error err
-        Right tables -> interpretCEK (statements, ("$tables", G tables):env, kont)
-interpretCEK (s@(Expr (STDOUT name)):statements, env, kont) =
-    case lookup name env of
-        Just value -> do
-            print value
-            interpretCEK (statements, env, kont)
-        Nothing -> error $ "Undefined variable: " ++ name
-interpretCEK (s@(Expr (BoolXX boolXX)):statements, env, kont) =
-    interpretCEK (statements, env, KBoolXX boolXX env kont)
-interpretCEK (s@(Expr (CallAttribute x attr)):statements, env, kont) =
-    interpretCEK (x:statements, env, KAttr attr env kont)
-interpretCEK (s@(Expr (CallAssociation x boolXX)):statements, env, kont) =
-    interpretCEK (x:statements, env, KAssoc boolXX env kont)
-interpretCEK (s@(Expr (NumericIncrease x1 x2)):statements, env, kont) =
-    interpretCEK (x1:x2:statements, env, KIncrease env kont)
-interpretCEK (s@(Expr (NumericDecrease x1 x2)):statements, env, kont) =
-    interpretCEK (x1:x2:statements, env, KDecrease env kont)
-interpretCEK (s@(Expr (Not x1 x2)):statements, env, kont) =
-    interpretCEK (x1:x2:statements, env, KNot env kont)
-interpretCEK (s@(Expr (CallDataPoint x boolXX)):statements, env, kont) =
-    interpretCEK (x:statements, env, KDataPoint boolXX env kont)
-interpretCEK (s@(CONDIFQ boolXX qq):statements, env, kont) =
-    interpretCEK (statements, env, KCondIf boolXX qq [] env kont)
-interpretCEK (s@(CONDELIFQ boolXX qq1 qq2):statements, env, kont) =
-    interpretCEK (statements, env, KCondElseIf boolXX qq1 qq2 env kont)
-interpretCEK (s@(THROUGHQ cls label x qq):statements, env, kont) =
-    interpretCEK (statements, env, KThrough cls label x qq env kont)
+getRowValues :: Row -> [Value]
+getRowValues (Data _ values) = values 
+getRowValues (LabeledData _ values _) = values
+getRowValues (RelationshipData _ values _ _) = values
 
--- Continuation handlers
-interpretCEK ([], env, KAssign name value k) =
-    interpretCEK ([], (name, value):env, k)
-interpretCEK (x:statements, env, KAssign name _ k) =
-    interpretCEK (x:statements, env, KAssign name env k)
-interpretCEK ([], env, KSetL x2 value k) =
-    interpretCEK (x2:[], env, KAssign "$temp" value k)
-interpretCEK (x1:statements, env, KSetL x2 _ k) =
-    interpretCEK (x1:statements, env, KSetL x2 env k)
-interpretCEK ([], env, KNumericXX numXX value k) =
-    let result = interpretNumericXX numXX value
-    in interpretCEK ([], ("$temp", I result):env, k)
-interpretCEK (x:statements, env, KNumericXX numXX _ k) =
-    interpretCEK (x:statements, env, KNumericXX numXX env k)
-interpretCEK ([], env, KCase boolXX value k) =
-    if interpretBoolXX boolXX value
-        then interpretCEK ([], ("$temp", B True):env, k)
-        else interpretCEK ([], ("$temp", B False):env, k)
-interpretCEK (x:statements, env, KCase boolXX _ k) =
-    interpretCEK (x:statements, env, KCase boolXX env k)
-interpretCEK ([], env, KPlus value1 (G tables1) (KPlus value2 (G tables2) k)) =
-    interpretCEK ([], ("$temp", G (tables1 ++ tables2)):env, k)
-interpretCEK (x1:x2:statements, env, KPlus _ _ k) =
-    interpretCEK (x1:x2:statements, env, KPlus env k)
-interpretCEK ([], env, KBoolXX boolXX value k) =
-    let result = interpretBoolXX boolXX value
-    in interpretCEK ([], ("$temp", B result):env, k)
-interpretCEK (x:statements, env, KBoolXX boolXX _ k) =
-    interpretCEK (x:statements, env, KBoolXX boolXX env k)
-interpretCEK ([], env, KAttr attr value k) =
-    let result = getAttribute attr value
-    in interpretCEK ([], ("$temp", result):env, k)
-interpretCEK (x:statements, env, KAttr attr _ k) =
-    interpretCEK (x:statements, env, KAttr attr env k)
-interpretCEK ([], env, KAssoc boolXX value k) =
-    let result = getRelatedRows value (interpretBoolXX boolXX value)
-    in interpretCEK ([], ("$temp", G result):env, k)
-interpretCEK (x:statements, env, KAssoc boolXX _ k) =
-    interpretCEK (x:statements, env, KAssoc boolXX env k)
-interpretCEK ([], env, KIncrease value1 (I n1) (KIncrease value2 (I n2) k)) =
-    let result = numericIncrease value1 n2
-    in interpretCEK ([], ("$temp", G result):env, k)
-interpretCEK (x1:x2:statements, env, KIncrease _ _ k) =
-    interpretCEK (x1:x2:statements, env, KIncrease env k)
-interpretCEK ([], env, KDecrease value1 (I n1) (KDecrease value2 (I n2) k)) =
-    let result = numericDecrease value1 n2
-    in interpretCEK ([], ("$temp", G result):env, k)
-interpretCEK (x1:x2:statements, env, KDecrease _ _ k) =
-    interpretCEK (x1:x2:statements, env, KDecrease env k)
-interpretCEK ([], env, KNot value1 (G tables1) (KNot value2 (G tables2) k)) =
-    let result = filterTable (\row -> not (elem row tables2)) tables1
-    in interpretCEK ([], ("$temp", G result):env, k)
-interpretCEK (x1:x2:statements, env, KNot _ _ k) =
-    interpretCEK (x1:x2:statements, env, KNot env k)
-interpretCEK ([], env, KDataPoint boolXX value k) =
-    let result = getDataPoints value (interpretBoolXX boolXX value)
-    in interpretCEK ([], ("$temp", G result):env, k)
-interpretCEK (x:statements, env, KDataPoint boolXX _ k) =
-    interpretCEK (x:statements, env, KDataPoint boolXX env k)
-interpretCEK ([], env, KCondIf boolXX qq _ _ k) =
-    if interpretBoolXX boolXX (lookup "$temp" env)
-        then interpretCEK (qq, env, k)
-        else interpretCEK ([], env, k)
-interpretCEK ([], env, KCondElseIf boolXX qq1 qq2 _ k) =
-    if interpretBoolXX boolXX (lookup "$temp" env)
-        then interpretCEK (qq1, env, k)
-        else interpretCEK (qq2, env, k)
-interpretCEK ([], env, KThrough cls label x qq _ k) =
-    case lookup label env of
-        Just (G tables) ->
-            let results = map (\table -> interpretCEK (qq, (label, G table):env, k)) tables
-            in interpretCEK ([], env, k)
-        _ -> error $ "Invalid data for label: " ++ label
+nodeConvert :: (Type,Value) -> Env 
+nodeConvert (t,v) = Field (t,v)
 
-interpretQ :: Statement -> Tables -> Tables
-interpretQ q tables = undefined
+interpretBoolExpr :: BoolExpr -> Env -> Bool
+interpretBoolExpr (Bool True) = True
+interpretBoolExpr (Bool False) = False
+interpretBoolExpr (NotEquals expr1 expr2) = result1 \= result2
+    where
+        result1 = interpretExpr expr1
+        result2 = interpretExpr expr2
+interpretBoolExpr (LessThan expr1 expr2) = result1 < result2
+    where
+        result1 = interpretExpr expr1
+        result2 = interpretExpr expr2
+interpretBoolExpr (GreaterThan expr1 expr2) = result1 > result2
+    where
+        result1 = interpretExpr expr1
+        result2 = interpretExpr expr2
+interpretBoolExpr (LTEquals expr1 expr2) = result1 <= result2
+    where
+        result1 = interpretExpr expr1
+        result2 = interpretExpr expr2
+interpretBoolExpr (GTEquals expr1 expr2) = result1 >= result2
+    where
+        result1 = interpretExpr expr1
+        result2 = interpretExpr expr2
+interpretBoolExpr (And expr1 expr2) = result1 && result2
+    where
+        result1 = interpretExpr expr1
+        result2 = interpretExpr expr2
+interpretBoolExpr (Or expr1 expr2) = result1 || result2
+    where
+        result1 = interpretExpr expr1
+        result2 = interpretExpr expr2
+--TODO implement other BoolExprs interpretation
+interpretBoolExpr (EndRelationQuery bExpr str) = undefinded
+    -- where
+    --     case (lookup )
+interpretBoolExpr (StartRelationQuery str bExpr) = undefinded
+interpretBoolExpr (RelationQuery startStr bExpr endStr) = undefinded
+interpretBoolExpr (Contains expr strs) = undefinded
 
-interpretX :: Expr -> Tables -> [Row]
-interpretX x tables = undefined
+nodeReduction expr1 expr2 env = (out1, out2, env2)
+    where 
+        out1 = interpretExpr expr1 env
+        out2 = interpretExpr expr2 env
 
-interpretNumericXX :: NumericXX -> Tables -> Value
-interpretNumericXX numXX tables = undefined
+interpretExpr :: Expr -> Data
+interpretExpr (String str) = S str
+interpretExpr (MathExpr mExpr) = I $ interpretMathExpr mExpr
+interpretExpr (BoolExpr bExpr) = B $ interpretBoolExpr bExpr
+--TODO implement other Exprs interpretation
+interpretExpr (GetNode str expr) = N $ getNode str expr
+interpretExpr (GetRelation str bExpr) = G $ getRelation str bExpr
+interpretExpr (Regex regex) = S regex -- ?? 
+interpretExpr (Assignable assignable) = undefined
+interpretExpr (AssignExpr assExpr) = undefined
+interpretExpr (Exclude str expr) = undefined
+interpretExpr (AddQuery str expr) = undefined
+interpretExpr (MatchQuery str bExpr) = undefined
 
-interpretBoolXX :: BoolXX -> Tables -> Bool
-interpretBoolXX boolXX tables = undefined
+interpretMathExpr :: MathExpr -> Int
+interpretMathExpr (Int i) = i
+interpretMathExpr (Addition expr1 expr2) = result1 + result2
+    where
+        result1 = interpretMathExpr expr1
+        result2 = interpretMathExpr expr2
+interpretMathExpr (Subtraction expr1 expr2) = result1 - result2
+    where
+        result1 = interpretMathExpr expr1
+        result2 = interpretMathExpr expr2
+interpretMathExpr (Multiplication expr1 expr2) = result1 * result2
+    where
+        result1 = interpretMathExpr expr1
+        result2 = interpretMathExpr expr2
+interpretMathExpr (Division expr1 expr2) = result1 `div` result2
+    where
+        result1 = interpretMathExpr expr1
+        result2 = interpretMathExpr expr2
 
-interpretClass :: Class -> [Row] -> Row
-interpretClass cls rows = undefined
+--TODO implement GetNode
+getNode :: String -> Expr -> Row
+getNode str expr = undefined
 
-findTable :: String -> Tables -> [Row]
-findTable label tables = undefined
-
--- findTable :: String -> Tables -> [Row]
--- findTable label tables = case lookup label (zip (map getTableLabel tables) tables) of
---     Just rows -> rows
---     Nothing -> []
---   where
---     getTableLabel :: Table -> String
---     getTableLabel ((Header _):_) = "Header"
---     getTableLabel ((LabeledHeader _):_) = "LabeledHeader"
---     getTableLabel ((RelationshipHeader _):_) = "RelationshipHeader"
---     getTableLabel ((Data (Id label) _):_) = label
---     getTableLabel ((LabeledData (Id label) _ _):_) = label
---     getTableLabel ((RelationshipData (Id label) _ _ _):_) = label
-
-updateTable :: [Row] -> [Row] -> [Row]
-updateTable rows1 rows2 = undefined
-
--- updateTable :: [Row] -> [Row] -> [Row]
--- updateTable [] rows2 = rows2
--- updateTable rows1 [] = rows1
--- updateTable (row1:rows1) (row2:rows2) = updatedRow : updateTable rows1 rows2
---   where
---     updatedRow = case (row1, row2) of
---         (Data id1 values1, Data _ values2) -> Data id1 (updateValues values1 values2)
---         (LabeledData id1 values1 labels1, LabeledData _ values2 labels2) ->
---             LabeledData id1 (updateValues values1 values2) (labels1 ++ labels2)
---         (RelationshipData id1 values1 id2 rel, RelationshipData _ values2 _ _) ->
---             RelationshipData id1 (updateValues values1 values2) id2 rel
---         _ -> row1
-
-updateValues :: [Value] -> [Value] -> [Value]
-updateValues values1 values2 = undefined
-
--- updateValues :: [Value] -> [Value] -> [Value]
--- updateValues [] values2 = values2
--- updateValues values1 [] = values1
--- updateValues (val1:vals1) (val2:vals2) = updatedValue : updateValues vals1 vals2
---   where
---     updatedValue = case (val1, val2) of
---         (NullValue, _) -> val2
---         (_, NullValue) -> val1
---         _ -> val2
-
-getAttribute :: String -> [Row] -> Value
-getAttribute attr rows = undefined
-
--- getAttribute :: String -> [Row] -> Value
--- getAttribute _ [] = NullValue
--- getAttribute attr (row:rows) = case row of
---     Data _ values -> getValue attr values
---     LabeledData _ values _ -> getValue attr values
---     RelationshipData _ values _ _ -> getValue attr values
---     _ -> getAttribute attr rows
-
-getValue :: String -> [Value] -> Value
-getValue attr values = undefined
-
--- getValue :: String -> [Value] -> Value
--- getValue _ [] = NullValue
--- getValue attr (value:values) = case value of
---     StringValue str | attr == str -> value
---     IntValue i | attr == show i -> value
---     BoolValue b | attr == show b -> value
---     _ -> getValue attr values
-
-filterTable :: (Row -> Bool) -> [Row] -> [Row]
-filterTable predicate rows = undefined
-
--- filterTable :: (Row -> Bool) -> [Row] -> [Row]
--- filterTable predicate = filter predicate
-
-isMatchingRow :: Row -> String -> Bool
-isMatchingRow row regex = undefined
-
-isMatching :: String -> String -> Bool
-isMatching str regex = isMatchingHelper str regex 0 0
-
-isMatchingHelper :: String -> String -> Int -> Int -> Bool
-isMatchingHelper str regex strIdx regexIdx
-    | strIdx == length str && regexIdx == length regex = True
-    | strIdx == length str || regexIdx == length regex = False
-    | regex !! regexIdx == '.' = isMatchingHelper str regex (strIdx + 1) (regexIdx + 1)
-    | regex !! regexIdx == '*' =
-        isMatchingHelper str regex strIdx (regexIdx + 1) ||
-        (strIdx < length str && isMatchingHelper str regex (strIdx + 1) regexIdx)
-    | strIdx < length str && str !! strIdx == regex !! regexIdx =
-        isMatchingHelper str regex (strIdx + 1) (regexIdx + 1)
-    | otherwise = False
-
-isSubstring :: String -> String -> Bool
-isSubstring substr str = substr `isInfixOf` str
-
-idToString :: ID -> String
-idToString (Id str) = str
-
-numericIncrease :: [Row] -> Int -> [Row]
-numericIncrease rows value = undefined
-
--- numericIncrease :: [Row] -> Int -> [Row]
--- numericIncrease = map . incrementNumericValues
-
-numericDecrease :: [Row] -> Int -> [Row]
-numericDecrease rows value = undefined
-
--- numericDecrease :: [Row] -> Int -> [Row]
--- numericDecrease = map . decrementNumericValues
-
-incrementNumericValues :: Int -> Row -> Row
-incrementNumericValues value row = undefined
-
--- incrementNumericValues :: Int -> Row -> Row
--- incrementNumericValues value row = case row of
---     Data id values -> Data id (map (incrementValue value) values)
---     LabeledData id values labels -> LabeledData id (map (incrementValue value) values) labels
---     RelationshipData id1 values id2 rel -> RelationshipData id1 (map (incrementValue value) values) id2 rel
---     _ -> row
-
-decrementNumericValues :: Int -> Row -> Row
-decrementNumericValues value row = undefined
-
--- decrementNumericValues :: Int -> Row -> Row
--- decrementNumericValues value row = case row of
---     Data id values -> Data id (map (decrementValue value) values)
---     LabeledData id values labels -> LabeledData id (map (decrementValue value) values) labels
---     RelationshipData id1 values id2 rel -> RelationshipData id1 (map (decrementValue value) values) id2 rel
---     _ -> row
-
-incrementValue :: Int -> Value -> Value
-incrementValue value val = undefined
-
--- incrementValue :: Int -> Value -> Value
--- incrementValue value val = case val of
---     IntValue i -> IntValue (i + value)
---     _ -> val
-
-decrementValue :: Int -> Value -> Value
-decrementValue value val = undefined
-
--- decrementValue :: Int -> Value -> Value
--- decrementValue value val = case val of
---     IntValue i -> IntValue (i - value)
---     _ -> val
-
-getNumericValue :: [Row] -> Int
-getNumericValue rows = undefined
-
-getRelatedRows :: [Row] -> [Row] -> [Row]
-getRelatedRows rows1 rows2 = undefined
-
-getDataPoints :: [Row] -> [Row] -> [Row]
-getDataPoints rows1 rows2 = undefined
-
-getTypes :: [Row] -> [Row]
-getTypes rows = undefined
-
-getNodeTypes :: [Row] -> [Row]
-getNodeTypes rows = undefined
-
-getEdgeTypes :: [Row] -> [Row]
-getEdgeTypes rows = undefined
-
--- Parsing Function
-parseInputFile :: String -> Tables
-parseInputFile fileName = do
-    contents <- readFile fileName
-    let tokens = lexInput contents
-    let result = parseInput tokens
-    return result
+--TODO implement GetRelation
+getRelation :: String -> BoolExpr -> [Table]
+getRelation str bExpr = undefined
