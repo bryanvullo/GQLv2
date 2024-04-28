@@ -1,0 +1,12 @@
+:ID, age:integer, :LABEL
+gt2,  23, Staff
+ab23, 22, Staff
+nj10, 16, Student
+rw5,  15, Student
+pp8,  17, Student
+jd6,  16, Student
+cr2,  15, Student 
+v1,   null, Visitor
+v2,   null, Visitor
+v3,   null, Visitor
+v4,   null, Visitor

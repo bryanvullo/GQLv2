@@ -1,0 +1,11 @@
+Graph graph = READFILE("./access.n4j");
+graph = graph.MATCH (:LABEL=="Visitor" || age <= 25);
+Graph output;
+FOR (Node n : graph) {
+    Node toAdd = NEW Node(:ID, age:integer, :LABEL);
+    toAdd.:ID = n.:ID;
+    toAdd.age = n.age;
+    toAdd.:LABEL = n.:LABEL;
+    output.ADD(toAdd);
+}
+PRINT(output);

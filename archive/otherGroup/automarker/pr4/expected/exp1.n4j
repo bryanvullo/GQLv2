@@ -1,0 +1,10 @@
+:ID, firstname:string, familyname:string , age:integer
+jv9, "Jennifer", "Villeneuve", 49
+pp8, "Peter", "Potter", 17
+as4, "Anika","Sharma",40
+cr2, "Connor","Flaherty",15 
+
+:START_ID, :END_ID, :TYPE
+jv9,as4,   IsFriend
+as4,jv9,   IsFriend
+cr2,pp8,   IsFriend

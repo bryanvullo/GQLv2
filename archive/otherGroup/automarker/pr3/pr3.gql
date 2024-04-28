@@ -1,0 +1,24 @@
+Graph graph = READFILE ("./table.n4j");
+Graph result;
+String s1 = "HI";
+FOR (Node n : graph) {
+  String id1 = n.:ID;
+  FOR (Node n2 : graph) {
+    String id2 = n2.:ID;
+    FOR (Node n3 : graph) { 
+      String id3 = n3.:ID;
+      IF (n.points != null &&
+          n.points == n3.points &&
+          ( id3-[:TYPE=="DrewWith"]->id2 : graph && id2-[:TYPE=="Beat"]->id1 : graph ||
+            id2-[:TYPE=="DrewWith"]->id3 : graph && id2-[:TYPE=="Beat"]->id1 : graph )) {
+              IF (n.points != null) {
+                Node toAdd = NEW Node(:ID, points:integer);
+                toAdd.:ID = n.:ID;
+                toAdd.points = n.points;
+                result.ADD(toAdd);
+              }
+      }
+    }
+  }
+}
+PRINT (result);

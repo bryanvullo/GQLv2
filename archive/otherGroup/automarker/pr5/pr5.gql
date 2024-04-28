@@ -1,0 +1,15 @@
+Graph graph = READFILE("loyalty.n4j");
+FOR (Node p : graph) {
+  FOR (Node q : graph) {
+    FOR (Node b : graph) {
+      IF (p -[:TYPE == "CustomerOf"]-> b) {
+        IF ((p -[:TYPE == "CustomerOf"]-> q) && (q -[:TYPE == "CustomerOf"]-> b)) {
+          graph.GETRELATION(:TYPE == "CustomerOf").MATCH(:START_ID == p && :END_ID == b).reward += b.bonus;
+          graph.GETRELATION(:TYPE == "CustomerOf").MATCH(:START_ID == q && :END_ID == b).reward += b.bonus;
+        }
+      }
+    }
+  }
+}
+graph.EXCLUDE(graph.GETRELATION(:TYPE == "Recommended"));
+PRINT(graph);

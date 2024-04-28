@@ -1,0 +1,18 @@
+Graph graph = READFILE("./tasks.n4j");
+Graph result = graph; // This makes copy
+FOR (Node nT : graph) {
+  String id1 = nT.:ID;
+  IF (-[priority >= 8]-> id1 : graph) { // nT is a target of some relationship with field priority with val >= 8
+    FOR (Node nS : graph) {
+      String id2 = nS.:ID;
+      IF (id2 -[available == True]-> : graph) {
+        Relation rel = NEW Relation(:START_ID, :END_ID, :TYPE);
+        rel.:TYPE = "PossiblyAllocated";
+        rel.:START_ID = id2;
+        rel.:END_ID = id1;
+        result.ADD(rel);
+      }
+    }
+  }
+}
+PRINT (result);

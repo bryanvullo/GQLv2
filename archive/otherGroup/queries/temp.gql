@@ -1,0 +1,9 @@
+Graph graph = READFILE("./queries/access.n4j");
+FOR (Node ns : graph) {
+    String id = ns.:ID;
+    IF (id -[:END_ID=="uh12"]-> : graph) {
+        PRINT(ns);
+    }
+    //PRINT(ns);
+}
+PRINT(graph);

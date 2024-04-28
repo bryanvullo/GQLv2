@@ -1,0 +1,26 @@
+:ID, firstname:string , familyname: string, role:string, age:integer, :LABEL
+jj23, "John", "Jones", "Caretaker", 43, Staff
+uh12, "Umar", "Habib", "Headmaster", 55, Staff
+gt2, "Guillaume", "Truffaut", "Teacher", 23, Staff
+jv9, "Jennifer", "Villeneuve", "DeputyHead", 49, Staff
+ab23, "Adam", "Baker", "Teacher", 22, Staff
+
+:ID, firstname:string , familyname:string, age:integer ,:LABEL
+nj10, "Nigel", "Jackson", 16, Student
+rw5, "Rebecca", "Watson", 15, Student
+pp8, "Peter", "Potter", 17, Student
+jd6, "Jing","Ding", 16, Student
+cr2, "Connor","Flaherty",15, Student
+
+
+:ID, firstname:string , familyname: string, :LABEL
+v1, "Ray","Wise",Visitor
+v2, "Barbara","King",Visitor
+v3, "Mei","Wu",Visitor
+v4, "Anika","Sharma",Visitor
+
+:START_ID, :END_ID, :TYPE
+v1, uh12, IsVisiting
+v2, nj10, IsVisiting
+v3, jd6,  IsVisiting
+v4, uh12, IsVisiting

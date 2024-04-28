@@ -1,0 +1,2 @@
+Boolean b = False || False;
+PRINT(b);

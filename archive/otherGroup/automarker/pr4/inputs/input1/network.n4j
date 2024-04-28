@@ -1,0 +1,66 @@
+:ID, firstname:string, familyname:string , age:integer
+jj23, "John", "Jones", 43
+uh12, "Umar", "Habib", 55
+gt2, "Guillaume", "Truffaut", 23
+jv9, "Jennifer", "Villeneuve", 49
+ab23, "Adam", "Baker", 22
+nj10, "Nigel", "Jackson", 16
+rw5, "Rebecca", "Watson", 15
+pp8, "Peter", "Potter", 17
+jd6, "Jing","Ding", 16
+rw11, "Ray","Wise", 66
+bk21, "Barbara","King",70
+mw3, "Mei","Wu",47
+as4, "Anika","Sharma",40
+cr2, "Connor","Flaherty",15 
+
+:ID, company:string, :LABEL
+com1, "BarStucks", Cafe
+com2, "NaffeCero", Delicatessen;Cafe
+com3, "CoffeeNumberTwo", Cafe;Pizzeria
+com4, "TreatyEats", Delicatessen
+com5, "CrustInUs", Pizzeria;Delicatessen
+com6, "DoughReMe", Pizzeria
+com7, "BaaBaaBlackSheep", Barber
+com8, "TheAngryOnion", Pizzeria;Restaurant
+com9, "TheLaughingOnion", Restaurant
+
+:START_ID, :END_ID, :TYPE
+jj23,com5,WorksFor
+uh12,com2,WorksFor
+gt2,com1,WorksFor
+jv9,com9,WorksFor
+ab23,com8,WorksFor
+nj10,com3,WorksFor
+rw5,com4,WorksFor
+pp8,com6,WorksFor
+rw11,com7,WorksFor
+bk21,com4,WorksFor
+mw3,com2,WorksFor
+as4,com1,WorksFor
+cr2,com6,WorksFor
+
+:START_ID, :END_ID, :TYPE
+jj23,rw5,  IsFriend
+jj23,bk21, IsFriend
+uh12,as4,  IsFriend
+uh12,jv9,  IsFriend
+gt2,pp8,   IsFriend
+gt2,jd6,   IsFriend
+gt2,cr2,   IsFriend
+jv9,as4,   IsFriend
+jv9,uh12,  IsFriend
+jv9,rw11,  IsFriend
+ab23,cr2,  IsFriend
+ab23,gt2,  IsFriend
+nj10,jd6,  IsFriend
+rw5,jj23,  IsFriend
+rw5,mw3,   IsFriend
+bk21,rw11, IsFriend
+as4,gt2,   IsFriend
+as4,jv9,   IsFriend
+as4,mw3,   IsFriend
+cr2,gt2,   IsFriend
+cr2,pp8,   IsFriend
+
+
