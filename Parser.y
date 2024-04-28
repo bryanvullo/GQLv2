@@ -74,7 +74,7 @@ Program
     | {- empty -}        { []      }  -- Empty program
 
 Statement
-    : Expression                     { Expression $1        }  -- Expression statement
+    : Expression               { Expression $1  }  -- Expression statement
     | IfStatement              { $1             }  -- If statement
     | ForStatement             { $1             }  -- For loop statement  
     | STDOUT '(' argument ')'  { Print $3       }  -- Print statement
@@ -91,8 +91,8 @@ SetterExpression
     : Type argument '=' Expression            { TypedSet $1 $2 $4     }  -- Typed assignment
     | SettableExpression '=' Expression       { Set $1 $3             }  -- Regular assignment
     | Type argument                           { Declare $1 $2         }  -- Variable declaration
-    | SettableExpression '++' Expression      { IncrSet $1 $3 }  -- Increment assignment
-    | SettableExpression '--' Expression      { DecrSet $1 $3 }  -- Decrement assignment
+    | SettableExpression '++' Expression      { IncrSet $1 $3         }  -- Increment assignment
+    | SettableExpression '--' Expression      { DecrSet $1 $3         }  -- Decrement assignment
 
 SettableExpression
     : argument                               { Var $1                }  -- Variable
@@ -100,32 +100,32 @@ SettableExpression
     | argument '.' HEADER                    { GetProperty $1 $3     }  -- Property access with header
 
 Application
-    : argument '.' CASE '(' BooleanExpression ')'           { CaseQuery $1 $5      }  -- Match query
+    : argument '.' CASE '(' BooleanExpression ')'                 { CaseQuery $1 $5       }  -- Match query
     | argument '.' PLUS '(' Expression ')'                        { AddQuery $1 $5        }  -- Add query
-    | argument '.' CALLASSOCIATION '(' BooleanExpression ')'{ GetRelation $1 $5     }  -- Get relation  
+    | argument '.' CALLASSOCIATION '(' BooleanExpression ')'      { GetRelation $1 $5     }  -- Get relation  
     | argument '.' NEGATE '(' Expression ')'                      { Exclude $1 $5         }  -- Exclude expression
 
 LitExpression
-    : NumExpression                                    { NumExpression $1           }  -- Mathematical expression
-    | HEADER                                      { SettableExpression (Var $1)   }  -- Header literal
-    | chars                                       { String $1             }  -- String literal
-    | RegularExpression                           { Regex $1              }  -- Regular expression literal
-    | argument '.' CALLDATAPOINT '(' Expression ')'     { GetNode $1 $5         }  -- Get node expression
+    : NumExpression                                    { NumExpression $1            }  -- Mathematical expression
+    | HEADER                                           { SettableExpression (Var $1) }  -- Header literal
+    | chars                                            { String $1                   }  -- String literal
+    | RegularExpression                                { Regex $1                    }  -- Regular expression literal
+    | argument '.' CALLDATAPOINT '(' Expression ')'    { GetNode $1 $5               }  -- Get node expression
 
 NumExpression
-    : MathTerm                    { $1                }  -- Mathematical term
+    : MathTerm                              { $1                }  -- Mathematical term
     | NumExpression PLUS NumExpression      { Addition $1 $3    }  -- Addition
     | NumExpression SUBT NumExpression      { Subtraction $1 $3 }  -- Subtraction
 
 MathTerm 
     : NumExpression MULT NumExpression      { Multiplication $1 $3 }  -- Multiplication
     | NumExpression DIV NumExpression       { Division $1 $3       }  -- Division
-    | n                           { Int $1               }  -- Integer literal
+    | n                                     { Int $1               }  -- Integer literal
 
 BooleanExpression
     : Expression AND Expression               { And $1 $3        }  -- Logical AND  
     | Expression OR Expression                { Or $1 $3         }  -- Logical OR
-    | SimpleBoolExpr              { $1               }  -- Simple boolean expression
+    | SimpleBoolExpr                          { $1               }  -- Simple boolean expression
 
 SimpleBoolExpr
     : True                                             { Bool True               }  -- Boolean true literal
@@ -147,7 +147,7 @@ IfStatement
     | CONDIF '(' BooleanExpression ')' '{' Program '}' CONDELIF '{' Program '}' { IfElseBlock $3 $6 $10 }  -- If-else block
 
 ForStatement  
-    : THROUGH '(' Type argument ':' Expression ')' '{' Program '}'           { ForBlock $3 $4 $6 $9  }  -- For loop block
+    : THROUGH '(' Type argument ':' Expression ')' '{' Program '}'              { ForBlock $3 $4 $6 $9  }  -- For loop block
 
 StringList
     : chars                    { [$1]     }  -- Single string in the list
