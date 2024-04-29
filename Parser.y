@@ -78,6 +78,17 @@ Statement
     | Conditional              { $1             }  -- If statement
     | Through                  { $1             }  -- For loop statement  
     | STDOUT '(' argument ')'  { Output $3      }  -- Output statement
+
+LiteralHelper
+    : ExpressionMathXAS                                { ExpressionMathXAS $1            }  -- Mathematical expression
+    | HEADER                                           { ArgumentConstructor (Object $1) }  -- Header literal
+    | chars                                            { String $1                       }  -- String literal
+    | RegularExpression                                { RegularExpression $1            }  -- Regular expression literal
+    | argument '.' CALLDATAPOINT '(' Expression ')'    { AccessDataNode $1 $5            }  -- Get node expression
+
+CharsHelper
+    : chars                     { [$1]      }  -- Single string in the list
+    | chars '-' CharsHelper     { ($1 : $3) }  -- Multiple strings in the list
         
 Expression
     : ArgumentQuery             { $1                     }  -- Function application expression
@@ -86,31 +97,6 @@ Expression
     | ArgumentConstructor       { ArgumentConstructor $1 }  -- ArgumentConstructor expression
     | LiteralHelper             { $1                     }  -- Literal expression
     | '(' Expression ')'        { $2                     }  -- Parenthesized expression
-
-ExpressionLink
-    : Class argument '=' Expression            { TypedAssign $1 $2 $4     }  -- Typed assignment
-    | ArgumentConstructor '=' Expression       { Assign $1 $3             }  -- Regular assignment
-    | Class argument                           { Assert $1 $2             }  -- Variable declaration
-    | ArgumentConstructor '++' Expression      { ArgumentIncrement $1 $3  }  -- Increment assignment
-    | ArgumentConstructor '--' Expression      { ArgumentDecrement $1 $3  }  -- Decrement assignment
-
-ArgumentConstructor
-    : argument                               { Object $1                }  -- Variable
-    | argument '.' argument                  { ArgumentAttribute $1 $3  }  -- Property access
-    | argument '.' HEADER                    { ArgumentAttribute $1 $3  }  -- Property access with header
-
-ArgumentQuery
-    : argument '.' CASE '(' ExpressionBool ')'                 { CaseQuery $1 $5         }  -- Match query
-    | argument '.' PLUS '(' Expression ')'                     { AddQuery $1 $5          }  -- Add query
-    | argument '.' CALLASSOCIATION '(' ExpressionBool ')'      { AssociationQuery $1 $5  }  -- Get relation  
-    | argument '.' NEGATE '(' Expression ')'                   { Exclude $1 $5           }  -- Exclude expression
-
-LiteralHelper
-    : ExpressionMathXAS                                { ExpressionMathXAS $1            }  -- Mathematical expression
-    | HEADER                                           { ArgumentConstructor (Object $1) }  -- Header literal
-    | chars                                            { String $1                       }  -- String literal
-    | RegularExpression                                { RegularExpression $1            }  -- Regular expression literal
-    | argument '.' CALLDATAPOINT '(' Expression ')'    { AccessDataNode $1 $5            }  -- Get node expression
 
 ExpressionMathXAS
     : ExpressionMathDMn                              { $1                }  -- Mathematical term
@@ -142,16 +128,30 @@ ExpressionBoolComparison
     | argument '{' ExpressionBool '}' '^' argument     { AssociationStatement $1 $3 $6  }  -- Relation query
     | Expression '.' HAS '(' CharsHelper ')'           { HasQuery $1 $5                 }  -- HasQuery expression
 
+ExpressionLink
+    : Class argument '=' Expression            { TypedAssign $1 $2 $4     }  -- Typed assignment
+    | ArgumentConstructor '=' Expression       { Assign $1 $3             }  -- Regular assignment
+    | Class argument                           { Assert $1 $2             }  -- Variable declaration
+    | ArgumentConstructor '++' Expression      { ArgumentIncrement $1 $3  }  -- Increment assignment
+    | ArgumentConstructor '--' Expression      { ArgumentDecrement $1 $3  }  -- Decrement assignment
+
+ArgumentConstructor
+    : argument                               { Object $1                }  -- Variable
+    | argument '.' argument                  { ArgumentAttribute $1 $3  }  -- Property access
+    | argument '.' HEADER                    { ArgumentAttribute $1 $3  }  -- Property access with header
+
+ArgumentQuery
+    : argument '.' CASE '(' ExpressionBool ')'                 { CaseQuery $1 $5         }  -- Match query
+    | argument '.' PLUS '(' Expression ')'                     { AddQuery $1 $5          }  -- Add query
+    | argument '.' CALLASSOCIATION '(' ExpressionBool ')'      { AssociationQuery $1 $5  }  -- Get relation  
+    | argument '.' NEGATE '(' Expression ')'                   { Exclude $1 $5           }  -- Exclude expression
+
 Conditional
     : CONDIF '(' ExpressionBool ')' '{' Program '}'                          { CondIfQuery $3 $6        }  -- If block
     | CONDIF '(' ExpressionBool ')' '{' Program '}' CONDELIF '{' Program '}' { CondElifQuery $3 $6 $10  }  -- If-else block
 
 Through  
     : THROUGH '(' Class argument ':' Expression ')' '{' Program '}'          { ThroughQuery $3 $4 $6 $9 }  -- For loop block
-
-CharsHelper
-    : chars                     { [$1]      }  -- Single string in the list
-    | chars '-' CharsHelper     { ($1 : $3) }  -- Multiple strings in the list
 
 Class
     : GraphClass         { Class $1 }  -- Graph class
@@ -173,6 +173,10 @@ parseError (t:_) = error $ "parse error  at Ln " ++ show (getLn (getPos t)) ++ "
     getCol (AlexPn _ _ c) = c
 
 -- Abstract syntax tree data types
+data Start
+  = StartExpr String String Program  
+  deriving(Eq, Show)
+
 type Program 
   = [Statement]
 
@@ -196,19 +200,6 @@ data Expression
   | AccessDataNode String Expression
   | ExpressionLink ExpressionLink
   | ArgumentConstructor ArgumentConstructor  
-  deriving(Eq, Show)
-
-data ExpressionLink
-  = TypedAssign Class String Expression
-  | ArgumentIncrement ArgumentConstructor Expression
-  | ArgumentDecrement ArgumentConstructor Expression
-  | Assign ArgumentConstructor Expression
-  | Assert Class String
-  deriving(Eq, Show)
-
-data ArgumentConstructor
-  = Object String
-  | ArgumentAttribute String String
   deriving(Eq, Show)
 
 data ExpressionMathXAS
@@ -235,12 +226,20 @@ data ExpressionBool
   | HasQuery Expression [String]  
   deriving(Eq, Show)
 
+data ExpressionLink
+  = TypedAssign Class String Expression
+  | ArgumentIncrement ArgumentConstructor Expression
+  | ArgumentDecrement ArgumentConstructor Expression
+  | Assign ArgumentConstructor Expression
+  | Assert Class String
+  deriving(Eq, Show)
+
+data ArgumentConstructor
+  = Object String
+  | ArgumentAttribute String String
+  deriving(Eq, Show)
+
 data Class
   = Class Token
   deriving(Eq, Show)
-
-data Start
-  = StartExpr String String Program  
-  deriving(Eq, Show)
-
 }
