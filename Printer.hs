@@ -1,4 +1,4 @@
-module Printer (printOutput) where
+module Printer (printOutput, printRow) where
 
 import InputParser
 -- import GHC.Runtime.Eval (Term(val))
