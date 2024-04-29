@@ -109,8 +109,8 @@ ExpressionMathDMn
     | n                                             { Num $1            }  -- Integer literal
 
 ExpressionBool
-    : Expression AND Expression               { BoolConjunction $1 $3  }  -- Logical AND
-    | Expression OR Expression                { BoolUnion $1 $3        }  -- Logical OR
+    : ExpressionBool AND ExpressionBool               { BoolConjunction $1 $3  }  -- Logical AND
+    | ExpressionBool OR ExpressionBool                { BoolUnion $1 $3        }  -- Logical OR
     | ExpressionBoolComparison                { $1                     }  -- Simple boolean expression
 
 ExpressionBoolComparison
@@ -212,8 +212,8 @@ data ExpressionBool = Bool Bool
                     | StrictGreaterQuery Expression Expression
                     | SlackLesserQuery Expression Expression
                     | SlackGreaterQuery Expression Expression
-                    | BoolConjunction Expression Expression
-                    | BoolUnion Expression Expression
+                    | BoolConjunction ExpressionBool ExpressionBool
+                    | BoolUnion ExpressionBool ExpressionBool
                     | AssociationEnd ExpressionBool String
                     | AssociationStart String ExpressionBool
                     | AssociationStatement String ExpressionBool String
