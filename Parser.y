@@ -147,11 +147,11 @@ ArgumentQuery
     | argument '.' NEGATE '(' Expression ')'                   { NegateData $1 $5        }  -- Exclusion expression
 
 Conditional
-    : CONDIF '(' ExpressionBool ')' '{' Program '}'                          { CondIfQuery $3 $6        }  -- If block
-    | CONDIF '(' ExpressionBool ')' '{' Program '}' CONDELIF '{' Program '}' { CondElifQuery $3 $6 $10  }  -- If-else block
+    : CONDIF '(' ExpressionBool ')' '{' Program '}'                          { CondIfQuery $3 $6        }  -- Conditional query with if
+    | CONDIF '(' ExpressionBool ')' '{' Program '}' CONDELIF '{' Program '}' { CondElifQuery $3 $6 $10  }  -- Conditional query with elif
 
 Through  
-    : THROUGH '(' Class argument ':' Expression ')' '{' Program '}'          { ThroughQuery $3 $4 $6 $9 }  -- For loop block
+    : THROUGH '(' Class argument ':' Expression ')' '{' Program '}'          { ThroughQuery $3 $4 $6 $9 }  -- Through query
 
 Class
     : GraphClass         { Class $1 }  -- Graph class
