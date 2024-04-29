@@ -1,17 +1,17 @@
-DataGraph graph = ACCESS("./loyalty.n4j")
+DataGraph loyalty = ACCESS("./loyalty.n4j")
 
-THROUGH (Node p : graph) {
-  THROUGH (Node q : graph) {
-    THROUGH (Node b : graph) {
+THROUGH (Node p : loyalty) {
+  THROUGH (Node q : loyalty) {
+    THROUGH (Node b : loyalty) {
       CONDIF (p {:TYPE i== "CustomerOf"}^ b) {
         CONDIF ((p {:TYPE i== "CustomerOf"}^ q) AND (q {:TYPE i== "CustomerOf"}^ b)) {
-          graph.CALLASSOCIATION(:TYPE i== "CustomerOf").CASE(:START_ID i== p AND :END_ID i== b).reward ++ b.bonus
-          graph.CALLASSOCIATION(:TYPE i== "CustomerOf").CASE(:START_ID i== q AND :END_ID i== b).reward ++ b.bonus
+          loyalty.CALLASSOCIATION(:TYPE i== "CustomerOf").CASE(:START_ID i== p AND :END_ID i== b).reward ++ b.bonus
+          loyalty.CALLASSOCIATION(:TYPE i== "CustomerOf").CASE(:START_ID i== q AND :END_ID i== b).reward ++ b.bonus
         }
       }
     }
   }
 }
 
-graph.NEGATE(graph.CALLASSOCIATION(:TYPE i== "Recommended"))
-PRINT(graph)
+loyalty.NEGATE(loyalty.CALLASSOCIATION(:TYPE i== "Recommended"))
+STDOUT(loyalty)

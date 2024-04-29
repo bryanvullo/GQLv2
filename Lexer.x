@@ -25,7 +25,7 @@ tokens :-
   String                        { \x _ -> Key XStr              x }  -- String keyword
   Boolean                       { \x _ -> Key XBool             x }  -- Boolean keyword
   Node                          { \x _ -> Key XNode             x }  -- Node keyword
-  Relation                      { \x _ -> Key XDataAssociation  x }  -- Relation keyword
+  Association                   { \x _ -> Key XDataAssociation  x }  -- Association keyword
   HAS                           { \x _ -> Key XHAS              x }  -- Has keyword
   CONDIF                        { \x _ -> Key XCONDIF           x }  -- If keyword
   CONDELIF                      { \x _ -> Key XCONDELIF         x }  -- Else if keyword

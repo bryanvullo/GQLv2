@@ -1,17 +1,18 @@
-DataGraph graph = ACCESS("table.n4j")
-DataGraph result
+DataGraph table = ACCESS("table.n4j")
+DataGraph output
 
-THROUGH (Node n : graph) {
-  THROUGH (Node n2 : graph) {
-    THROUGH (Node n3 : graph) { 
-      CONDIF (n.points !== null AND
-          n.points i== n3.points AND
-          ( n3{:TYPE i== "DrewWith"}^n2 AND n2{:TYPE i== "Beat"}^n OR
-            n2{:TYPE i== "DrewWith"}^n3 AND n2{:TYPE i== "Beat"}^n)) {
-        result.PLUS(n)
+THROUGH (Node nodef1 : table) {
+  THROUGH (Node nodef2 : table) {
+    THROUGH (Node nodef3 : table) { 
+      CONDIF (
+        nodef1.points !== null AND nodef1.points i== nodef3.points AND
+          ( nodef3{:TYPE i== "DrewWith"}^nodef2 AND nodef2{:TYPE i== "Beat"}^nodef1 OR
+            nodef2{:TYPE i== "DrewWith"}^nodef3 AND nodef2{:TYPE i== "Beat"}^nodef1)
+            ) {
+        output.PLUS(nodef1)
       }
     }
   }
 }
 
-STDOUT (result)
+STDOUT (output)

@@ -1,17 +1,18 @@
-DataGraph graph = ACCESS("tasks.n4j")
-DataGraph result = graph
+DataGraph tasks = ACCESS("tasks.n4j")
+DataGraph output = tasks
 
-THROUGH (Node nT : graph) {
-  CONDIF ({priority >> 8}^ nT) { 
-    THROUGH (Node nS : graph) {
-      CONDIF (nS {available i== True}^) {
-        Relation rel
-        rel.:TYPE = "PossiblyAllocated"
-        rel.:START_ID = nS
-        rel.:END_ID = nT
-        result.PLUS(rel)
+THROUGH (Node nodef1 : tasks) {
+  CONDIF ({priority >> 8}^ nodef1) { 
+    THROUGH (Node nodef2 : tasks) {
+      CONDIF (nodef2 {available i== True}^) {
+        Association association
+        association.:TYPE = "PossiblyAllocated"
+        association.:START_ID = nodef2
+        association.:END_ID = nodef1
+        output.PLUS(association)
       }
     }
   }
 }
-STDOUT (result)
+
+STDOUT (output)
