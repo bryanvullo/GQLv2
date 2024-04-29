@@ -110,8 +110,8 @@ ExpressionMathDMn
     | n                                             { Num $1            }  -- Integer literal, e.g., 42
 
 ExpressionBool
-    : Expression AND Expression               { BoolConjunction $1 $3  }  -- Logical AND, e.g., condition1 AND condition2
-    | Expression OR Expression                { BoolUnion $1 $3        }  -- Logical OR, e.g., condition1 OR condition2
+    : ExpressionBool AND ExpressionBool               { BoolConjunction $1 $3  }  -- Logical AND, e.g., condition1 AND condition2
+    | ExpressionBool OR ExpressionBool                { BoolUnion $1 $3        }  -- Logical OR, e.g., condition1 OR condition2
     | ExpressionBoolComparison                        { $1                     }  -- Simple boolean expression
 
 ExpressionBoolComparison
@@ -145,7 +145,7 @@ ArgumentQuery
     : argument '.' CASE '(' ExpressionBool ')'                 { CaseQuery $1 $5         }  -- Match query, e.g., node.CASE(condition)
     | argument '.' PLUS '(' Expression ')'                     { AddQuery $1 $5          }  -- Add query, e.g., graph.PLUS(node)
     | argument '.' CALLASSOCIATION '(' ExpressionBool ')'      { AssociationQuery $1 $5  }  -- Get relation, e.g., node.CALLASSOCIATION(condition)
-    | argument '.' NEGATE '(' Expression ')'                   { NegateData $1 $5        }  -- Exclusion expression, e.g., graph.NEGATE(expression)
+    | argument '.' NEGATE '(' ExpressionBool ')'                   { NegateData $1 $5        }  -- Exclusion expression, e.g., graph.NEGATE(expression)
 
 Conditional
     : CONDIF '(' ExpressionBool ')' '{' Program '}'                          { CondIfQuery $3 $6        }  -- Conditional query with if, e.g., CONDIF(condition) { ... }
@@ -197,7 +197,7 @@ data Expression
     | AddQuery String Expression
     | ExpressionBool ExpressionBool
     | AssociationQuery String ExpressionBool
-    | NegateData String Expression
+    | NegateData String ExpressionBool
     | AccessDataNode String Expression
     | ExpressionLink ExpressionLink
     | ArgumentConstructor ArgumentConstructor
@@ -219,8 +219,8 @@ data ExpressionBool
     | StrictGreaterQuery Expression Expression
     | SlackLesserQuery Expression Expression
     | SlackGreaterQuery Expression Expression
-    | BoolConjunction Expression Expression
-    | BoolUnion Expression Expression
+    | BoolConjunction ExpressionBool ExpressionBool
+    | BoolUnion ExpressionBool ExpressionBool
     | AssociationEnd ExpressionBool String
     | AssociationStart String ExpressionBool
     | AssociationStatement String ExpressionBool String
