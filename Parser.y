@@ -166,7 +166,7 @@ Class
 
 parseError :: [Token] -> a
 parseError [] = error "parse error detected"
-parseError (t:_) = error $ "parse error @ Ln " ++ show (getLn (getPos t)) ++ " Col " ++ show (getCol (getPos t)) ++ " on token: " ++ show t
+parseError (t:_) = error $ "parse error @ Ln:Col " ++ show (getLn (getPos t)) ++ ":" ++ show (getCol (getPos t)) ++ ", on token: " ++ show t
   where
     getPos (Key _ p) = p
     getLn (AlexPn _ l _) = l  
