@@ -7,7 +7,7 @@ THROUGH (Node person : network) {
     THROUGH (Node friend : network) {
       CONDIF (person{:TYPE i== "IsFriend"}^friend AND 
              person.age << friend.age AND
-             friend.NEGATE(friend.CALLASSOCIATION(:TYPE i== "WorksFor").CASE(:LABEL i== "Cafe"))) {
+             friend.NEGATE(friend.CALLASSOCIATION(:TYPE i== "WorksFor") AND friend.CASE(:LABEL i== "Cafe"))) {
         output.PLUS(person)
         output.PLUS(friend)
         THROUGH (Association a : network) {
