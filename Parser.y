@@ -150,7 +150,7 @@ Conditional
     : CONDIF '(' ExpressionBool ')' '{' Program '}'                          { CondIfQuery $3 $6        }  -- Conditional query with if
     | CONDIF '(' ExpressionBool ')' '{' Program '}' CONDELIF '{' Program '}' { CondElifQuery $3 $6 $10  }  -- Conditional query with elif
 
-Through  
+Through
     : THROUGH '(' Class argument ':' Expression ')' '{' Program '}'          { ThroughQuery $3 $4 $6 $9 }  -- Through query
 
 Class
