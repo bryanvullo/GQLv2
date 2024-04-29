@@ -99,7 +99,7 @@ Expression
     | '(' Expression ')'        { $2                     }  -- Parenthesized expression
 
 ExpressionMathXAS
-    : ExpressionMathDMn                              { $1                }  -- Mathematical term
+    : ExpressionMathDMn                              { $1                }  -- Devolve to ExpressionMathDMn
     | ExpressionMathXAS PLUS ExpressionMathXAS       { ArithmeticA $1 $3 }  -- Addition
     | ExpressionMathXAS SUBT ExpressionMathXAS       { ArithmeticS $1 $3 }  -- Subtraction
 
