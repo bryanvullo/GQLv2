@@ -1,5 +1,5 @@
 DataGraph tasks = ACCESS("tasks.n4j")
-DataGraph output = tasks
+DataGraph result = tasks
 
 THROUGH (Node nodef1 : tasks) {
   CONDIF ({priority >> 8}^ nodef1) { 
@@ -9,10 +9,10 @@ THROUGH (Node nodef1 : tasks) {
         association.:TYPE = "PossiblyAllocated"
         association.:START_ID = nodef2
         association.:END_ID = nodef1
-        output.PLUS(association)
+        result.PLUS(association)
       }
     }
   }
 }
 
-STDOUT (output)
+STDOUT (result)
