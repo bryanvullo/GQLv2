@@ -144,7 +144,7 @@ ArgumentQuery
     : argument '.' CASE '(' ExpressionBool ')'                 { CaseQuery $1 $5         }  -- Match query
     | argument '.' PLUS '(' Expression ')'                     { AddQuery $1 $5          }  -- Add query
     | argument '.' CALLASSOCIATION '(' ExpressionBool ')'      { AssociationQuery $1 $5  }  -- Get relation  
-    | argument '.' NEGATE '(' Expression ')'                   { Exclude $1 $5           }  -- Exclude expression
+    | argument '.' NEGATE '(' Expression ')'                   { NegateData $1 $5        }  -- Exclusion expression
 
 Conditional
     : CONDIF '(' ExpressionBool ')' '{' Program '}'                          { CondIfQuery $3 $6        }  -- If block
@@ -196,7 +196,7 @@ data Expression
   | AddQuery String Expression
   | ExpressionBool ExpressionBool
   | AssociationQuery String ExpressionBool
-  | Exclude String Expression
+  | NegateData String Expression
   | AccessDataNode String Expression
   | ExpressionLink ExpressionLink
   | ArgumentConstructor ArgumentConstructor  
