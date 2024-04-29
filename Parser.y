@@ -129,11 +129,11 @@ ExpressionBoolComparison
     | Expression '.' HAS '(' CharsHelper ')'           { HasQuery $1 $5                 }  -- HasQuery expression
 
 ExpressionLink
-    : Class argument '=' Expression            { TypedAssign $1 $2 $4     }  -- Typed assignment
-    | ArgumentConstructor '=' Expression       { Assign $1 $3             }  -- Regular assignment
-    | Class argument                           { Assert $1 $2             }  -- Variable declaration
-    | ArgumentConstructor '++' Expression      { ArgumentIncrement $1 $3  }  -- Increment assignment
-    | ArgumentConstructor '--' Expression      { ArgumentDecrement $1 $3  }  -- Decrement assignment
+    : Class argument '=' Expression            { ClassArgumentStatement $1 $2 $4     }  -- Typed assignment
+    | ArgumentConstructor '=' Expression       { Assign $1 $3                        }  -- Regular assignment
+    | Class argument                           { Assert $1 $2                        }  -- Variable declaration
+    | ArgumentConstructor '++' Expression      { ArgumentIncrement $1 $3             }  -- Increment assignment
+    | ArgumentConstructor '--' Expression      { ArgumentDecrement $1 $3             }  -- Decrement assignment
 
 ArgumentConstructor
     : argument                               { Object $1                }  -- Variable
@@ -227,7 +227,7 @@ data ExpressionBool
   deriving(Eq, Show)
 
 data ExpressionLink
-  = TypedAssign Class String Expression
+  = ClassArgumentStatement Class String Expression
   | ArgumentIncrement ArgumentConstructor Expression
   | ArgumentDecrement ArgumentConstructor Expression
   | Assign ArgumentConstructor Expression
