@@ -154,12 +154,12 @@ Through
     : THROUGH '(' Class argument ':' Expression ')' '{' Program '}'          { ThroughQuery $3 $4 $6 $9 }  -- Through query
 
 Class
-    : GraphClass         { Class $1 }  -- Graph class
-    | IntegerClass       { Class $1 }  -- Integer class
-    | StringClass        { Class $1 }  -- String class
-    | BooleanClass       { Class $1 }  -- Boolean class
-    | NodeClass          { Class $1 }  -- Node class
-    | RelationClass      { Class $1 }  -- Relation class
+    : GraphClass         { GraphClass }  -- Graph class
+    | IntegerClass       { IntegerClass }  -- Integer class
+    | StringClass        { StringClass }  -- String class
+    | BooleanClass       { BooleanClass }  -- Boolean class
+    | NodeClass          { NodeClass }  -- Node class
+    | RelationClass      { RelationClass }  -- Relation class
 
 -- Parser monad and utility functions
 {
@@ -231,7 +231,12 @@ data ArgumentConstructor = Object String
                          | ArgumentAttribute String String
                          deriving(Eq, Show)
 
-data Class = Class Token
+data Class = GraphClass 
+           | IntegerClass
+           | StringClass
+           | BooleanClass
+           | NodeClass
+           | RelationClass
            deriving(Eq, Show)
 
 }
