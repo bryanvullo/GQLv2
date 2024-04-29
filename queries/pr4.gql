@@ -1,20 +1,22 @@
-DataGraph network = ACCESS("network.n4j") 
+# pr4.gql
+DataGraph network = ACCESS("network.n4j")
 DataGraph output
 
 THROUGH (Node person : network) {
-  String firstName = person.firstName
-  CONDIF (firstName >> "A" AND firstName << "D") {
+  CONDIF (person.HAS("firstName") AND 
+          person.firstName >> "A" AND person.firstName << "D") {
     THROUGH (Node friend : network) {
       CONDIF (person{:TYPE i== "IsFriend"}^friend AND 
-             person.age << friend.age AND
-             friend.NEGATE(friend.CALLASSOCIATION(:TYPE i== "WorksFor").CASE(:LABEL i== "Cafe"))) {
+              person.age << friend.age AND
+              friend.CALLASSOCIATION(:TYPE i== "WorksFor" AND :LABEL i== "Cafe") i== null) {
         output.PLUS(person)
         output.PLUS(friend)
-        THROUGH (Association a : network) {
-          CONDIF (a.:START_ID i== person AND a.:END_ID i== friend AND a.:TYPE i== "IsFriend") {
-            output.PLUS(a)
-          }
-        }
+        
+        Association friendship 
+        friendship.:TYPE = "IsFriend"
+        friendship.:START_ID = person
+        friendship.:END_ID = friend
+        output.PLUS(friendship)
       }
     }
   }

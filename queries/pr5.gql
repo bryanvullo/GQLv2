@@ -1,3 +1,4 @@
+# pr5.gql
 DataGraph loyalty = ACCESS("loyalty.n4j")
 DataGraph output = loyalty
 

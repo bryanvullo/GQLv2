@@ -1,3 +1,4 @@
+# pr3.gql
 DataGraph table = ACCESS("table.n4j")
 DataGraph output
 
