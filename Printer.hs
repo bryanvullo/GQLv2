@@ -80,7 +80,7 @@ valuesToString (v:values) =
             ", \"" ++ value ++ "\"" ++ valuesToString values
         (BoolValue value) -> 
             ", " ++ show value ++ valuesToString values
-        (NullValue) -> 
+        NullValue -> 
             ", null" ++ valuesToString values
 valuesToString [] = ""
 
