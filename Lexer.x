@@ -50,7 +50,7 @@ tokens :-
   "<<"                          { \x _ -> Key XSlackLesser        x }  -- Slack less than
   ">"                           { \x _ -> Key XStrictGreater      x }  -- Strict greater than
   "<"                           { \x _ -> Key XStrictLesser       x }  -- Strict less than
-  "="                           { \x _ -> Key XSet                x }  -- Assignment operator
+  "="                           { \x _ -> Key XAssign                x }  -- Assignment operator
   "i=="                         { \x _ -> Key XLogicalEquation    x }  -- Logical equality
   "!=="                         { \x _ -> Key XLogicalInequation  x }  -- Logical inequality
   "."                           { \x _ -> Key XPeriod             x }  -- Period
@@ -112,7 +112,7 @@ data TokenType
   | XSlackLesser
   | XStrictGreater
   | XStrictLesser
-  | XSet
+  | XAssign
   | XLogicalEquation
   | XLogicalInequation
   | XPeriod

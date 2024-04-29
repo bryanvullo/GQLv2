@@ -16,12 +16,12 @@ import Lexer
   HEADER                { Key (XHeader $$)            _ }  -- Header
   True                  { Key XBooleanTrue            _ }  -- "True" boolean literal
   False                 { Key XBooleanFalse           _ }  -- "False" boolean literal
-  GraphType             { Key XDataGraph              _ }  -- Graph type
-  IntegerType           { Key XInt                    _ }  -- Integer type
-  StringType            { Key XStr                    _ }  -- String type 
-  BooleanType           { Key XBool                   _ }  -- Boolean type
-  NodeType              { Key XNode                   _ }  -- Node type
-  RelationType          { Key XDataAssociation        _ }  -- Relation type
+  GraphClass            { Key XDataGraph              _ }  -- Graph class
+  IntegerClass          { Key XInt                    _ }  -- Integer class
+  StringClass           { Key XStr                    _ }  -- String class 
+  BooleanClass          { Key XBool                   _ }  -- Boolean class
+  NodeClass             { Key XNode                   _ }  -- Node class
+  RelationClass         { Key XDataAssociation        _ }  -- Relation class
   ACCESS                { Key XACCESS                 _ }  -- "ACCESS" keyword
   CASE                  { Key XCASE                   _ }  -- "CASE" keyword
   STDOUT                { Key XSTDOUT                 _ }  -- "STDOUT" keyword
@@ -44,7 +44,7 @@ import Lexer
   '<<'                  { Key XSlackLesser            _ }  -- "<<" operator
   '>'                   { Key XStrictGreater          _ }  -- ">" operator
   '<'                   { Key XStrictLesser           _ }  -- "<" operator
-  '='                   { Key XSet                    _ }  -- "=" operator
+  '='                   { Key XAssign                 _ }  -- "=" operator
   'i=='                 { Key XLogicalEquation        _ }  -- "i==" equality operator
   '!=='                 { Key XLogicalInequation      _ }  -- "!==" inequality operator
   '.'                   { Key XPeriod                 _ }  -- "." operator
@@ -66,7 +66,7 @@ import Lexer
 
 -- Grammar rules
 Start 
-    : GraphType argument '=' ACCESS '(' chars ')' Program  { StartExpr $2 $6 $8 }
+    : GraphClass argument '=' ACCESS '(' chars ')' Program  { StartExpr $2 $6 $8 }
       -- Start symbol, defines the structure of a GQL program
 
 Program 
@@ -75,91 +75,91 @@ Program
 
 Statement
     : Expression               { Expression $1  }  -- Expression statement
-    | IfStatement              { $1             }  -- If statement
-    | ForStatement             { $1             }  -- For loop statement  
-    | STDOUT '(' argument ')'  { Print $3       }  -- Print statement
+    | Conditional              { $1             }  -- If statement
+    | Through                  { $1             }  -- For loop statement  
+    | STDOUT '(' argument ')'  { Output $3      }  -- Output statement
         
 Expression
-    : Application               { $1                    }  -- Function application expression
-    | BooleanExpression         { BooleanExpression $1  }  -- Boolean expression
-    | SetterExpression          { SetterExpression $1   }  -- Assignment expression
-    | SettableExpression        { SettableExpression $1 }  -- SettableExpression expression
-    | LitExpression             { $1                    }  -- Literal expression
-    | '(' Expression ')'        { $2                    }  -- Parenthesized expression
+    : ArgumentQuery             { $1                     }  -- Function application expression
+    | ExpressionBool            { ExpressionBool $1      }  -- Boolean expression
+    | ExpressionLink            { ExpressionLink $1      }  -- Assignment expression
+    | ArgumentConstructor       { ArgumentConstructor $1 }  -- ArgumentConstructor expression
+    | LiteralHelper             { $1                     }  -- Literal expression
+    | '(' Expression ')'        { $2                     }  -- Parenthesized expression
 
-SetterExpression
-    : Type argument '=' Expression            { TypedSet $1 $2 $4     }  -- Typed assignment
-    | SettableExpression '=' Expression       { Set $1 $3             }  -- Regular assignment
-    | Type argument                           { Declare $1 $2         }  -- Variable declaration
-    | SettableExpression '++' Expression      { IncrSet $1 $3         }  -- Increment assignment
-    | SettableExpression '--' Expression      { DecrSet $1 $3         }  -- Decrement assignment
+ExpressionLink
+    : Class argument '=' Expression            { TypedAssign $1 $2 $4     }  -- Typed assignment
+    | ArgumentConstructor '=' Expression       { Assign $1 $3             }  -- Regular assignment
+    | Class argument                           { Assert $1 $2             }  -- Variable declaration
+    | ArgumentConstructor '++' Expression      { ArgumentIncrement $1 $3  }  -- Increment assignment
+    | ArgumentConstructor '--' Expression      { ArgumentDecrement $1 $3  }  -- Decrement assignment
 
-SettableExpression
-    : argument                               { Var $1                }  -- Variable
-    | argument '.' argument                  { GetProperty $1 $3     }  -- Property access
-    | argument '.' HEADER                    { GetProperty $1 $3     }  -- Property access with header
+ArgumentConstructor
+    : argument                               { Object $1                }  -- Variable
+    | argument '.' argument                  { ArgumentAttribute $1 $3  }  -- Property access
+    | argument '.' HEADER                    { ArgumentAttribute $1 $3  }  -- Property access with header
 
-Application
-    : argument '.' CASE '(' BooleanExpression ')'                 { CaseQuery $1 $5       }  -- Match query
-    | argument '.' PLUS '(' Expression ')'                        { AddQuery $1 $5        }  -- Add query
-    | argument '.' CALLASSOCIATION '(' BooleanExpression ')'      { GetRelation $1 $5     }  -- Get relation  
-    | argument '.' NEGATE '(' Expression ')'                      { Exclude $1 $5         }  -- Exclude expression
+ArgumentQuery
+    : argument '.' CASE '(' ExpressionBool ')'                 { CaseQuery $1 $5         }  -- Match query
+    | argument '.' PLUS '(' Expression ')'                     { AddQuery $1 $5          }  -- Add query
+    | argument '.' CALLASSOCIATION '(' ExpressionBool ')'      { AssociationQuery $1 $5  }  -- Get relation  
+    | argument '.' NEGATE '(' Expression ')'                   { Exclude $1 $5           }  -- Exclude expression
 
-LitExpression
-    : NumExpression                                    { NumExpression $1            }  -- Mathematical expression
-    | HEADER                                           { SettableExpression (Var $1) }  -- Header literal
-    | chars                                            { String $1                   }  -- String literal
-    | RegularExpression                                { Regex $1                    }  -- Regular expression literal
-    | argument '.' CALLDATAPOINT '(' Expression ')'    { GetNode $1 $5               }  -- Get node expression
+LiteralHelper
+    : ExpressionMathXAS                                { ExpressionMathXAS $1            }  -- Mathematical expression
+    | HEADER                                           { ArgumentConstructor (Object $1) }  -- Header literal
+    | chars                                            { String $1                       }  -- String literal
+    | RegularExpression                                { RegularExpression $1            }  -- Regular expression literal
+    | argument '.' CALLDATAPOINT '(' Expression ')'    { AccessDataNode $1 $5            }  -- Get node expression
 
-NumExpression
-    : MathTerm                              { $1                }  -- Mathematical term
-    | NumExpression PLUS NumExpression      { Addition $1 $3    }  -- Addition
-    | NumExpression SUBT NumExpression      { Subtraction $1 $3 }  -- Subtraction
+ExpressionMathXAS
+    : ExpressionMathDMn                              { $1                }  -- Mathematical term
+    | ExpressionMathXAS PLUS ExpressionMathXAS       { ArithmeticA $1 $3 }  -- Addition
+    | ExpressionMathXAS SUBT ExpressionMathXAS       { ArithmeticS $1 $3 }  -- Subtraction
 
-MathTerm 
-    : NumExpression MULT NumExpression      { Multiplication $1 $3 }  -- Multiplication
-    | NumExpression DIV NumExpression       { Division $1 $3       }  -- Division
-    | n                                     { Int $1               }  -- Integer literal
+ExpressionMathDMn 
+    : ExpressionMathXAS MULT ExpressionMathXAS      { ArithmeticM $1 $3 }  -- Multiplication
+    | ExpressionMathXAS DIV ExpressionMathXAS       { ArithmeticD $1 $3 }  -- Division
+    | n                                             { Num $1            }  -- Integer literal
 
-BooleanExpression
-    : Expression AND Expression               { And $1 $3        }  -- Logical AND  
-    | Expression OR Expression                { Or $1 $3         }  -- Logical OR
-    | SimpleBoolExpr                          { $1               }  -- Simple boolean expression
+ExpressionBool
+    : Expression AND Expression               { BoolConjunction $1 $3  }  -- Logical AND  
+    | Expression OR Expression                { BoolUnion $1 $3        }  -- Logical OR
+    | ExpressionBoolComparison                { $1                     }  -- Simple boolean expression
 
-SimpleBoolExpr
-    : True                                             { Bool True               }  -- Boolean true literal
-    | False                                            { Bool False              }  -- Boolean false literal
-    | Expression 'i==' Expression                      { Equals $1 $3            }  -- Equality comparison
-    | Expression '!==' Expression                      { NotEquals $1 $3         }  -- Inequality comparison  
-    | Expression '<' Expression                        { LessThan $1 $3          }  -- Less than comparison
-    | Expression '>' Expression                        { GreaterThan $1 $3       }  -- Greater than comparison
-    | Expression '<<' Expression                       { LTEquals $1 $3          }  -- Less than or equal to comparison
-    | Expression '>>' Expression                       { GTEquals $1 $3          }  -- Greater than or equal to comparison
-    | '{' BooleanExpression '}' '^' argument           { EndRelationQuery $2 $5  }  -- End relation query
-    | argument '{' BooleanExpression '}' '^'           { StartRelationQuery $1 $3}  -- Start relation query
-    | '(' BooleanExpression ')'                        { $2                      }  -- Parenthesized boolean expression
-    | argument '{' BooleanExpression '}' '^' argument  { RelationQuery $1 $3 $6  }  -- Relation query
-    | Expression '.' HAS '(' StringList ')'            { Contains $1 $5          }  -- Contains expression
+ExpressionBoolComparison
+    : True                                             { Bool True                      }  -- Boolean true literal
+    | False                                            { Bool False                     }  -- Boolean false literal
+    | Expression 'i==' Expression                      { StrictEqualityQuery $1 $3      }  -- Equality comparison
+    | Expression '!==' Expression                      { StrictInqualityQuery $1 $3     }  -- Inequality comparison  
+    | Expression '<' Expression                        { StrictLesserQuery $1 $3        }  -- Less than comparison
+    | Expression '>' Expression                        { StrictGreaterQuery $1 $3       }  -- Greater than comparison
+    | Expression '<<' Expression                       { SlackLesserQuery $1 $3         }  -- Less than or equal to comparison
+    | Expression '>>' Expression                       { SlackGreaterQuery $1 $3        }  -- Greater than or equal to comparison
+    | '{' ExpressionBool '}' '^' argument              { AssociationEnd $2 $5           }  -- End relation query
+    | argument '{' ExpressionBool '}' '^'              { AssociationStart $1 $3         }  -- Start relation query
+    | '(' ExpressionBool ')'                           { $2                             }  -- Parenthesized boolean expression
+    | argument '{' ExpressionBool '}' '^' argument     { AssociationStatement $1 $3 $6  }  -- Relation query
+    | Expression '.' HAS '(' CharsHelper ')'           { HasQuery $1 $5                 }  -- HasQuery expression
 
-IfStatement
-    : CONDIF '(' BooleanExpression ')' '{' Program '}'                          { IfBlock $3 $6         }  -- If block
-    | CONDIF '(' BooleanExpression ')' '{' Program '}' CONDELIF '{' Program '}' { IfElseBlock $3 $6 $10 }  -- If-else block
+Conditional
+    : CONDIF '(' ExpressionBool ')' '{' Program '}'                          { CondIfQuery $3 $6        }  -- If block
+    | CONDIF '(' ExpressionBool ')' '{' Program '}' CONDELIF '{' Program '}' { CondElifQuery $3 $6 $10  }  -- If-else block
 
-ForStatement  
-    : THROUGH '(' Type argument ':' Expression ')' '{' Program '}'              { ForBlock $3 $4 $6 $9  }  -- For loop block
+Through  
+    : THROUGH '(' Class argument ':' Expression ')' '{' Program '}'          { ThroughQuery $3 $4 $6 $9 }  -- For loop block
 
-StringList
-    : chars                    { [$1]     }  -- Single string in the list
-    | chars '-' StringList     { ($1 : $3)}  -- Multiple strings in the list
+CharsHelper
+    : chars                     { [$1]      }  -- Single string in the list
+    | chars '-' CharsHelper     { ($1 : $3) }  -- Multiple strings in the list
 
-Type
-    : GraphType         { Type $1 }  -- Graph type
-    | IntegerType       { Type $1 }  -- Integer type  
-    | StringType        { Type $1 }  -- String type
-    | BooleanType       { Type $1 }  -- Boolean type
-    | NodeType          { Type $1 }  -- Node type
-    | RelationType      { Type $1 }  -- Relation type
+Class
+    : GraphClass         { Class $1 }  -- Graph class
+    | IntegerClass       { Class $1 }  -- Integer class  
+    | StringClass        { Class $1 }  -- String class
+    | BooleanClass       { Class $1 }  -- Boolean class
+    | NodeClass          { Class $1 }  -- Node class
+    | RelationClass      { Class $1 }  -- Relation class
 
 -- Parser monad and utility functions
 {
@@ -178,65 +178,65 @@ type Program
 
 data Statement
   = Expression Expression
-  | IfBlock BooleanExpression Program
-  | IfElseBlock BooleanExpression Program Program
-  | ForBlock Type String Expression Program  
-  | Print String
+  | CondIfQuery ExpressionBool Program
+  | CondElifQuery ExpressionBool Program Program
+  | ThroughQuery Class String Expression Program  
+  | Output String
   deriving(Eq, Show)
 
 data Expression
-  = NumExpression NumExpression
+  = ExpressionMathXAS ExpressionMathXAS
   | String String
-  | Regex String
-  | CaseQuery String BooleanExpression
+  | RegularExpression String
+  | CaseQuery String ExpressionBool
   | AddQuery String Expression
-  | BooleanExpression BooleanExpression
-  | GetRelation String BooleanExpression
+  | ExpressionBool ExpressionBool
+  | AssociationQuery String ExpressionBool
   | Exclude String Expression
-  | GetNode String Expression
-  | SetterExpression SetterExpression
-  | SettableExpression SettableExpression  
+  | AccessDataNode String Expression
+  | ExpressionLink ExpressionLink
+  | ArgumentConstructor ArgumentConstructor  
   deriving(Eq, Show)
 
-data SetterExpression
-  = TypedSet Type String Expression
-  | IncrSet SettableExpression Expression
-  | DecrSet SettableExpression Expression
-  | Set SettableExpression Expression
-  | Declare Type String
+data ExpressionLink
+  = TypedAssign Class String Expression
+  | ArgumentIncrement ArgumentConstructor Expression
+  | ArgumentDecrement ArgumentConstructor Expression
+  | Assign ArgumentConstructor Expression
+  | Assert Class String
   deriving(Eq, Show)
 
-data SettableExpression
-  = Var String
-  | GetProperty String String
+data ArgumentConstructor
+  = Object String
+  | ArgumentAttribute String String
   deriving(Eq, Show)
 
-data NumExpression
-  = Int Int
-  | Addition NumExpression NumExpression
-  | Subtraction NumExpression NumExpression
-  | Multiplication NumExpression NumExpression
-  | Division NumExpression NumExpression
+data ExpressionMathXAS
+  = Num Int
+  | ArithmeticA ExpressionMathXAS ExpressionMathXAS
+  | ArithmeticS ExpressionMathXAS ExpressionMathXAS
+  | ArithmeticM ExpressionMathXAS ExpressionMathXAS
+  | ArithmeticD ExpressionMathXAS ExpressionMathXAS
   deriving(Eq, Show)
 
-data BooleanExpression  
+data ExpressionBool  
   = Bool Bool
-  | Equals Expression Expression
-  | NotEquals Expression Expression
-  | LessThan Expression Expression
-  | GreaterThan Expression Expression 
-  | LTEquals Expression Expression
-  | GTEquals Expression Expression
-  | And Expression Expression
-  | Or Expression Expression
-  | EndRelationQuery BooleanExpression String
-  | StartRelationQuery String BooleanExpression
-  | RelationQuery String BooleanExpression String
-  | Contains Expression [String]  
+  | StrictEqualityQuery Expression Expression
+  | StrictInqualityQuery Expression Expression
+  | StrictLesserQuery Expression Expression
+  | StrictGreaterQuery Expression Expression 
+  | SlackLesserQuery Expression Expression
+  | SlackGreaterQuery Expression Expression
+  | BoolConjunction Expression Expression
+  | BoolUnion Expression Expression
+  | AssociationEnd ExpressionBool String
+  | AssociationStart String ExpressionBool
+  | AssociationStatement String ExpressionBool String
+  | HasQuery Expression [String]  
   deriving(Eq, Show)
 
-data Type
-  = Type Token
+data Class
+  = Class Token
   deriving(Eq, Show)
 
 data Start
