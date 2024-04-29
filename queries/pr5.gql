@@ -1,17 +1,26 @@
 DataGraph loyalty = ACCESS("loyalty.n4j")
+DataGraph output = loyalty
 
-THROUGH (Node nodef1 : loyalty) {
-  THROUGH (Node nodef2 : loyalty) {
-    THROUGH (Node nodef3 : loyalty) {
-      CONDIF (nodef1 {:TYPE i== "CustomerOf"}^ nodef3) {
-        CONDIF ((nodef1 {:TYPE i== "CustomerOf"}^ nodef2) AND (nodef2 {:TYPE i== "CustomerOf"}^ nodef3)) {
-          loyalty.CALLASSOCIATION(:TYPE i== "CustomerOf").CASE(:START_ID i== nodef1 AND :END_ID i== nodef3).reward ++ nodef3.bonus
-          loyalty.CALLASSOCIATION(:TYPE i== "CustomerOf").CASE(:START_ID i== nodef2 AND :END_ID i== nodef3).reward ++ nodef3.bonus
+THROUGH (Node person : loyalty) {
+  THROUGH (Node business : loyalty) {
+    CONDIF (person{:TYPE i== "CustomerOf"}^business) {
+      THROUGH (Node otherPerson : loyalty) {
+        CONDIF (person{:TYPE i== "Recommended"}^otherPerson AND 
+                otherPerson{:TYPE i== "CustomerOf"}^business) {
+          Association personCustomerOf = person.CALLASSOCIATION(:TYPE i== "CustomerOf")
+          Association otherPersonCustomerOf = otherPerson.CALLASSOCIATION(:TYPE i== "CustomerOf")
+          
+          personCustomerOf.reward = personCustomerOf.reward ++ business.bonus
+          otherPersonCustomerOf.reward = otherPersonCustomerOf.reward ++ business.bonus
+          
+          output.PLUS(personCustomerOf)
+          output.PLUS(otherPersonCustomerOf)
         }
       }
     }
   }
 }
 
-loyalty.NEGATE(loyalty.CALLASSOCIATION(:TYPE i== "Recommended"))
-STDOUT(loyalty)
+output = output.NEGATE(:TYPE i== "Recommended")
+
+STDOUT(output)

@@ -111,7 +111,7 @@ ExpressionMathDMn
 ExpressionBool
     : ExpressionBool AND ExpressionBool               { BoolConjunction $1 $3  }  -- Logical AND
     | ExpressionBool OR ExpressionBool                { BoolUnion $1 $3        }  -- Logical OR
-    | ExpressionBoolComparison                { $1                     }  -- Simple boolean expression
+    | ExpressionBoolComparison                        { $1                     }  -- Simple boolean expression
 
 ExpressionBoolComparison
     : True                                             { Bool True                      }  -- Boolean true literal
@@ -173,70 +173,79 @@ parseError (t:_) = error $ "parse error @ Ln:Col " ++ show (getLn (getPos t)) ++
     getCol (AlexPn _ _ c) = c
 
 -- Abstract syntax tree data types
-data Start = StartExpr String String Program
-           deriving(Eq, Show)
+data Start
+    = StartExpr String String Program
+    deriving(Eq, Show)
 
-type Program  = [Statement]
+type Program
+    = [Statement]
 
-data Statement = Expression Expression
-               | CondIfQuery ExpressionBool Program
-               | CondElifQuery ExpressionBool Program Program
-               | ThroughQuery Class String Expression Program
-               | Output String
-               deriving(Eq, Show)
+data Statement
+    = Expression Expression
+    | CondIfQuery ExpressionBool Program
+    | CondElifQuery ExpressionBool Program Program
+    | ThroughQuery Class String Expression Program
+    | Output String
+    deriving(Eq, Show)
 
-data Expression = ExpressionMathXAS ExpressionMathXAS
-                | String String
-                | RegularExpression String
-                | CaseQuery String ExpressionBool
-                | AddQuery String Expression
-                | ExpressionBool ExpressionBool
-                | AssociationQuery String ExpressionBool
-                | NegateData String Expression
-                | AccessDataNode String Expression
-                | ExpressionLink ExpressionLink
-                | ArgumentConstructor ArgumentConstructor
-                deriving(Eq, Show)
+data Expression
+    = ExpressionMathXAS ExpressionMathXAS
+    | String String
+    | RegularExpression String
+    | CaseQuery String ExpressionBool
+    | AddQuery String Expression
+    | ExpressionBool ExpressionBool
+    | AssociationQuery String ExpressionBool
+    | NegateData String Expression
+    | AccessDataNode String Expression
+    | ExpressionLink ExpressionLink
+    | ArgumentConstructor ArgumentConstructor
+    deriving(Eq, Show)
 
-data ExpressionMathXAS = Num Int
-                       | ArithmeticA ExpressionMathXAS ExpressionMathXAS
-                       | ArithmeticS ExpressionMathXAS ExpressionMathXAS
-                       | ArithmeticM ExpressionMathXAS ExpressionMathXAS
-                       | ArithmeticD ExpressionMathXAS ExpressionMathXAS
-                       deriving(Eq, Show)
+data ExpressionMathXAS
+    = Num Int
+    | ArithmeticA ExpressionMathXAS ExpressionMathXAS
+    | ArithmeticS ExpressionMathXAS ExpressionMathXAS
+    | ArithmeticM ExpressionMathXAS ExpressionMathXAS
+    | ArithmeticD ExpressionMathXAS ExpressionMathXAS
+    deriving(Eq, Show)
 
-data ExpressionBool = Bool Bool
-                    | StrictEqualityQuery Expression Expression
-                    | StrictInqualityQuery Expression Expression
-                    | StrictLesserQuery Expression Expression
-                    | StrictGreaterQuery Expression Expression
-                    | SlackLesserQuery Expression Expression
-                    | SlackGreaterQuery Expression Expression
-                    | BoolConjunction ExpressionBool ExpressionBool
-                    | BoolUnion ExpressionBool ExpressionBool
-                    | AssociationEnd ExpressionBool String
-                    | AssociationStart String ExpressionBool
-                    | AssociationStatement String ExpressionBool String
-                    | HasQuery Expression [String]
-                    deriving(Eq, Show)
+data ExpressionBool
+    = Bool Bool
+    | StrictEqualityQuery Expression Expression
+    | StrictInqualityQuery Expression Expression
+    | StrictLesserQuery Expression Expression
+    | StrictGreaterQuery Expression Expression
+    | SlackLesserQuery Expression Expression
+    | SlackGreaterQuery Expression Expression
+    | BoolConjunction ExpressionBool ExpressionBool
+    | BoolUnion ExpressionBool ExpressionBool
+    | AssociationEnd ExpressionBool String
+    | AssociationStart String ExpressionBool
+    | AssociationStatement String ExpressionBool String
+    | HasQuery Expression [String]
+    deriving(Eq, Show)
 
-data ExpressionLink = ClassArgumentStatement Class String Expression
-                    | ArgumentIncrement ArgumentConstructor Expression
-                    | ArgumentDecrement ArgumentConstructor Expression
-                    | Assign ArgumentConstructor Expression
-                    | Assert Class String
-                    deriving(Eq, Show)
+data ExpressionLink
+    = ClassArgumentStatement Class String Expression
+    | ArgumentIncrement ArgumentConstructor Expression
+    | ArgumentDecrement ArgumentConstructor Expression
+    | Assign ArgumentConstructor Expression
+    | Assert Class String
+    deriving(Eq, Show)
 
-data ArgumentConstructor = Object String
-                         | ArgumentAttribute String String
-                         deriving(Eq, Show)
+data ArgumentConstructor
+    = Object String
+    | ArgumentAttribute String String
+    deriving(Eq, Show)
 
-data Class = GraphClass 
-           | IntegerClass
-           | StringClass
-           | BooleanClass
-           | NodeClass
-           | RelationClass
-           deriving(Eq, Show)
+data Class
+    = GraphClass 
+    | IntegerClass
+    | StringClass
+    | BooleanClass
+    | NodeClass
+    | RelationClass
+    deriving(Eq, Show)
 
 }

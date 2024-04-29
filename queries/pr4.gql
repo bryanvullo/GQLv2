@@ -1,14 +1,23 @@
-DataGraph graph = ACCESS("networks.n4j")
-DataGraph initial = graph.CASE(firstname i== r"^(A|B|C)")
-DataGraph second
+DataGraph network = ACCESS("network.n4j") 
+DataGraph output
 
-THROUGH (Association isFriendRelation : initial.CALLASSOCIATION(:TYPE i== "IsFriend")) {
-  CONDIF (((initial.CASE(:ID i== isFriendRelation.:START_ID).age) < (initial.CASE(:ID i== isFriendRelation.:END_ID).age))) {
-    CONDIF (initial.CALLDATAPOINT(initial.CALLASSOCIATION(:TYPE i== "WorksFor").CASE(:START_ID i== isFriendRelation.:END_ID).:END_ID).:LABEL.CONTAINS("Cafe")) {
-      second.PLUS(initial.CALLDATAPOINT(isFriendRelation.:START_ID))
-      second.PLUS(isFriendRelation)
+THROUGH (Node person : network) {
+  String firstName = person.firstName
+  CONDIF (firstName >> "A" AND firstName << "D") {
+    THROUGH (Node friend : network) {
+      CONDIF (person{:TYPE i== "IsFriend"}^friend AND 
+             person.age << friend.age AND
+             friend.NEGATE(friend.CALLASSOCIATION(:TYPE i== "WorksFor").CASE(:LABEL i== "Cafe"))) {
+        output.PLUS(person)
+        output.PLUS(friend)
+        THROUGH (Association a : network) {
+          CONDIF (a.:START_ID i== person AND a.:END_ID i== friend AND a.:TYPE i== "IsFriend") {
+            output.PLUS(a)
+          }
+        }
+      }
     }
   }
 }
 
-STDOUT(second)
+STDOUT(output)
