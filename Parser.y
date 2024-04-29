@@ -56,27 +56,27 @@ import Lexer
   '++'                  { Key XNumericalIncrement     _ }  -- "++" increment operator
   '--'                  { Key XNumericalDecrement     _ }  -- "--" decrement operator
 
--- Precedence and associativity rules  
-%right '=' '++' '--' '-' ':' 
+-- Precedence and associativity rules
+%right '=' '++' '--' '-' ':'
 %right OR AND
 %nonassoc 'i==' '!==' '>' '<' '>>' '<<'
 %left PLUS SUBT MULT DIV '.'
 
-%%  
+%%
 
 -- Grammar rules
-Start 
+Start
     : GraphClass argument '=' ACCESS '(' chars ')' Program  { StartExpr $2 $6 $8 }
       -- Start symbol, defines the structure of a GQL program
 
-Program 
+Program
     : Statement Program  { $1 : $2 }  -- Program consists of multiple statements
     | {- empty -}        { []      }  -- Empty program
 
 Statement
     : Expression               { Expression $1  }  -- Expression statement
     | Conditional              { $1             }  -- If statement
-    | Through                  { $1             }  -- For loop statement  
+    | Through                  { $1             }  -- For loop statement
     | STDOUT '(' argument ')'  { Output $3      }  -- Output statement
 
 LiteralHelper
@@ -109,7 +109,7 @@ ExpressionMathDMn
     | n                                             { Num $1            }  -- Integer literal
 
 ExpressionBool
-    : Expression AND Expression               { BoolConjunction $1 $3  }  -- Logical AND  
+    : Expression AND Expression               { BoolConjunction $1 $3  }  -- Logical AND
     | Expression OR Expression                { BoolUnion $1 $3        }  -- Logical OR
     | ExpressionBoolComparison                { $1                     }  -- Simple boolean expression
 
@@ -117,7 +117,7 @@ ExpressionBoolComparison
     : True                                             { Bool True                      }  -- Boolean true literal
     | False                                            { Bool False                     }  -- Boolean false literal
     | Expression 'i==' Expression                      { StrictEqualityQuery $1 $3      }  -- Equality comparison
-    | Expression '!==' Expression                      { StrictInqualityQuery $1 $3     }  -- Inequality comparison  
+    | Expression '!==' Expression                      { StrictInqualityQuery $1 $3     }  -- Inequality comparison
     | Expression '<' Expression                        { StrictLesserQuery $1 $3        }  -- Less than comparison
     | Expression '>' Expression                        { StrictGreaterQuery $1 $3       }  -- Greater than comparison
     | Expression '<<' Expression                       { SlackLesserQuery $1 $3         }  -- Less than or equal to comparison
@@ -143,7 +143,7 @@ ArgumentConstructor
 ArgumentQuery
     : argument '.' CASE '(' ExpressionBool ')'                 { CaseQuery $1 $5         }  -- Match query
     | argument '.' PLUS '(' Expression ')'                     { AddQuery $1 $5          }  -- Add query
-    | argument '.' CALLASSOCIATION '(' ExpressionBool ')'      { AssociationQuery $1 $5  }  -- Get relation  
+    | argument '.' CALLASSOCIATION '(' ExpressionBool ')'      { AssociationQuery $1 $5  }  -- Get relation
     | argument '.' NEGATE '(' Expression ')'                   { NegateData $1 $5        }  -- Exclusion expression
 
 Conditional
@@ -155,7 +155,7 @@ Through
 
 Class
     : GraphClass         { Class $1 }  -- Graph class
-    | IntegerClass       { Class $1 }  -- Integer class  
+    | IntegerClass       { Class $1 }  -- Integer class
     | StringClass        { Class $1 }  -- String class
     | BooleanClass       { Class $1 }  -- Boolean class
     | NodeClass          { Class $1 }  -- Node class
@@ -165,8 +165,8 @@ Class
 {
 
 parseError :: [Token] -> a
-parseError [] = error "parse error at end of input"
-parseError (t:_) = error $ "parse error  at Ln " ++ show (getLn (getPos t)) ++ " Col " ++ show (getCol (getPos t)) ++ " token: " ++ show t
+parseError [] = error "parse error detected"
+parseError (t:_) = error $ "parse error @ Ln " ++ show (getLn (getPos t)) ++ " Col " ++ show (getCol (getPos t)) ++ " on token: " ++ show t
   where
     getPos (Key _ p) = p
     getLn (AlexPn _ l _) = l  
@@ -174,7 +174,7 @@ parseError (t:_) = error $ "parse error  at Ln " ++ show (getLn (getPos t)) ++ "
 
 -- Abstract syntax tree data types
 data Start
-  = StartExpr String String Program  
+  = StartExpr String String Program
   deriving(Eq, Show)
 
 type Program 
@@ -184,7 +184,7 @@ data Statement
   = Expression Expression
   | CondIfQuery ExpressionBool Program
   | CondElifQuery ExpressionBool Program Program
-  | ThroughQuery Class String Expression Program  
+  | ThroughQuery Class String Expression Program
   | Output String
   deriving(Eq, Show)
 
@@ -199,7 +199,7 @@ data Expression
   | NegateData String Expression
   | AccessDataNode String Expression
   | ExpressionLink ExpressionLink
-  | ArgumentConstructor ArgumentConstructor  
+  | ArgumentConstructor ArgumentConstructor
   deriving(Eq, Show)
 
 data ExpressionMathXAS
@@ -210,12 +210,12 @@ data ExpressionMathXAS
   | ArithmeticD ExpressionMathXAS ExpressionMathXAS
   deriving(Eq, Show)
 
-data ExpressionBool  
+data ExpressionBool
   = Bool Bool
   | StrictEqualityQuery Expression Expression
   | StrictInqualityQuery Expression Expression
   | StrictLesserQuery Expression Expression
-  | StrictGreaterQuery Expression Expression 
+  | StrictGreaterQuery Expression Expression
   | SlackLesserQuery Expression Expression
   | SlackGreaterQuery Expression Expression
   | BoolConjunction Expression Expression
@@ -223,7 +223,7 @@ data ExpressionBool
   | AssociationEnd ExpressionBool String
   | AssociationStart String ExpressionBool
   | AssociationStatement String ExpressionBool String
-  | HasQuery Expression [String]  
+  | HasQuery Expression [String]
   deriving(Eq, Show)
 
 data ExpressionLink
@@ -242,4 +242,5 @@ data ArgumentConstructor
 data Class
   = Class Token
   deriving(Eq, Show)
+
 }
