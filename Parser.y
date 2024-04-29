@@ -9,52 +9,52 @@ import Lexer
 
 -- Token declarations
 %token
-  n                     { Key (XNum $$)               _ }  -- Number literal
-  chars                 { Key (XChar $$)              _ }  -- Character literal
-  RegularExpression     { Key (XRegularExpression $$) _ }  -- Regular expression literal
-  argument              { Key (XArgument $$)          _ }  -- Argument
-  HEADER                { Key (XHeader $$)            _ }  -- Header
+  n                     { Key (XNum $$)               _ }  -- Number literal, e.g., 42
+  chars                 { Key (XChar $$)              _ }  -- Character literal, e.g., "hello"
+  RegularExpression     { Key (XRegularExpression $$) _ }  -- Regular expression literal, e.g., /[a-z]+/
+  argument              { Key (XArgument $$)          _ }  -- Argument, e.g., person
+  HEADER                { Key (XHeader $$)            _ }  -- Header, e.g., :LABEL
   True                  { Key XBooleanTrue            _ }  -- "True" boolean literal
   False                 { Key XBooleanFalse           _ }  -- "False" boolean literal
-  GraphClass            { Key XDataGraph              _ }  -- Graph class
-  IntegerClass          { Key XInt                    _ }  -- Integer class
-  StringClass           { Key XStr                    _ }  -- String class 
-  BooleanClass          { Key XBool                   _ }  -- Boolean class
-  NodeClass             { Key XNode                   _ }  -- Node class
-  RelationClass         { Key XDataAssociation        _ }  -- Relation class
-  ACCESS                { Key XACCESS                 _ }  -- "ACCESS" keyword
-  CASE                  { Key XCASE                   _ }  -- "CASE" keyword
-  STDOUT                { Key XSTDOUT                 _ }  -- "STDOUT" keyword
-  HAS                   { Key XHAS                    _ }  -- "HAS" keyword
-  CONDIF                { Key XCONDIF                 _ }  -- "CONDIF" keyword
-  CONDELIF              { Key XCONDELIF               _ }  -- "CONDELIF" keyword
-  THROUGH               { Key XTHROUGH                _ }  -- "THROUGH" keyword
-  NEGATE                { Key XNegate                 _ }  -- "NEGATE" keyword  
-  CALLASSOCIATION       { Key XAssociationCheck       _ }  -- "CALLASSOCIATION" keyword
-  CALLDATAPOINT         { Key XDataNodeCheck          _ }  -- "CALLDATAPOINT" keyword  
-  AND                   { Key XLogicalAND             _ }  -- "AND" logical operator
-  OR                    { Key XLogicalOR              _ }  -- "OR" logical operator
-  PLUS                  { Key XPlus                   _ }  -- "+" operator
-  SUBT                  { Key XSubtract               _ }  -- "-" operator 
-  MULT                  { Key XMultiply               _ }  -- "*" operator
-  DIV                   { Key XDivide                 _ }  -- "/" operator
-  '('                   { Key XBracketLeft            _ }  -- Left parenthesis
-  ')'                   { Key XBracketRight           _ }  -- Right parenthesis
-  '>>'                  { Key XSlackGreater           _ }  -- ">>" operator
-  '<<'                  { Key XSlackLesser            _ }  -- "<<" operator
-  '>'                   { Key XStrictGreater          _ }  -- ">" operator
-  '<'                   { Key XStrictLesser           _ }  -- "<" operator
-  '='                   { Key XAssign                 _ }  -- "=" operator
-  'i=='                 { Key XLogicalEquation        _ }  -- "i==" equality operator
-  '!=='                 { Key XLogicalInequation      _ }  -- "!==" inequality operator
-  '.'                   { Key XPeriod                 _ }  -- "." operator
-  '-'                   { Key XHyphen                 _ }  -- "-" operator
-  '^'                   { Key XAssociationSymbol      _ }  -- "^" operator
-  '{'                   { Key XBraceLeft              _ }  -- Left brace
-  '}'                   { Key XBraceRight             _ }  -- Right brace
-  ':'                   { Key XColonSymbol            _ }  -- ":" symbol
-  '++'                  { Key XNumericalIncrement     _ }  -- "++" increment operator
-  '--'                  { Key XNumericalDecrement     _ }  -- "--" decrement operator
+  GraphClass            { Key XDataGraph              _ }  -- Graph class, e.g., DataGraph network
+  IntegerClass          { Key XInt                    _ }  -- Integer class, e.g., Integer age
+  StringClass           { Key XStr                    _ }  -- String class, e.g., String name
+  BooleanClass          { Key XBool                   _ }  -- Boolean class, e.g., Boolean isActive
+  NodeClass             { Key XNode                   _ }  -- Node class, e.g., Node person
+  RelationClass         { Key XDataAssociation        _ }  -- Relation class, e.g., Association friendship
+  ACCESS                { Key XACCESS                 _ }  -- "ACCESS" keyword, e.g., ACCESS("file.n4j")
+  CASE                  { Key XCASE                   _ }  -- "CASE" keyword, e.g., CASE(condition)
+  STDOUT                { Key XSTDOUT                 _ }  -- "STDOUT" keyword, e.g., STDOUT(result)
+  HAS                   { Key XHAS                    _ }  -- "HAS" keyword, e.g., person.HAS("name")
+  CONDIF                { Key XCONDIF                 _ }  -- "CONDIF" keyword, e.g., CONDIF(condition)
+  CONDELIF              { Key XCONDELIF               _ }  -- "CONDELIF" keyword, e.g., CONDELIF(condition)
+  THROUGH               { Key XTHROUGH                _ }  -- "THROUGH" keyword, e.g., THROUGH(Node person : graph)
+  NEGATE                { Key XNegate                 _ }  -- "NEGATE" keyword, e.g., NEGATE(expression)
+  CALLASSOCIATION       { Key XAssociationCheck       _ }  -- "CALLASSOCIATION" keyword, e.g., node.CALLASSOCIATION(condition)
+  CALLDATAPOINT         { Key XDataNodeCheck          _ }  -- "CALLDATAPOINT" keyword, e.g., node.CALLDATAPOINT(expression)
+  AND                   { Key XLogicalAND             _ }  -- "AND" logical operator, e.g., condition1 AND condition2
+  OR                    { Key XLogicalOR              _ }  -- "OR" logical operator, e.g., condition1 OR condition2
+  PLUS                  { Key XPlus                   _ }  -- "+" operator, e.g., graph.PLUS(node)
+  SUBT                  { Key XSubtract               _ }  -- "-" operator, e.g., a - b
+  MULT                  { Key XMultiply               _ }  -- "*" operator, e.g., a * b
+  DIV                   { Key XDivide                 _ }  -- "/" operator, e.g., a / b
+  '('                   { Key XBracketLeft            _ }  -- Left parenthesis, e.g., (expression)
+  ')'                   { Key XBracketRight           _ }  -- Right parenthesis, e.g., (expression)
+  '>>'                  { Key XSlackGreater           _ }  -- ">>" operator, e.g., a >> b
+  '<<'                  { Key XSlackLesser            _ }  -- "<<" operator, e.g., a << b
+  '>'                   { Key XStrictGreater          _ }  -- ">" operator, e.g., a > b
+  '<'                   { Key XStrictLesser           _ }  -- "<" operator, e.g., a < b
+  '='                   { Key XAssign                 _ }  -- "=" operator, e.g., a = b
+  'i=='                 { Key XLogicalEquation        _ }  -- "i==" equality operator, e.g., a i== b
+  '!=='                 { Key XLogicalInequation      _ }  -- "!==" inequality operator, e.g., a !== b
+  '.'                   { Key XPeriod                 _ }  -- "." operator, e.g., node.property
+  '-'                   { Key XHyphen                 _ }  -- "-" operator, e.g., a - b
+  '^'                   { Key XAssociationSymbol      _ }  -- "^" operator, e.g., a{condition}^b
+  '{'                   { Key XBraceLeft              _ }  -- Left brace, e.g., {expression}
+  '}'                   { Key XBraceRight             _ }  -- Right brace, e.g., {expression}
+  ':'                   { Key XColonSymbol            _ }  -- ":" symbol, e.g., Node person : graph
+  '++'                  { Key XNumericalIncrement     _ }  -- "++" increment operator, e.g., a++
+  '--'                  { Key XNumericalDecrement     _ }  -- "--" decrement operator, e.g., a--
 
 -- Precedence and associativity rules
 %right '=' '++' '--' '-' ':'
@@ -68,6 +68,7 @@ import Lexer
 Start
     : GraphClass argument '=' ACCESS '(' chars ')' Program  { StartExpr $2 $6 $8 }
       -- Start symbol, defines the structure of a GQL program
+      -- e.g., DataGraph network = ACCESS("file.n4j") { ... }
 
 Program
     : Statement Program  { $1 : $2 }  -- Program consists of multiple statements
@@ -77,18 +78,18 @@ Statement
     : Expression               { Expression $1  }  -- Expression statement
     | Conditional              { $1             }  -- If statement
     | Through                  { $1             }  -- For loop statement
-    | STDOUT '(' argument ')'  { Output $3      }  -- Output statement
+    | STDOUT '(' argument ')'  { Output $3      }  -- Output statement, e.g., STDOUT(result)
 
 LiteralHelper
     : ExpressionMathXAS                                { ExpressionMathXAS $1            }  -- Mathematical expression
-    | HEADER                                           { ArgumentConstructor (Object $1) }  -- Header literal
-    | chars                                            { String $1                       }  -- String literal
-    | RegularExpression                                { RegularExpression $1            }  -- Regular expression literal
-    | argument '.' CALLDATAPOINT '(' Expression ')'    { AccessDataNode $1 $5            }  -- Get node expression
+    | HEADER                                           { ArgumentConstructor (Object $1) }  -- Header literal, e.g., :LABEL
+    | chars                                            { String $1                       }  -- String literal, e.g., "hello"
+    | RegularExpression                                { RegularExpression $1            }  -- Regular expression literal, e.g., /[a-z]+/
+    | argument '.' CALLDATAPOINT '(' Expression ')'    { AccessDataNode $1 $5            }  -- Get node expression, e.g., node.CALLDATAPOINT(expression)
 
 CharsHelper
     : chars                     { [$1]      }  -- Single string in the list
-    | chars '-' CharsHelper     { ($1 : $3) }  -- Multiple strings in the list
+    | chars '-' CharsHelper     { ($1 : $3) }  -- Multiple strings in the list, e.g., "a"-"b"-"c"
         
 Expression
     : ArgumentQuery             { $1                     }  -- Function application expression
@@ -96,70 +97,70 @@ Expression
     | ExpressionLink            { ExpressionLink $1      }  -- Assignment expression
     | ArgumentConstructor       { ArgumentConstructor $1 }  -- ArgumentConstructor expression
     | LiteralHelper             { $1                     }  -- Literal expression
-    | '(' Expression ')'        { $2                     }  -- Parenthesized expression
+    | '(' Expression ')'        { $2                     }  -- Parenthesized expression, e.g., (a + b)
 
 ExpressionMathXAS
     : ExpressionMathDMn                              { $1                }  -- Devolve to ExpressionMathDMn
-    | ExpressionMathXAS PLUS ExpressionMathXAS       { ArithmeticA $1 $3 }  -- Addition
-    | ExpressionMathXAS SUBT ExpressionMathXAS       { ArithmeticS $1 $3 }  -- Subtraction
+    | ExpressionMathXAS PLUS ExpressionMathXAS       { ArithmeticA $1 $3 }  -- Addition, e.g., a + b
+    | ExpressionMathXAS SUBT ExpressionMathXAS       { ArithmeticS $1 $3 }  -- Subtraction, e.g., a - b
 
 ExpressionMathDMn 
-    : ExpressionMathXAS MULT ExpressionMathXAS      { ArithmeticM $1 $3 }  -- Multiplication
-    | ExpressionMathXAS DIV ExpressionMathXAS       { ArithmeticD $1 $3 }  -- Division
-    | n                                             { Num $1            }  -- Integer literal
+    : ExpressionMathXAS MULT ExpressionMathXAS      { ArithmeticM $1 $3 }  -- Multiplication, e.g., a * b
+    | ExpressionMathXAS DIV ExpressionMathXAS       { ArithmeticD $1 $3 }  -- Division, e.g., a / b
+    | n                                             { Num $1            }  -- Integer literal, e.g., 42
 
 ExpressionBool
-    : ExpressionBool AND ExpressionBool               { BoolConjunction $1 $3  }  -- Logical AND
-    | ExpressionBool OR ExpressionBool                { BoolUnion $1 $3        }  -- Logical OR
+    : ExpressionBool AND ExpressionBool               { BoolConjunction $1 $3  }  -- Logical AND, e.g., condition1 AND condition2
+    | ExpressionBool OR ExpressionBool                { BoolUnion $1 $3        }  -- Logical OR, e.g., condition1 OR condition2
     | ExpressionBoolComparison                        { $1                     }  -- Simple boolean expression
 
 ExpressionBoolComparison
     : True                                             { Bool True                      }  -- Boolean true literal
     | False                                            { Bool False                     }  -- Boolean false literal
-    | Expression 'i==' Expression                      { StrictEqualityQuery $1 $3      }  -- Equality comparison
-    | Expression '!==' Expression                      { StrictInqualityQuery $1 $3     }  -- Inequality comparison
-    | Expression '<' Expression                        { StrictLesserQuery $1 $3        }  -- Less than comparison
-    | Expression '>' Expression                        { StrictGreaterQuery $1 $3       }  -- Greater than comparison
-    | Expression '<<' Expression                       { SlackLesserQuery $1 $3         }  -- Less than or equal to comparison
-    | Expression '>>' Expression                       { SlackGreaterQuery $1 $3        }  -- Greater than or equal to comparison
-    | '{' ExpressionBool '}' '^' argument              { AssociationEnd $2 $5           }  -- End relation query
-    | argument '{' ExpressionBool '}' '^'              { AssociationStart $1 $3         }  -- Start relation query
-    | '(' ExpressionBool ')'                           { $2                             }  -- Parenthesized boolean expression
-    | argument '{' ExpressionBool '}' '^' argument     { AssociationStatement $1 $3 $6  }  -- Relation query
-    | Expression '.' HAS '(' CharsHelper ')'           { HasQuery $1 $5                 }  -- HasQuery expression
+    | Expression 'i==' Expression                      { StrictEqualityQuery $1 $3      }  -- Equality comparison, e.g., a i== b
+    | Expression '!==' Expression                      { StrictInqualityQuery $1 $3     }  -- Inequality comparison, e.g., a !== b
+    | Expression '<' Expression                        { StrictLesserQuery $1 $3        }  -- Less than comparison, e.g., a < b
+    | Expression '>' Expression                        { StrictGreaterQuery $1 $3       }  -- Greater than comparison, e.g., a > b
+    | Expression '<<' Expression                       { SlackLesserQuery $1 $3         }  -- Less than or equal to comparison, e.g., a << b
+    | Expression '>>' Expression                       { SlackGreaterQuery $1 $3        }  -- Greater than or equal to comparison, e.g., a >> b
+    | '{' ExpressionBool '}' '^' argument              { AssociationEnd $2 $5           }  -- End relation query, e.g., {condition}^node
+    | argument '{' ExpressionBool '}' '^'              { AssociationStart $1 $3         }  -- Start relation query, e.g., node{condition}^
+    | '(' ExpressionBool ')'                           { $2                             }  -- Parenthesized boolean expression, e.g., (a AND b)
+    | argument '{' ExpressionBool '}' '^' argument     { AssociationStatement $1 $3 $6  }  -- Relation query, e.g., node1{condition}^node2
+    | Expression '.' HAS '(' CharsHelper ')'           { HasQuery $1 $5                 }  -- HasQuery expression, e.g., node.HAS("property")
 
 ExpressionLink
-    : Class argument '=' Expression            { ClassArgumentStatement $1 $2 $4     }  -- Typed assignment
-    | ArgumentConstructor '=' Expression       { Assign $1 $3                        }  -- Regular assignment
-    | Class argument                           { Assert $1 $2                        }  -- Variable declaration
-    | ArgumentConstructor '++' Expression      { ArgumentIncrement $1 $3             }  -- Increment assignment
-    | ArgumentConstructor '--' Expression      { ArgumentDecrement $1 $3             }  -- Decrement assignment
+    : Class argument '=' Expression            { ClassArgumentStatement $1 $2 $4     }  -- Typed assignment, e.g., Integer age = 25
+    | ArgumentConstructor '=' Expression       { Assign $1 $3                        }  -- Regular assignment, e.g., name = "John"
+    | Class argument                           { Assert $1 $2                        }  -- Variable declaration, e.g., String name
+    | ArgumentConstructor '++' Expression      { ArgumentIncrement $1 $3             }  -- Increment assignment, e.g., age++
+    | ArgumentConstructor '--' Expression      { ArgumentDecrement $1 $3             }  -- Decrement assignment, e.g., age--
 
 ArgumentConstructor
-    : argument                               { Object $1                }  -- Variable
-    | argument '.' argument                  { ArgumentAttribute $1 $3  }  -- Property access
-    | argument '.' HEADER                    { ArgumentAttribute $1 $3  }  -- Property access with header
+    : argument                               { Object $1                }  -- Variable, e.g., person
+    | argument '.' argument                  { ArgumentAttribute $1 $3  }  -- Property access, e.g., person.name
+    | argument '.' HEADER                    { ArgumentAttribute $1 $3  }  -- Property access with header, e.g., person.:LABEL
 
 ArgumentQuery
-    : argument '.' CASE '(' ExpressionBool ')'                 { CaseQuery $1 $5         }  -- Match query
-    | argument '.' PLUS '(' Expression ')'                     { AddQuery $1 $5          }  -- Add query
-    | argument '.' CALLASSOCIATION '(' ExpressionBool ')'      { AssociationQuery $1 $5  }  -- Get relation
-    | argument '.' NEGATE '(' Expression ')'                   { NegateData $1 $5        }  -- Exclusion expression
+    : argument '.' CASE '(' ExpressionBool ')'                 { CaseQuery $1 $5         }  -- Match query, e.g., node.CASE(condition)
+    | argument '.' PLUS '(' Expression ')'                     { AddQuery $1 $5          }  -- Add query, e.g., graph.PLUS(node)
+    | argument '.' CALLASSOCIATION '(' ExpressionBool ')'      { AssociationQuery $1 $5  }  -- Get relation, e.g., node.CALLASSOCIATION(condition)
+    | argument '.' NEGATE '(' Expression ')'                   { NegateData $1 $5        }  -- Exclusion expression, e.g., graph.NEGATE(expression)
 
 Conditional
-    : CONDIF '(' ExpressionBool ')' '{' Program '}'                          { CondIfQuery $3 $6        }  -- Conditional query with if
-    | CONDIF '(' ExpressionBool ')' '{' Program '}' CONDELIF '{' Program '}' { CondElifQuery $3 $6 $10  }  -- Conditional query with elif
+    : CONDIF '(' ExpressionBool ')' '{' Program '}'                          { CondIfQuery $3 $6        }  -- Conditional query with if, e.g., CONDIF(condition) { ... }
+    | CONDIF '(' ExpressionBool ')' '{' Program '}' CONDELIF '{' Program '}' { CondElifQuery $3 $6 $10  }  -- Conditional query with elif, e.g., CONDIF(condition1) { ... } CONDELIF(condition2) { ... }
 
 Through
-    : THROUGH '(' Class argument ':' Expression ')' '{' Program '}'          { ThroughQuery $3 $4 $6 $9 }  -- Through query
+    : THROUGH '(' Class argument ':' Expression ')' '{' Program '}'          { ThroughQuery $3 $4 $6 $9 }  -- Through query, e.g., THROUGH(Node person : graph) { ... }
 
 Class
-    : GraphClass         { GraphClass }  -- Graph class
-    | IntegerClass       { IntegerClass }  -- Integer class
-    | StringClass        { StringClass }  -- String class
-    | BooleanClass       { BooleanClass }  -- Boolean class
-    | NodeClass          { NodeClass }  -- Node class
-    | RelationClass      { RelationClass }  -- Relation class
+    : GraphClass         { GraphClass }  -- Graph class, e.g., DataGraph
+    | IntegerClass       { IntegerClass }  -- Integer class, e.g., Integer
+    | StringClass        { StringClass }  -- String class, e.g., String
+    | BooleanClass       { BooleanClass }  -- Boolean class, e.g., Boolean
+    | NodeClass          { NodeClass }  -- Node class, e.g., Node
+    | RelationClass      { RelationClass }  -- Relation class, e.g., Association
 
 -- Parser monad and utility functions
 {
