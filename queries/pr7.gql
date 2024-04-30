@@ -1,5 +1,5 @@
 # pr7.gql
-DataGraph citations = ACCESS("./queries/citations.n4j")
+DataGraph citations = ACCESS("./input/citations.n4j")
 DataGraph result
 
 THROUGH (Node author1 : citations) {
@@ -16,10 +16,13 @@ THROUGH (Node author1 : citations) {
         
         CONDIF (degrees i== 0) {
           THROUGH (Node coauthor : citations) {
-            Boolean condition1 = citations.CALLASSOCIATION(:START_ID i== author1 AND :END_ID i== coauthor AND :TYPE i== "AuthoredBy")
-            Boolean condition2 = citations.CALLASSOCIATION(:START_ID i== coauthor AND :END_ID i== author2 AND :TYPE i== "AuthoredBy")
-            CONDIF (condition1 AND condition2) {
-              degrees = 2
+            THROUGH (Association authored1 : citations) {
+              THROUGH (Association authored2 : citations) {
+                CONDIF (authored1.:START_ID i== author1 AND authored1.:END_ID i== coauthor AND authored1.:TYPE i== "AuthoredBy" AND
+                        authored2.:START_ID i== coauthor AND authored2.:END_ID i== author2 AND authored2.:TYPE i== "AuthoredBy") {
+                  degrees = 2
+                }
+              }
             }
           }
         }
@@ -27,11 +30,16 @@ THROUGH (Node author1 : citations) {
         CONDIF (degrees i== 0) {
           THROUGH (Node coauthor1 : citations) {
             THROUGH (Node coauthor2 : citations) {
-              Boolean condition1 = citations.CALLASSOCIATION(:START_ID i== author1 AND :END_ID i== coauthor1 AND :TYPE i== "AuthoredBy")
-              Boolean condition2 = citations.CALLASSOCIATION(:START_ID i== coauthor1 AND :END_ID i== coauthor2 AND :TYPE i== "AuthoredBy")
-              Boolean condition3 = citations.CALLASSOCIATION(:START_ID i== coauthor2 AND :END_ID i== author2 AND :TYPE i== "AuthoredBy")
-              CONDIF (condition1 AND condition2 AND condition3) {
-                degrees = 3
+              THROUGH (Association authored1 : citations) {
+                THROUGH (Association authored2 : citations) {
+                  THROUGH (Association authored3 : citations) {
+                    CONDIF (authored1.:START_ID i== author1 AND authored1.:END_ID i== coauthor1 AND authored1.:TYPE i== "AuthoredBy" AND
+                            authored2.:START_ID i== coauthor1 AND authored2.:END_ID i== coauthor2 AND authored2.:TYPE i== "AuthoredBy" AND
+                            authored3.:START_ID i== coauthor2 AND authored3.:END_ID i== author2 AND authored3.:TYPE i== "AuthoredBy") {
+                      degrees = 3
+                    }
+                  }
+                }
               }
             }
           }

@@ -1,0 +1,40 @@
+# pr8.gql
+DataGraph space = ACCESS("./input/space.n4j")
+DataGraph result
+
+THROUGH (Node faction : space) {
+  CONDIF (faction.CALLDATAPOINT(:LABEL) i== "Faction") {
+    THROUGH (Node planet : space) {
+      THROUGH (Association outpost : space) {
+        CONDIF (outpost.:START_ID i== faction AND outpost.:END_ID i== planet AND outpost.:TYPE i== "HasOutpost") {
+          THROUGH (Node resource : space) {
+            THROUGH (Association production : space) {
+              CONDIF (production.:START_ID i== planet AND production.:END_ID i== resource AND production.:TYPE i== "Produces") {
+                Integer amount = production.amount
+                
+                Boolean existingResource = False
+                THROUGH (Association existingProduction : result) {
+                  CONDIF (existingProduction.:START_ID i== faction AND existingProduction.:END_ID i== resource AND existingProduction.:TYPE i== "Produces") {
+                    existingResource = True
+                    existingProduction.outAmount = existingProduction.outAmount ++ amount
+                  }
+                }
+                
+                CONDIF (existingResource i== False) {
+                  Association newProduction
+                  newProduction.:START_ID = faction
+                  newProduction.outAmount = amount
+                  newProduction.:END_ID = resource
+                  newProduction.:TYPE = "Produces"
+                  result.PLUS(newProduction)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+STDOUT(result)
