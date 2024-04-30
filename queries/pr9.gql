@@ -1,0 +1,82 @@
+# pr9.gql
+DataGraph family = ACCESS("./queries/family.n4j")
+
+THROUGH (Node person1 : family) {
+  THROUGH (Node person2 : family) {
+    THROUGH (Association parentOf : family) {
+      CONDIF (parentOf.:START_ID i== person1 AND parentOf.:END_ID i== person2 AND parentOf.:TYPE i== "ParentOf") {
+        Boolean existingChildOf = False
+        THROUGH (Association childOf : family) {
+          CONDIF (childOf.:START_ID i== person2 AND childOf.:END_ID i== person1 AND childOf.:TYPE i== "ChildOf") {
+            existingChildOf = True
+          }
+        }
+        CONDIF (existingChildOf i== False) {
+          Association newChildOf
+          newChildOf.:START_ID = person2
+          newChildOf.:END_ID = person1
+          newChildOf.:TYPE = "ChildOf"
+          family.PLUS(newChildOf)
+        }
+        
+        Boolean existingAncestorOf = False
+        THROUGH (Association ancestorOf : family) {
+          CONDIF (ancestorOf.:START_ID i== person1 AND ancestorOf.:END_ID i== person2 AND ancestorOf.:TYPE i== "AncestorOf") {
+            existingAncestorOf = True
+          }
+        }
+        CONDIF (existingAncestorOf i== False) {
+          Association newAncestorOf
+          newAncestorOf.:START_ID = person1
+          newAncestorOf.:END_ID = person2
+          newAncestorOf.:TYPE = "AncestorOf"
+          family.PLUS(newAncestorOf)
+        }
+      }
+    }
+    
+    THROUGH (Association childOf : family) {
+      CONDIF (childOf.:START_ID i== person1 AND childOf.:END_ID i== person2 AND childOf.:TYPE i== "ChildOf") {
+        Boolean existingParentOf = False
+        THROUGH (Association parentOf : family) {
+          CONDIF (parentOf.:START_ID i== person2 AND parentOf.:END_ID i== person1 AND parentOf.:TYPE i== "ParentOf") {
+            existingParentOf = True
+          }
+        }
+        CONDIF (existingParentOf i== False) {
+          Association newParentOf
+          newParentOf.:START_ID = person2
+          newParentOf.:END_ID = person1
+          newParentOf.:TYPE = "ParentOf"
+          family.PLUS(newParentOf)
+        }
+      }
+    }
+  }
+}
+
+THROUGH (Node person1 : family) {
+  THROUGH (Node person2 : family) {
+    THROUGH (Node person3 : family) {
+      CONDIF (family.CALLASSOCIATION(:START_ID i== person1 AND :END_ID i== person2 AND :TYPE i== "AncestorOf") AND
+              family.CALLASSOCIATION(:START_ID i== person2 AND :END_ID i== person3 AND :TYPE i== "ParentOf") AND
+              person1 !== person3) {
+        Boolean existingAncestorOf = False
+        THROUGH (Association ancestorOf : family) {
+          CONDIF (ancestorOf.:START_ID i== person1 AND ancestorOf.:END_ID i== person3 AND ancestorOf.:TYPE i== "AncestorOf") {
+            existingAncestorOf = True
+          }
+        }
+        CONDIF (existingAncestorOf i== False) {
+          Association newAncestorOf
+          newAncestorOf.:START_ID = person1
+          newAncestorOf.:END_ID = person3
+          newAncestorOf.:TYPE = "AncestorOf"
+          family.PLUS(newAncestorOf)
+        }
+      }
+    }
+  }
+}
+
+STDOUT(family)
