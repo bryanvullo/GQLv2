@@ -24,6 +24,26 @@ Write-Host "Start Testing PR5" -ForegroundColor Blue
 .\GQL .\queries\pr5.gql
 Write-Host "End Testing PR5" -ForegroundColor Blue
 
+Write-Host "Start Testing PR6" -ForegroundColor Blue
+.\GQL .\queries\pr6.gql
+Write-Host "End Testing PR6" -ForegroundColor Blue
+
+Write-Host "Start Testing PR7" -ForegroundColor Blue
+.\GQL .\queries\pr7.gql
+Write-Host "End Testing PR7" -ForegroundColor Blue
+
+Write-Host "Start Testing PR8" -ForegroundColor Blue
+.\GQL .\queries\pr8.gql
+Write-Host "End Testing PR8" -ForegroundColor Blue
+
+Write-Host "Start Testing PR9" -ForegroundColor Blue
+.\GQL .\queries\pr9.gql
+Write-Host "End Testing PR9" -ForegroundColor Blue
+
+Write-Host "Start Testing PR10" -ForegroundColor Blue
+.\GQL .\queries\pr10.gql
+Write-Host "End Testing PR10" -ForegroundColor Blue
+
 Write-Host "Start Cleaning Process" -ForegroundColor Blue
 .\ScriptPSClean.ps1
 Write-Host "End Cleaning Process" -ForegroundColor Blue

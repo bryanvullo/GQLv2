@@ -1,0 +1,32 @@
+# pr6.gql
+DataGraph gems = ACCESS("./queries/gems.n4j")
+DataGraph result
+
+THROUGH (Node customer : gems) {
+  CONDIF (customer.CALLDATAPOINT(:LABEL) i== "Customer") {
+    Integer wealth = customer.wealth
+    String preferredColor = customer.:LABEL
+    
+    Node selectedGem = null
+    Integer maxValue = 0
+    
+    THROUGH (Node gem : gems) {
+      CONDIF (gem.CALLDATAPOINT(:LABEL) i== preferredColor AND gem.value << wealth) {
+        CONDIF (gem.value >> maxValue) {
+          selectedGem = gem
+          maxValue = gem.value
+        }
+      }
+    }
+    
+    CONDIF (selectedGem !== null) {
+      Association purchase
+      purchase.:TYPE = "Purchases"
+      purchase.:START_ID = customer
+      purchase.:END_ID = selectedGem
+      result.PLUS(purchase)
+    }
+  }
+}
+
+STDOUT(result)
