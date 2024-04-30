@@ -1,5 +1,5 @@
 # pr3.gql
-DataGraph table = ACCESS("table.n4j")
+DataGraph table = ACCESS("./queries/table.n4j")
 DataGraph output
 
 THROUGH (Node nodef1 : table) {

@@ -1,23 +1,52 @@
-DataGraph network = ACCESS("network.n4j") 
-DataGraph output
+# pr4.gql
+DataGraph network = ACCESS("./queries/network.n4j")
+DataGraph result
 
 THROUGH (Node person : network) {
   String firstName = person.firstName
-  CONDIF (firstName >> "A" AND firstName << "D") {
+  CONDIF (firstName i== r"[ABC].*") {
+    Boolean hasOlderFriendNotInCafe = False
     THROUGH (Node friend : network) {
-      CONDIF (person{:TYPE i== "IsFriend"}^friend AND 
-             person.age << friend.age AND
-             friend.NEGATE(friend.CALLASSOCIATION(:TYPE i== "WorksFor") AND friend.CASE(:LABEL i== "Cafe"))) {
-        output.PLUS(person)
-        output.PLUS(friend)
-        THROUGH (Association a : network) {
-          CONDIF (a.:START_ID i== person AND a.:END_ID i== friend AND a.:TYPE i== "IsFriend") {
-            output.PLUS(a)
+      CONDIF (friend{age >> person.age AND :TYPE i== "IsFriend"}^person) {
+        Boolean worksInCafe = False
+        THROUGH (Association worksFor : network) {
+          CONDIF (worksFor.:START_ID i== friend AND worksFor.:TYPE i== "WorksFor") {
+            Node cafe = worksFor.:END_ID
+            CONDIF (cafe.CALLDATAPOINT(:LABEL) i== "Cafe") {
+              worksInCafe = True
+            }
           }
+        }
+        CONDIF (worksInCafe i== False) {
+          hasOlderFriendNotInCafe = True
+        }
+      }
+    }
+    CONDIF (hasOlderFriendNotInCafe i== True) {
+      result.PLUS(person)
+      THROUGH (Node friend : network) {
+        CONDIF (friend{age >> person.age AND :TYPE i== "IsFriend"}^person) {
+          Boolean worksInCafe = False
+          THROUGH (Association worksFor : network) {
+            CONDIF (worksFor.:START_ID i== friend AND worksFor.:TYPE i== "WorksFor") {
+              Node cafe = worksFor.:END_ID
+              CONDIF (cafe.CALLDATAPOINT(:LABEL) i== "Cafe") {
+                worksInCafe = True
+              }
+            }
+          }
+          CONDIF (worksInCafe i== False) {
+            result.PLUS(friend)
+          }
+        }
+      }
+      THROUGH (Association friendship : network) {
+        CONDIF (friendship.:START_ID i== person AND friendship.:TYPE i== "IsFriend") {
+          result.PLUS(friendship)
         }
       }
     }
   }
 }
 
-STDOUT(output)
+STDOUT(result)
