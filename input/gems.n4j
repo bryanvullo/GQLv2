@@ -1,0 +1,15 @@
+:ID, gem: string, value: integer, :LABEL
+g1, "Emerald", 100, Green
+g2, "Quartz", 70, White;Smoke;Pink;Yellow
+g3, "Diamond", 2000, Blue;White;Yellow;Pink
+g4, "Ruby", 150, Red
+g5, "Sapphire", 120, Blue;Yellow
+g6, "Pearl", 90, Pink;Black;White
+
+:ID, name: string, wealth: integer, :LABEL
+a1, "Marigold",10000000, Green
+a2, "Joanna", 230, Pink;Yellow
+a3, "Richard", 2100, Blue
+a4, "Leslie", 320, Black;White;Green;Blue
+a5, "Ivan", 500, Red;Green;Blue
+a6, "Sascha", 70, Red;Green;Blue

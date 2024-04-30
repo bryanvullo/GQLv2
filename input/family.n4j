@@ -1,0 +1,18 @@
+:ID, firstname: string, lastname: string
+jawo1, "James", "Woods"
+jawo2, "Jason", "Woods"
+towo1, "Thomas", "Woods"
+adsh1, "Adala", "Shaa"
+ivyu1, "Ivan", "Yung"
+alwo1, "Alicia", "Woods"
+bryu1, "Briony", "Yung"
+cush1, "Curtis", "Shaa"
+oldr1, "Olga", "Drabble"
+
+:START_ID, :END_ID, :TYPE
+adsh1, jawo2, ParentOf
+adsh1, towo1, ParentOf
+ivyu1, alwo1, ParentOf
+jawo2, bryu1, ParentOf
+towo1, cush1, ParentOf
+oldr1, cush1, ChildOf

@@ -1,0 +1,39 @@
+:ID, name: string, :LABEL
+p1,"FleebleIII", Planet
+p2,"OstraIVa", Planet
+p3,"OstraIVb", Planet
+p4,"Villeneuve", Planet
+p5,"Muun", Planet
+
+:ID, name: string, :LABEL
+r1,"Nordium", Resource
+r2,"Crystallinum", Resource
+r3,"Melagia", Resource
+
+:ID, name: string, :LABEL
+f1, "Blorgons", Faction
+f2, "Kingans", Faction
+f3, "Humans", Faction
+
+:START_ID, :END_ID, :TYPE
+f1, p1, HasOutpost
+f1, p2, HasOutpost
+f1, p3, HasOutpost
+f2, p2, HasClaim
+f2, p3, HasClaim
+f2, p4, HasOutpost
+f2, p5, HasOutpost
+f3, p3, HasOutpost
+f3, p4, HasOutpost
+f3, p5, HasClaim
+
+:START_ID, amount: integer, :END_ID, :TYPE
+p1,  100, r1, Produces
+p1,  200, r2, Produces
+p1,  300, r3, Produces
+p2,   10, r1, Produces
+p3, 1000, r3, Produces
+p4,  100, r1, Produces
+p4,  500, r2, Produces
+p5,  100, r1, Produces
+p5,  500, r2, Produces

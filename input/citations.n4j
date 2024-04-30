@@ -1,0 +1,23 @@
+:ID, initial:string, name: string
+a1, "J", "Jones"
+a2, "U", "Habib"
+a3, "G", "Truffaut"
+a4, "J", "Villeneuve"
+a5, "A", "Baker"
+a6, "GB", "Truffaut"
+
+:ID, title:string, citations:integer
+p1, "SocialAndMetaphysicalDiscussions", 120
+p2, "TwitterlyticsAndTime", 10
+p3, "LLMsAndYou", 70
+p4, "AHistoryOfTheSemanticWeb", 114
+
+:START_ID, :END_ID, :TYPE
+a1, p1, Authored
+a2, p1, Authored
+a2, p2, Authored
+a3, p2, Authored
+a4, p2, Authored
+a5, p3, Authored
+a4, p4, Authored
+a6, p4, Authored
