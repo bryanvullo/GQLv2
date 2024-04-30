@@ -88,8 +88,8 @@ LiteralHelper
     | argument '.' CALLDATAPOINT '(' Expression ')'    { AccessDataNode $1 $5            }  -- Get node expression, e.g., node.CALLDATAPOINT(expression)
 
 CharsHelper
-    : chars                     { [$1]      }  -- Single string in the list
-    | chars '-' CharsHelper     { ($1 : $3) }  -- Multiple strings in the list, e.g., "a"-"b"-"c"
+    : chars                     { $1      }  -- Single string in the list
+    -- | chars '-' CharsHelper     { ($1 : $3) }  -- Multiple strings in the list, e.g., "a"-"b"-"c"
         
 Expression
     : ArgumentQuery             { $1                     }  -- Function application expression
@@ -224,7 +224,7 @@ data ExpressionBool
     | AssociationEnd ExpressionBool String
     | AssociationStart String ExpressionBool
     | AssociationStatement String ExpressionBool String
-    | HasQuery Expression [String]
+    | HasQuery Expression String
     deriving(Eq, Show)
 
 data ExpressionLink

@@ -185,17 +185,29 @@ caseNode (StrictEqualityQuery expr1 expr2) node
     where 
         r1 = getNodeValueComparison expr1 node
         r2 = getNodeValueComparison expr2 node
-caseNode (SlackLesserQuery expr1 expr2) node 
+caseNode (SlackLesserQuery expr1 expr2) node
     | r1 == Null || r2 == Null = False
     | otherwise = r1 < r2
     where 
         r1 = getNodeValueComparison expr1 node
         r2 = getNodeValueComparison expr2 node
+caseNode (HasQuery expr1 label) node 
+    | r == Null = False
+    | otherwise = label `elem` labels
+    where 
+        r = getNodeValueComparison expr1 node
+        labels = case r of 
+            Ss labels -> labels
+            _ -> []
 caseNode _ _ = runtimeError "Unsupported Boolean Operation on Node"
 
 getNodeValueComparison :: Expression -> Node -> GraphValue
 getNodeValueComparison (ExpressionMathXAS (Num x)) _ = I x 
 getNodeValueComparison (String str) _ = S str
+-- getNodeValueComparison (ArgumentConstructor (Object "LABEL")) node = 
+--     case lookup x node of 
+--         Just value -> value
+--         Nothing -> Null
 getNodeValueComparison (ArgumentConstructor (Object x)) node = 
     case lookup x node of 
         Just value -> value
