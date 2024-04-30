@@ -6,7 +6,6 @@ import Parser
 import InputLexer (lexInput, Token(..))
 import Printer (printOutput, printRow)
 import GHC.Base (undefined)
-import Data.IntMap (update)
 
 -- Environment
 type Env = [(String, Data)] -- Variable name, Data
@@ -41,12 +40,12 @@ data Kont
 type Control = (Program, Env, Kont) -- Statements, Environment, Continuation
 
 -- Data Type
-data Data = G [Table] | N Row | B Bool | I Int | S String | Nil 
+data Data = G Graph | N Node | V GraphValue
     | Reg String | Field (Class, Value)
     deriving (Eq, Show)
 
-runtimeError :: String -> IO ()
-runtimeError msg = putStrLn $ "Runtime Error: " ++ msg
+runtimeError :: String -> a
+runtimeError msg = error $ "Runtime Error: " ++ msg
 
 getFile :: String -> IO Tables
 getFile file = do
@@ -54,10 +53,68 @@ getFile file = do
     let fileData = parseInput $ lexInput contents
     return fileData
 
+data GraphValue = S String | Ss [String] | I Int | B Bool | Null
+    deriving (Eq, Show)
+
+instance Ord GraphValue where
+    compare (S s1) (S s2) = compare s1 s2
+    compare (I i1) (I i2) = compare i1 i2
+    compare (B b1) (B b2) = compare b1 b2
+    compare Null Null = EQ
+    compare Null _ = LT
+    compare _ Null = GT
+    compare _ _ = runtimeError "Unsupported comparison"
+
+type Node = [(String, GraphValue)]
+type Graph = [Node]
+
+tablesToGraph :: [Table] -> Graph 
+tablesToGraph tables = concatMap tableToGraph tables
+
+tableToGraph :: Table -> [Node]
+tableToGraph table = map (rowToNode header) rows
+    where 
+        header = head table
+        rows = tail table
+
+rowToNode :: Row -> Row -> Node
+rowToNode (Header types) (Data (Id id) values) = 
+    ("ID", S id) : nodeAttributes
+    where
+        typeNames = map getTypeName types
+        graphValues = map valueToGraphValue values
+        nodeAttributes = zip typeNames graphValues
+rowToNode (LabeledHeader types) (LabeledData (Id id) values labels) = 
+    ("ID", S id) : ("LABEL", Ss labels) : nodeAttributes
+    where
+        typeNames = map getTypeName types
+        graphValues = map valueToGraphValue values
+        nodeAttributes = zip typeNames graphValues
+rowToNode (RelationshipHeader types) 
+    (RelationshipData (Id start) values (Id end) relationship) = 
+    ("START_ID", S start) : ("END_ID", S end) : ("TYPE", S relationship) : nodeAttributes
+    where
+        typeNames = map getTypeName types
+        graphValues = map valueToGraphValue values
+        nodeAttributes = zip typeNames graphValues
+rowToNode _ _ = runtimeError "Parsing Error on Input Data (n4j file), invalid row type." 
+
+getTypeName :: Type -> String
+getTypeName (StringType name) = name
+getTypeName (IntType name) = name
+getTypeName (BoolType name) = name
+
+valueToGraphValue :: Value -> GraphValue
+valueToGraphValue (StringValue str) = S str
+valueToGraphValue (IntValue i) = I i
+valueToGraphValue (BoolValue b) = B b
+valueToGraphValue NullValue = Null
+
 interpret :: Start -> IO ()
 interpret (StartExpr var file statements) = do 
     fileData <- getFile file
-    let initialEnv = [(var, G fileData)]
+    let graph = tablesToGraph fileData
+    let initialEnv = [(var, G graph)]
     interpretProgram (statements, initialEnv)
 
 interpretProgram :: (Program, Env) -> IO ()
@@ -84,11 +141,14 @@ interpretProgram (Expression statement:stmts, env) = do
 handlePrint :: String -> Env -> IO ()
 handlePrint var env = do
     case lookup var env of
-            Just (G tables) -> printOutput tables
-            Just (N row) -> printRow row
-            Just (B bool) -> print bool
-            Just (I int) -> print int
-            Just (S str) -> print str
+            -- Just (G graph) -> printOutput graph
+            -- Just (N node) -> printRow node
+            Just (G graph) -> print graph
+            Just (N node) -> print node
+            Just (V (I i)) -> print i
+            Just (V (S str)) -> print str
+            Just (V (B b)) -> print b
+            Just (V Null) -> putStrLn "Null"
             Just (Reg regex) -> print regex
             _ -> runtimeError ("Variable " ++ var ++ " not found")
 
@@ -106,8 +166,41 @@ interpretLink (Assign sExpr expr, env) = do
         ArgumentAttribute x y -> updateAttribute x y value env
 
 interpretExprValue :: (Expression, Env) -> Data
-interpretExprValue (String str, env) = S str
-interpretExprValue (CaseQuery str bExpr, env) = undefined
+interpretExprValue (String str, env) = V (S str)
+interpretExprValue (CaseQuery str bExpr, env) =
+    case lookup str env of 
+        Just (G graph) -> G (caseGraph bExpr graph)
+        Just (N node) -> if caseNode bExpr node then N node else V Null
+        _ -> runtimeError ("Unable to use CASE on variable " ++ str)
+    where 
+        caseGraph bExpr graph = filter (caseNode bExpr) graph
+interpretExprValue (_, _) = runtimeError "Unsupported Expression Value Reduction"
+
+caseNode :: ExpressionBool -> Node -> Bool
+caseNode (BoolUnion expr1 expr2) node = caseNode expr1 node || caseNode expr2 node
+caseNode (BoolConjunction expr1 expr2) node = caseNode expr1 node && caseNode expr2 node
+caseNode (StrictEqualityQuery expr1 expr2) node 
+    | r1 == Null || r2 == Null = False
+    | otherwise = r1 == r2
+    where 
+        r1 = getNodeValueComparison expr1 node
+        r2 = getNodeValueComparison expr2 node
+caseNode (SlackLesserQuery expr1 expr2) node 
+    | r1 == Null || r2 == Null = False
+    | otherwise = r1 < r2
+    where 
+        r1 = getNodeValueComparison expr1 node
+        r2 = getNodeValueComparison expr2 node
+caseNode _ _ = runtimeError "Unsupported Boolean Operation on Node"
+
+getNodeValueComparison :: Expression -> Node -> GraphValue
+getNodeValueComparison (ExpressionMathXAS (Num x)) _ = I x 
+getNodeValueComparison (String str) _ = S str
+getNodeValueComparison (ArgumentConstructor (Object x)) node = 
+    case lookup x node of 
+        Just value -> value
+        Nothing -> Null
+getNodeValueComparison _ _ = runtimeError "Unsupported Node Value"
 
 --TODO below
 updateAttribute :: String -> String -> Data -> Env -> Env

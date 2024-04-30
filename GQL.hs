@@ -22,4 +22,4 @@ main = do
     -- print inputResult
 
     -- interpret the query
-    -- interpret result
+    interpret result

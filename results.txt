@@ -1,0 +1,50 @@
+BEFORE: 
+[
+[("ID",S "jj23"),("LABEL",Ss ["Staff"]),("firstname",S "John"),("familyname",S "Jones"),("role",S "Caretaker"),("age",I 43)],
+[("ID",S "uh12"),("LABEL",Ss ["Staff"]),("firstname",S "Umar"),("familyname",S "Habib"),("role",S "Headmaster"),("age",I 55)],
+[("ID",S "gt2"),("LABEL",Ss ["Staff"]),("firstname",S "Guillaume"),("familyname",S "Truffaut"),("role",S "Teacher"),("age",I 23)],
+[("ID",S "jv9"),("LABEL",Ss ["Staff"]),("firstname",S "Jennifer"),("familyname",S "Villeneuve"),("role",S "DeputyHead"),("age",I 49)],
+[("ID",S "ab23"),("LABEL",Ss ["Staff"]),("firstname",S "Adam"),("familyname",S "Baker"),("role",S "Teacher"),("age",I 22)],
+[("ID",S "nj10"),("LABEL",Ss ["Student"]),("firstname",S "Nigel"),("familyname",S "Jackson"),("age",I 16)],
+[("ID",S "rw5"),("LABEL",Ss ["Student"]),("firstname",S "Rebecca"),("familyname",S "Watson"),("age",I 15)],
+[("ID",S "pp8"),("LABEL",Ss ["Student"]),("firstname",S "Peter"),("familyname",S "Potter"),("age",I 17)],
+[("ID",S "jd6"),("LABEL",Ss ["Student"]),("firstname",S "Jing"),("familyname",S "Ding"),("age",I 16)],
+[("ID",S "cr2"),("LABEL",Ss ["Student"]),("firstname",S "Connor"),("familyname",S "Flaherty"),("age",I 15)],
+[("ID",S "v1"),("LABEL",Ss ["Visitor"]),("firstname",S "Ray"),("familyname",S "Wise")],
+[("ID",S "v2"),("LABEL",Ss ["Visitor"]),("firstname",S "Barbara"),("familyname",S "King")],
+[("ID",S "v3"),("LABEL",Ss ["Visitor"]),("firstname",S "Mei"),("familyname",S "Wu")],
+[("ID",S "v4"),("LABEL",Ss ["Visitor"]),("firstname",S "Anika"),("familyname",S "Sharma")],
+[("START_ID",S "v1"),("END_ID",S "uh12"),("TYPE",S "IsVisiting")],
+[("START_ID",S "v2"),("END_ID",S "nj10"),("TYPE",S "IsVisiting")],
+[("START_ID",S "v3"),("END_ID",S "jd6"),("TYPE",S "IsVisiting")],
+[("START_ID",S "v4"),("END_ID",S "uh12"),("TYPE",S "IsVisiting")]
+]
+
+AFTER: 
+[
+[("ID",S "gt2"),("LABEL",Ss ["Staff"]),("firstname",S "Guillaume"),("familyname",S "Truffaut"),("role",S "Teacher"),("age",I 23)],
+[("ID",S "ab23"),("LABEL",Ss ["Staff"]),("firstname",S "Adam"),("familyname",S "Baker"),("role",S "Teacher"),("age",I 22)],
+[("ID",S "nj10"),("LABEL",Ss ["Student"]),("firstname",S "Nigel"),("familyname",S "Jackson"),("age",I 16)],
+[("ID",S "rw5"),("LABEL",Ss ["Student"]),("firstname",S "Rebecca"),("familyname",S "Watson"),("age",I 15)],
+[("ID",S "pp8"),("LABEL",Ss ["Student"]),("firstname",S "Peter"),("familyname",S "Potter"),("age",I 17)],
+[("ID",S "jd6"),("LABEL",Ss ["Student"]),("firstname",S "Jing"),("familyname",S "Ding"),("age",I 16)],
+[("ID",S "cr2"),("LABEL",Ss ["Student"]),("firstname",S "Connor"),("familyname",S "Flaherty"),("age",I 15)],
+[("ID",S "v1"),("LABEL",Ss ["Visitor"]),("firstname",S "Ray"),("familyname",S "Wise")],
+[("ID",S "v2"),("LABEL",Ss ["Visitor"]),("firstname",S "Barbara"),("familyname",S "King")],
+[("ID",S "v3"),("LABEL",Ss ["Visitor"]),("firstname",S "Mei"),("familyname",S "Wu")],
+[("ID",S "v4"),("LABEL",Ss ["Visitor"]),("firstname",S "Anika"),("familyname",S "Sharma")],
+[("START_ID",S "v1"),("END_ID",S "uh12"),("TYPE",S "IsVisiting")],
+[("START_ID",S "v2"),("END_ID",S "nj10"),("TYPE",S "IsVisiting")],
+[("START_ID",S "v3"),("END_ID",S "jd6"),("TYPE",S "IsVisiting")],
+[("START_ID",S "v4"),("END_ID",S "uh12"),("TYPE",S "IsVisiting")]
+]
+
+[
+[("ID",S "gt2"),("LABEL",Ss ["Staff"]),("firstname",S "Guillaume"),("familyname",S "Truffaut"),("role",S "Teacher"),("age",I 23)],
+[("ID",S "ab23"),("LABEL",Ss ["Staff"]),("firstname",S "Adam"),("familyname",S "Baker"),("role",S "Teacher"),("age",I 22)],
+[("ID",S "nj10"),("LABEL",Ss ["Student"]),("firstname",S "Nigel"),("familyname",S "Jackson"),("age",I 16)],
+[("ID",S "rw5"),("LABEL",Ss ["Student"]),("firstname",S "Rebecca"),("familyname",S "Watson"),("age",I 15)],
+[("ID",S "pp8"),("LABEL",Ss ["Student"]),("firstname",S "Peter"),("familyname",S "Potter"),("age",I 17)],
+[("ID",S "jd6"),("LABEL",Ss ["Student"]),("firstname",S "Jing"),("familyname",S "Ding"),("age",I 16)],
+[("ID",S "cr2"),("LABEL",Ss ["Student"]),("firstname",S "Connor"),("familyname",S "Flaherty"),("age",I 15)]
+]
