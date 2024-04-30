@@ -1,8 +1,9 @@
-module Printer (printOutput, printRow) where
+module Printer (printOutput, printTables) where
 
 import InputParser
--- import GHC.Runtime.Eval (Term(val))
--- import Text.Printf (printf)
+import Data.List (intercalate)
+import Data.Map (Map)
+import qualified Data.Map as Map
 
 printOutput :: Tables -> IO ()
 printOutput (t:tables) = do
@@ -87,3 +88,25 @@ valuesToString [] = ""
 labelsToString :: Labels -> String
 labelsToString (l:labels) = ", " ++ l ++ labelsToString labels
 labelsToString [] = ""
+
+printTables :: [[(String, Value)]] -> IO ()
+printTables nodes = do
+    let tables = groupNodesToTables nodes
+    mapM_ printTable' (Map.elems tables)
+    where
+        printTable' rows = do
+            let header = fst $ head rows
+            putStrLn header
+            mapM_ (putStrLn . snd) rows
+            putStrLn ""
+
+groupNodesToTables :: [[(String, Value)]] -> Map String [(String, String)]
+groupNodesToTables nodes = Map.fromListWith (++) [(getHeader node, [nodeToString node]) | node <- nodes]
+    where
+        getHeader = intercalate "," . map fst . takeWhile (\(k, _) -> k /= "LABEL")
+        nodeToString = intercalate "," . map (valueToString . snd)
+        valueToString (IntValue x) = show x
+        valueToString (StringValue x) = x
+        valueToString (BoolValue True) = "true"
+        valueToString (BoolValue False) = "false"
+        valueToString NullValue = "null"

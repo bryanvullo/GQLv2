@@ -1,5 +1,5 @@
 # pr5.gql
-DataGraph loyalty = ACCESS("./queries/loyalty.n4j")
+DataGraph loyalty = ACCESS("./input/loyalty.n4j")
 DataGraph output = loyalty
 
 THROUGH (Node person : loyalty) {

@@ -1,5 +1,5 @@
 # pr4.gql
-DataGraph network = ACCESS("./queries/network.n4j")
+DataGraph network = ACCESS("./input/network.n4j")
 DataGraph result
 
 THROUGH (Node person : network) {
