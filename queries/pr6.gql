@@ -1,5 +1,5 @@
 # pr6.gql
-DataGraph gems = ACCESS("./queries/gems.n4j")
+DataGraph gems = ACCESS("./input/gems.n4j")
 DataGraph result
 
 THROUGH (Node customer : gems) {

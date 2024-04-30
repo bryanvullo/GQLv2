@@ -1,0 +1,53 @@
+# pr7.gql
+DataGraph citations = ACCESS("./queries/citations.n4j")
+DataGraph result
+
+THROUGH (Node author1 : citations) {
+  CONDIF (author1.CALLDATAPOINT(:LABEL) i== "Author") {
+    THROUGH (Node author2 : citations) {
+      CONDIF (author2.CALLDATAPOINT(:LABEL) i== "Author" AND author1 !== author2) {
+        Integer degrees = 0
+        
+        THROUGH (Association authored : citations) {
+          CONDIF (authored.:START_ID i== author1 AND authored.:END_ID i== author2 AND authored.:TYPE i== "AuthoredBy") {
+            degrees = 1
+          }
+        }
+        
+        CONDIF (degrees i== 0) {
+          THROUGH (Node coauthor : citations) {
+            Boolean condition1 = citations.CALLASSOCIATION(:START_ID i== author1 AND :END_ID i== coauthor AND :TYPE i== "AuthoredBy")
+            Boolean condition2 = citations.CALLASSOCIATION(:START_ID i== coauthor AND :END_ID i== author2 AND :TYPE i== "AuthoredBy")
+            CONDIF (condition1 AND condition2) {
+              degrees = 2
+            }
+          }
+        }
+        
+        CONDIF (degrees i== 0) {
+          THROUGH (Node coauthor1 : citations) {
+            THROUGH (Node coauthor2 : citations) {
+              Boolean condition1 = citations.CALLASSOCIATION(:START_ID i== author1 AND :END_ID i== coauthor1 AND :TYPE i== "AuthoredBy")
+              Boolean condition2 = citations.CALLASSOCIATION(:START_ID i== coauthor1 AND :END_ID i== coauthor2 AND :TYPE i== "AuthoredBy")
+              Boolean condition3 = citations.CALLASSOCIATION(:START_ID i== coauthor2 AND :END_ID i== author2 AND :TYPE i== "AuthoredBy")
+              CONDIF (condition1 AND condition2 AND condition3) {
+                degrees = 3
+              }
+            }
+          }
+        }
+        
+        CONDIF (degrees >> 0) {
+          Association link
+          link.:TYPE = "LinksTo"
+          link.:START_ID = author1
+          link.:END_ID = author2
+          link.degrees = degrees
+          result.PLUS(link)
+        }
+      }
+    }
+  }
+}
+
+STDOUT(result)
