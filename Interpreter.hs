@@ -8,6 +8,7 @@ import Printer (printOutput, printRow, groupNodesToTables, printTables, GraphVal
 import GHC.Base (undefined)
 import Data.Text.Array (run)
 
+
 -- Environment
 type Env = [(String, Data)] -- Variable name, Data
 
@@ -150,8 +151,8 @@ interpretProgram (Expression statement:stmts, env) = do
 handlePrint :: String -> Env -> IO ()
 handlePrint var env = do
     case lookup var env of
-            Just (G graph) -> printTables graph
-            -- Just (G graph) -> print graph --use above
+            -- Just (G graph) -> printTables graph
+            Just (G graph) -> print graph --use above
             Just (N node) -> print node
             Just (V (I i)) -> print i
             Just (V (S str)) -> print str
@@ -276,6 +277,12 @@ updateAttribute' node attr value env = node'
 
 interpretBoolValue :: ExpressionBool -> Env -> Bool
 interpretBoolValue (Bool True) env = undefined
+interpretBoolValue (AssociationEnd bExpr str) env = undefined 
+    where
+        
+interpretBoolValue (AssociationStart str bExpr) env = undefined
+interpretBoolValue (AssociationStatement str1 bExpr str2) env = undefined
+interpretBoolValue _ _ = runtimeError "Unsupported Boolean Value Reduction"
 
 runThroughBlock :: Class -> String -> String -> Program -> Env -> IO Env
 runThroughBlock varType var vars block env = runThroughBlock' var nodes block env
