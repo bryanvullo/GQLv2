@@ -89,26 +89,30 @@ labelsToString :: Labels -> String
 labelsToString (l:labels) = ", " ++ l ++ labelsToString labels
 labelsToString [] = ""
 
-printTables :: [[(String, GraphValue)]] -> IO ()
+printTables :: [[(String, String, GraphValue)]] -> IO ()
 printTables nodes = do
     let tables = groupNodesToTables nodes
     mapM_ printTable' (Map.elems tables)
     where
+        typePairs = getAttrTypePair $ concat nodes
+        originalNodes = map (map (\(a,t,v) -> (a,v))) nodes
         printTable' rows = do
             let header = fst $ head rows
             putStrLn header
             mapM_ (putStrLn . snd) rows
             putStrLn ""
 
+getAttrTypePair :: [(String, String, GraphValue)] -> [(String, String)]
+getAttrTypePair cells = pairs 
+    where 
+        pairs = [(attr, aType) | (attr, aType, value) <- cells && 
+            value /= Null && 
+            not (any (\(a, t) -> a == attr) pairs)]
+
 groupNodesToTables :: [[(String, GraphValue)]] -> Map String [(String, String)]
 groupNodesToTables nodes = Map.fromListWith (++) [(getHeader node, [(getHeader node, nodeToRow node)]) | node <- nodes]
     where
         getHeader node = intercalate ", " $ map (\(k, v) -> k ++ ":" ++ getType v) $ takeWhile (\(k, _) -> k /= ":LABEL") node
-        getType (I _) = "integer"
-        getType (S _) = "string"
-        getType (Ss _) = "string"
-        getType (B _) = "boolean"
-        getType Null = ""
         nodeToRow = intercalate ", " . map (valueToString . snd)
         valueToString (I x) = show x
         valueToString (S x) = x
