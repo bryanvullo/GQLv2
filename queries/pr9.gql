@@ -1,5 +1,5 @@
 # pr9.gql
-DataGraph family = ACCESS("./queries/family.n4j")
+DataGraph family = ACCESS("family.n4j")
 
 THROUGH (Node person1 : family) {
   THROUGH (Node person2 : family) {

@@ -1,6 +1,19 @@
-# pr1.gql
-DataGraph graph = ACCESS("./input/access.n4j")
+# pr2.gql
+DataGraph tasks = ACCESS("./input/tasks.n4j")
+DataGraph result = tasks
 
-graph = graph.CASE(:LABEL.HAS("Visitor") OR age << 25)
+THROUGH (Node nodef1 : tasks) {
+  CONDIF ({priority >> 8}^ nodef1) { 
+    THROUGH (Node nodef2 : tasks) {
+      CONDIF (nodef2 {available i== True}^) {
+        Association association
+        association.:TYPE = "PossiblyAllocated"
+        association.:START_ID = nodef2
+        association.:END_ID = nodef1
+        result.PLUS(association)
+      }
+    }
+  }
+}
 
-STDOUT(graph)
+STDOUT (result)

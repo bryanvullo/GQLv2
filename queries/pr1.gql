@@ -1,5 +1,5 @@
 # pr1.gql
-DataGraph graph = ACCESS("./input/access.n4j")
+DataGraph graph = ACCESS("access.n4j")
 
 graph = graph.CASE(:LABEL.HAS("Visitor") OR age << 25)
 
