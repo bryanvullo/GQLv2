@@ -66,8 +66,15 @@ instance Ord GraphValue where
     compare _ Null = GT
     compare _ _ = runtimeError "Unsupported comparison"
 
-type Node = [(String, GraphValue)]
+type Node = [(String, String, GraphValue)]
 type Graph = [Node]
+
+lookupNode :: String -> Node -> Maybe GraphValue
+lookupNode attr node 
+    | null triples = Nothing
+    | otherwise = Just $ (\(_,_,v) -> v) $ head triples
+    where 
+        triples = filter (\(x,_,_) -> x == attr) node
 
 tablesToGraph :: [Table] -> Graph 
 tablesToGraph tables = concatMap tableToGraph tables
@@ -80,30 +87,30 @@ tableToGraph table = map (rowToNode header) rows
 
 rowToNode :: Row -> Row -> Node
 rowToNode (Header types) (Data (Id id) values) = 
-    ("ID", S id) : nodeAttributes
+    ("ID","", S id) : nodeAttributes
     where
         typeNames = map getTypeName types
         graphValues = map valueToGraphValue values
-        nodeAttributes = zip typeNames graphValues
+        nodeAttributes = map (\((tn,t),v) -> (tn, t, v)) $ zip typeNames graphValues
 rowToNode (LabeledHeader types) (LabeledData (Id id) values labels) = 
-    ("ID", S id) : nodeAttributes ++ [("LABEL", Ss labels)]
+    ("ID","", S id) : nodeAttributes ++ [("LABEL","", Ss labels)]
     where
         typeNames = map getTypeName types
         graphValues = map valueToGraphValue values
-        nodeAttributes = zip typeNames graphValues
+        nodeAttributes = map (\((tn,t),v) -> (tn, t, v)) $ zip typeNames graphValues
 rowToNode (RelationshipHeader types) 
     (RelationshipData (Id start) values (Id end) relationship) = 
-    ("START_ID", S start) : nodeAttributes ++ [("END_ID", S end), ("TYPE", S relationship)]
+    ("START_ID","", S start) : nodeAttributes ++ [("END_ID","", S end), ("TYPE","", S relationship)]
     where
         typeNames = map getTypeName types
         graphValues = map valueToGraphValue values
-        nodeAttributes = zip typeNames graphValues
+        nodeAttributes = map (\((tn,t),v) -> (tn, t, v)) $ zip typeNames graphValues
 rowToNode _ _ = runtimeError "Parsing Error on Input Data (n4j file), invalid row type." 
 
-getTypeName :: Type -> String
-getTypeName (StringType name) = name
-getTypeName (IntType name) = name
-getTypeName (BoolType name) = name
+getTypeName :: Type -> (String, String)
+getTypeName (StringType name) = (name, "string")
+getTypeName (IntType name) = (name, "integer")
+getTypeName (BoolType name) = (name, "boolean")
 
 valueToGraphValue :: Value -> GraphValue
 valueToGraphValue (StringValue str) = S str
@@ -145,7 +152,8 @@ handlePrint var env = do
     case lookup var env of
             -- Just (G graph) -> printOutput graph
             -- Just (N node) -> printRow node
-            Just (G graph) -> printTables graph
+            -- Just (G graph) -> printTables graph
+            Just (G graph) -> print graph --use above
             Just (N node) -> print node
             Just (V (I i)) -> print i
             Just (V (S str)) -> print str
@@ -188,7 +196,6 @@ interpretLink (Assert varType var, env) = case varType of
     _ -> (var, V Null) : env
 interpretLink _ = runtimeError "Unsupported Expression Link Operation"
 
-
 interpretExprValue :: (Expression, Env) -> Data
 interpretExprValue (String str, env) = V (S str)
 interpretExprValue (CaseQuery str bExpr, env) =
@@ -200,7 +207,7 @@ interpretExprValue (CaseQuery str bExpr, env) =
         caseGraph bExpr graph = filter (caseNode bExpr) graph
 interpretExprValue (ArgumentConstructor (ArgumentAttribute node attr), env) = 
     case lookup node env of 
-        Just (N node) -> case lookup attr node of 
+        Just (N node) -> case lookupNode attr node of 
             Just value -> V value
             Nothing -> V Null
         Just x -> runtimeError ("Variable " ++ node ++ " is not a node! cannot access attribute " ++ attr)
@@ -236,7 +243,7 @@ getNodeValueComparison :: Expression -> Node -> GraphValue
 getNodeValueComparison (ExpressionMathXAS (Num x)) _ = I x 
 getNodeValueComparison (String str) _ = S str
 getNodeValueComparison (ArgumentConstructor (Object x)) node = 
-    case lookup x node of 
+    case lookupNode x node of 
         Just value -> value
         Nothing -> Null
 getNodeValueComparison _ _ = runtimeError "Unsupported Node Value"
@@ -253,17 +260,16 @@ updateAttribute nodeName attr value env = updateEnv nodeName (N node') env
 updateAttribute' :: Node -> String -> Data -> Env -> Node
 updateAttribute' node attr value env = node'
     where 
-        nodeValue = case value of 
-            V (S str) -> S str
-            V (Ss strs) -> Ss strs
-            V (I i) -> I i
-            V (B b) -> B b
-            V Null -> Null
+        (nodeValue,t) = case value of 
+            V (S str) -> (S str, "string")
+            V (Ss strs) -> (Ss strs, "")
+            V (I i) -> (I i, "integer")
+            V (B b) -> (B b, "boolean")
+            V Null -> (Null, "")
             x -> runtimeError ("Unsupported Value Type" ++ show x)
-        pair = (attr, nodeValue)
-        node' = case lookup attr node of
-            Just _ -> map (\x -> if fst x == attr then pair else x) node --update
-            Nothing -> pair : node --add
+        node' = case lookupNode attr node of
+            Just _ -> map (\(x,y,z) -> if x == attr then (x,y,nodeValue) else (x,y,z)) node --update
+            Nothing -> (attr,t,nodeValue) : node --add
         
 
 interpretBoolValue :: ExpressionBool -> Env -> Bool
