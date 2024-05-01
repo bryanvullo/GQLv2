@@ -15,8 +15,8 @@ printOutput nodes = do
     mapM_ printTable (Map.elems tables)
 
 printTable :: [(String, String)] -> IO ()
-printTable rows = do
-    let header = fst (head rows)
+printTable [] = return () -- Handle empty list case
+printTable rows@((header, _):_) = do -- Pattern match on non-empty list
     putStrLn header
     mapM_ (putStrLn . snd) rows
     putStrLn ""
@@ -34,7 +34,7 @@ printRow (LabeledHeader types) =
         let label = ", :LABEL"
         putStrLn $ id ++ typesStr ++ label
 printRow (RelationshipHeader types) = 
-    do 
+    do
         let start = ":START_ID"
         let typesStr = typesToString types
         let end = ", :END_ID"
@@ -97,8 +97,8 @@ printTables nodes = do
     let tables = groupNodesToTables typePairs originalNodes
     mapM_ printTable' (Map.elems tables)
     where
-        printTable' rows = do
-            let header = fst $ head rows
+        printTable' [] = return () -- Handle empty list case
+        printTable' rows@((header, _):_) = do -- Pattern match on non-empty list
             putStrLn header
             mapM_ (putStrLn . snd) rows
             putStrLn ""
