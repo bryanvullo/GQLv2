@@ -1,0 +1,43 @@
+# pr10.gql
+DataGraph game = ACCESS("./input/game.n4j") 
+DataGraph result
+
+THROUGH (Node player : game) {
+  CONDIF (player.CALLDATAPOINT(:LABEL) i== "Player") {
+    String playerID = player
+    
+    Node update = game.CASE(:LABEL i== "Update" AND subject i== playerID)
+    CONDIF (update !== null) {
+      player.score = update.value
+      result.PLUS(player)
+    }
+
+    Integer currentScore = player.score
+    Integer logCounter = 1
+    
+    THROUGH (Node logEntry : game) {
+      CONDIF (logEntry.CALLDATAPOINT(:LABEL) i== "Log" AND logEntry.subject i== playerID) {
+        logEntry.age = logEntry.age ++ 1
+        result.PLUS(logEntry)
+
+        CONDIF (logEntry.age i== 1) {
+          logEntry.previous = currentScore
+        }
+
+        logCounter = logCounter ++ 1
+      }
+    }
+      
+    Node newLogEntry
+    newLogEntry = playerID ++ "Log" ++ logCounter
+    newLogEntry.subject = playerID
+    newLogEntry.previous = currentScore  
+    newLogEntry.age = 1
+    newLogEntry.:LABEL = "Log"
+    result.PLUS(newLogEntry)
+  }
+}
+
+result = result.NEGATE(:LABEL i== "Update")
+
+STDOUT(result)
