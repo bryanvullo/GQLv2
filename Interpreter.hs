@@ -277,11 +277,10 @@ updateAttribute' node attr value env = node'
 
 interpretBoolValue :: ExpressionBool -> Env -> Bool
 interpretBoolValue (Bool True) env = undefined
-interpretBoolValue (AssociationEnd bExpr str) env = undefined 
-    where
-        
-interpretBoolValue (AssociationStart str bExpr) env = undefined
-interpretBoolValue (AssociationStatement str1 bExpr str2) env = undefined
+interpretBoolValue (AssociationEnd bExpr str values) env = undefined 
+
+interpretBoolValue (AssociationStart str bExpr values) env = undefined
+interpretBoolValue (AssociationStatement str1 bExpr str2 values) env = undefined
 interpretBoolValue _ _ = runtimeError "Unsupported Boolean Value Reduction"
 
 runThroughBlock :: Class -> String -> String -> Program -> Env -> IO Env
