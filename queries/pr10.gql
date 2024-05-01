@@ -29,7 +29,9 @@ THROUGH (Node player : game) {
     }
       
     Node newLogEntry
-    newLogEntry = playerID ++ "Log" ++ logCounter
+    newLogEntry = playerID
+    newLogEntry = newLogEntry ++ "Log"  
+    newLogEntry = newLogEntry ++ logCounter
     newLogEntry.subject = playerID
     newLogEntry.previous = currentScore  
     newLogEntry.age = 1
