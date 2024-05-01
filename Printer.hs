@@ -103,8 +103,13 @@ printTables nodes = do
 groupNodesToTables :: [[(String, GraphValue)]] -> Map String [(String, String)]
 groupNodesToTables nodes = Map.fromListWith (++) [(getHeader node, [(getHeader node, nodeToRow node)]) | node <- nodes]
     where
-        getHeader = intercalate "," . map fst . takeWhile (\(k, _) -> k /= ":LABEL")
-        nodeToRow = intercalate "," . map (valueToString . snd)
+        getHeader node = intercalate ", " $ map (\(k, v) -> k ++ ":" ++ getType v) $ takeWhile (\(k, _) -> k /= ":LABEL") node
+        getType (I _) = "integer"
+        getType (S _) = "string"
+        getType (Ss _) = "string"
+        getType (B _) = "boolean"
+        getType Null = ""
+        nodeToRow = intercalate ", " . map (valueToString . snd)
         valueToString (I x) = show x
         valueToString (S x) = x
         valueToString (Ss xs) = intercalate ";" xs
