@@ -105,8 +105,8 @@ printTables nodes = do
 getAttrTypePair :: [(String, String, GraphValue)] -> [(String, String)]
 getAttrTypePair cells = pairs 
     where 
-        pairs = [(attr, aType) | (attr, aType, value) <- cells && 
-            value /= Null && 
+        pairs = [(attr, aType) | (attr, aType, value) <- cells, 
+            value /= Null, 
             not (any (\(a, t) -> a == attr) pairs)]
 
 groupNodesToTables :: [[(String, GraphValue)]] -> Map String [(String, String)]
