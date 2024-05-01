@@ -6,6 +6,7 @@ import Parser
 import InputLexer (lexInput, Token(..))
 import Printer (printOutput, printRow, groupNodesToTables, printTables, GraphValue(..))
 import GHC.Base (undefined)
+import Data.Text.Array (run)
 
 -- Environment
 type Env = [(String, Data)] -- Variable name, Data
@@ -115,10 +116,11 @@ interpret (StartExpr var file statements) = do
     fileData <- getFile file
     let graph = tablesToGraph fileData
     let initialEnv = [(var, G graph)]
-    interpretProgram (statements, initialEnv)
+    env <- interpretProgram (statements, initialEnv)
+    return ()
 
-interpretProgram :: (Program, Env) -> IO ()
-interpretProgram ([], env) = return ()
+interpretProgram :: (Program, Env) -> IO (Env)
+interpretProgram ([], env) = return env
 interpretProgram (Output var:stmts, env) = do 
     handlePrint var env
     interpretProgram (stmts, env)
@@ -132,7 +134,7 @@ interpretProgram (CondElifQuery boolx block1 block2:stmts, env)
     | otherwise = do 
         interpretProgram (block2 ++ stmts, env)
 interpretProgram (ThroughQuery varType var vars block:stmts, env) = do 
-    let env' = runForBlock varType var vars block env
+    env' <- runThroughBlock varType var vars block env
     interpretProgram (stmts, env')
 interpretProgram (Expression statement:stmts, env) = do 
     let env' = interpretExpr (statement, env)
@@ -217,10 +219,28 @@ updateAttribute x y value env = undefined
 interpretBoolValue :: ExpressionBool -> Env -> Bool
 interpretBoolValue (Bool True) env = undefined
 
-runForBlock :: Class -> String -> String -> Program -> Env -> Env
-runForBlock varType var vars block env = undefined
+runThroughBlock :: Class -> String -> String -> Program -> Env -> IO Env
+runThroughBlock varType var vars block env = runThroughBlock' vars nodes block env
+    where 
+        nodes = case lookup vars env of 
+            Just (G xs) -> xs
+            Nothing -> runtimeError ("Variable " ++ vars ++ " not found")
+            _ -> runtimeError ("Variable " ++ vars ++ " is not a graph! cannot iterate over it")
+
+runThroughBlock' :: String -> [Node] -> Program -> Env -> IO Env
+runThroughBlock' var [] block env = return env
+runThroughBlock' var (node:nodes) block env = do 
+    let rmvPrevNodeEnv = filter (\x -> fst x /= var) env
+    let env' = (var, N node) : rmvPrevNodeEnv
+    env'' <- interpretProgram (block, env')
+    runThroughBlock' var nodes block env''
+    -- runThroughBlock' var nodes block env''
     -- where 
-    --     values = interpretForValues vars env
+    --     env = filter (\x -> fst x /= var) env
+    --     env' = (var, N node) : env
+    --     env'' = interpretProgram (block, env')
+        
+
 -- fetch the list of values and run the block for each value
 
 -- interpret' :: Control -> Control
