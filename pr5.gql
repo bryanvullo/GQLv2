@@ -4,10 +4,10 @@ DataGraph output = loyalty
 
 THROUGH (Node person : loyalty) {
   THROUGH (Node business : loyalty) {
-    CONDIF (person{:TYPE i== "CustomerOf"}^business) {
+    CONDIF (person{:TYPE i== "CustomerOf"}^business : loyalty) {
       THROUGH (Node otherPerson : loyalty) {
-        CONDIF (person{:TYPE i== "Recommended"}^otherPerson AND 
-                otherPerson{:TYPE i== "CustomerOf"}^business) {
+        CONDIF (person{:TYPE i== "Recommended"}^otherPerson : loyalty AND 
+                otherPerson{:TYPE i== "CustomerOf"}^business : loyalty) {
           Association personCustomerOf = person.CALLASSOCIATION(:TYPE i== "CustomerOf")
           Association otherPersonCustomerOf = otherPerson.CALLASSOCIATION(:TYPE i== "CustomerOf")
           

@@ -7,7 +7,7 @@ THROUGH (Node person : network) {
   CONDIF (firstName i== r"[ABC].*") {
     Boolean hasOlderFriendNotInCafe = False
     THROUGH (Node friend : network) {
-      CONDIF (friend{age >> person.age AND :TYPE i== "IsFriend"}^person) {
+      CONDIF (friend{age >> person.age AND :TYPE i== "IsFriend"}^person : network) {
         Boolean worksInCafe = False
         THROUGH (Association worksFor : network) {
           CONDIF (worksFor.:START_ID i== friend AND worksFor.:TYPE i== "WorksFor") {
@@ -25,7 +25,7 @@ THROUGH (Node person : network) {
     CONDIF (hasOlderFriendNotInCafe i== True) {
       result.PLUS(person)
       THROUGH (Node friend : network) {
-        CONDIF (friend{age >> person.age AND :TYPE i== "IsFriend"}^person) {
+        CONDIF (friend{age >> person.age AND :TYPE i== "IsFriend"}^person : network) {
           Boolean worksInCafe = False
           THROUGH (Association worksFor : network) {
             CONDIF (worksFor.:START_ID i== friend AND worksFor.:TYPE i== "WorksFor") {
