@@ -1,9 +1,12 @@
-module Printer (printOutput, printTables, printRow) where
+module Printer (printOutput, printTables, printRow, groupNodesToTables, GraphValue(..)) where
 
 import InputParser
 import Data.List (intercalate)
 import Data.Map (Map)
 import qualified Data.Map as Map
+
+data GraphValue = S String | Ss [String] | I Int | B Bool | Null
+    deriving (Eq, Show)
 
 printOutput :: Tables -> IO ()
 printOutput (t:tables) = do
@@ -89,7 +92,7 @@ labelsToString :: Labels -> String
 labelsToString (l:labels) = ", " ++ l ++ labelsToString labels
 labelsToString [] = ""
 
-printTables :: [[(String, Value)]] -> IO ()
+printTables :: [[(String, GraphValue)]] -> IO ()
 printTables nodes = do
     let tables = groupNodesToTables nodes
     mapM_ printTable' (Map.elems tables)
@@ -100,13 +103,14 @@ printTables nodes = do
             mapM_ (putStrLn . snd) rows
             putStrLn ""
 
-groupNodesToTables :: [[(String, Value)]] -> Map String [(String, String)]
+groupNodesToTables :: [[(String, GraphValue)]] -> Map String [(String, String)]
 groupNodesToTables nodes = Map.fromListWith (++) [(getHeader node, nodeToPairs node) | node <- nodes]
     where
         getHeader = intercalate "," . map fst . takeWhile (\(k, _) -> k /= "LABEL")
         nodeToPairs node = [(k, valueToString v) | (k, v) <- node]
-        valueToString (IntValue x) = show x
-        valueToString (StringValue x) = x
-        valueToString (BoolValue True) = "true"
-        valueToString (BoolValue False) = "false"
-        valueToString NullValue = "null"
+        valueToString (I x) = show x 
+        valueToString (S x) = x
+        valueToString (Ss xs) = intercalate "; " xs
+        valueToString (B True) = "true"
+        valueToString (B False) = "false"
+        valueToString Null = "null"

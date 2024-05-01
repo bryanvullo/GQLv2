@@ -4,7 +4,7 @@ module Interpreter (interpret) where
 import InputParser (parseInput, Tables, Table, Row(..), ID(..), Value(..), Labels, Relationship, Type(..), Types)
 import Parser
 import InputLexer (lexInput, Token(..))
-import Printer (printOutput, printRow)
+import Printer (printOutput, printRow, groupNodesToTables, printTables, GraphValue(..))
 import GHC.Base (undefined)
 
 -- Environment
@@ -53,8 +53,8 @@ getFile file = do
     let fileData = parseInput $ lexInput contents
     return fileData
 
-data GraphValue = S String | Ss [String] | I Int | B Bool | Null
-    deriving (Eq, Show)
+-- data GraphValue = S String | Ss [String] | I Int | B Bool | Null
+--     deriving (Eq, Show)
 
 instance Ord GraphValue where
     compare (S s1) (S s2) = compare s1 s2
@@ -143,7 +143,7 @@ handlePrint var env = do
     case lookup var env of
             -- Just (G graph) -> printOutput graph
             -- Just (N node) -> printRow node
-            Just (G graph) -> print graph
+            Just (G graph) -> printTables graph
             Just (N node) -> print node
             Just (V (I i)) -> print i
             Just (V (S str)) -> print str
