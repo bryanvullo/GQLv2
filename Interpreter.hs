@@ -151,8 +151,8 @@ interpretProgram (Expression statement:stmts, env) = do
 handlePrint :: String -> Env -> IO ()
 handlePrint var env = do
     case lookup var env of
-            -- Just (G graph) -> printTables graph
-            Just (G graph) -> print graph --use above
+            Just (G graph) -> printTables graph
+            -- Just (G graph) -> print graph --use above
             Just (N node) -> print node
             Just (V (I i)) -> print i
             Just (V (S str)) -> print str
