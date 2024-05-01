@@ -44,11 +44,11 @@ THROUGH (Node person1 : family) {
   THROUGH (Node person2 : family) {
     THROUGH (Node person3 : family) {
       Boolean isAncestor = family.CALLASSOCIATION(:START_ID i== person1 AND :END_ID i== person2 AND :TYPE i== "AncestorOf")
-      CONDIF (isAncestor) {
+      CONDIF (isAncestor i== True) {
         Boolean isParent = family.CALLASSOCIATION(:START_ID i== person2 AND :END_ID i== person3 AND :TYPE i== "ParentOf")
-        CONDIF (isParent) {
+        CONDIF (isParent i== True) {
           Boolean isNotSame = person1 !== person3
-          CONDIF (isNotSame) {
+          CONDIF (isNotSame i== True) {
             Boolean existingAncestorOf = family.CALLASSOCIATION(:START_ID i== person1 AND :END_ID i== person3 AND :TYPE i== "AncestorOf")
             CONDIF (existingAncestorOf i== False) {
               Association newAncestorOf
