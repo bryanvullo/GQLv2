@@ -1,0 +1,14 @@
+:ID, name:string, role:string, score:integer, :LABEL
+castiel, "Castiel", "Mage", 50 , Player
+drakken, "Drakken", "Warrior", 68 , Player
+wolfhand, "Wolfhand", "Cleric", 22, Player
+
+:ID, subject:string, value:integer, :LABEL
+u1, "castiel", 25, Update
+u2, "drakken", -10, Update
+
+:ID, subject:string, previous:integer, age:integer, :LABEL
+castielLog2, "castiel", 50,1, LogEntry
+castielLog1, "castiel", 25,2, LogEntry
+drakkenLog1, "drakken", -10,1, LogEntry
+wolfhandLog1, "wolfhand", 22,1, LogEntry
