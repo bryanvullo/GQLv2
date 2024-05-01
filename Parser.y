@@ -115,19 +115,19 @@ ExpressionBool
     | ExpressionBoolComparison                        { $1                     }  -- Simple boolean expression
 
 ExpressionBoolComparison
-    : True                                             { Bool True                      }  -- Boolean true literal
-    | False                                            { Bool False                     }  -- Boolean false literal
-    | Expression 'i==' Expression                      { StrictEqualityQuery $1 $3      }  -- Equality comparison, e.g., a i== b
-    | Expression '!==' Expression                      { StrictInqualityQuery $1 $3     }  -- Inequality comparison, e.g., a !== b
-    | Expression '<' Expression                        { StrictLesserQuery $1 $3        }  -- Less than comparison, e.g., a < b
-    | Expression '>' Expression                        { StrictGreaterQuery $1 $3       }  -- Greater than comparison, e.g., a > b
-    | Expression '<<' Expression                       { SlackLesserQuery $1 $3         }  -- Less than or equal to comparison, e.g., a << b
-    | Expression '>>' Expression                       { SlackGreaterQuery $1 $3        }  -- Greater than or equal to comparison, e.g., a >> b
-    | '{' ExpressionBool '}' '^' argument              { AssociationEnd $2 $5           }  -- End relation query, e.g., {condition}^node
-    | argument '{' ExpressionBool '}' '^'              { AssociationStart $1 $3         }  -- Start relation query, e.g., node{condition}^
-    | '(' ExpressionBool ')'                           { $2                             }  -- Parenthesized boolean expression, e.g., (a AND b)
-    | argument '{' ExpressionBool '}' '^' argument     { AssociationStatement $1 $3 $6  }  -- Relation query, e.g., node1{condition}^node2
-    | Expression '.' HAS '(' CharsHelper ')'           { HasQuery $1 $5                 }  -- HasQuery expression, e.g., node.HAS("property")
+    : True                                                          { Bool True                         }  -- Boolean true literal
+    | False                                                         { Bool False                        }  -- Boolean false literal
+    | Expression 'i==' Expression                                   { StrictEqualityQuery $1 $3         }  -- Equality comparison, e.g., a i== b
+    | Expression '!==' Expression                                   { StrictInqualityQuery $1 $3        }  -- Inequality comparison, e.g., a !== b
+    | Expression '<' Expression                                     { StrictLesserQuery $1 $3           }  -- Less than comparison, e.g., a < b
+    | Expression '>' Expression                                     { StrictGreaterQuery $1 $3          }  -- Greater than comparison, e.g., a > b
+    | Expression '<<' Expression                                    { SlackLesserQuery $1 $3            }  -- Less than or equal to comparison, e.g., a << b
+    | Expression '>>' Expression                                    { SlackGreaterQuery $1 $3           }  -- Greater than or equal to comparison, e.g., a >> b
+    | '{' ExpressionBool '}' '^' argument ':' argument              { AssociationEnd $2 $5 $7           }  -- End relation query, e.g., {condition}^node
+    | argument '{' ExpressionBool '}' '^' ':' argument              { AssociationStart $1 $3 $7         }  -- Start relation query, e.g., node{condition}^
+    | '(' ExpressionBool ')'                                        { $2                                }  -- Parenthesized boolean expression, e.g., (a AND b)
+    | argument '{' ExpressionBool '}' '^' argument ':' argument     { AssociationStatement $1 $3 $6 $8  }  -- Relation query, e.g., node1{condition}^node2
+    | Expression '.' HAS '(' CharsHelper ')'                        { HasQuery $1 $5                    }  -- HasQuery expression, e.g., node.HAS("property")
 
 ExpressionLink
     : Class argument '=' Expression            { ClassArgumentStatement $1 $2 $4     }  -- Typed assignment, e.g., Integer age = 25
@@ -221,9 +221,9 @@ data ExpressionBool
     | SlackGreaterQuery Expression Expression
     | BoolConjunction ExpressionBool ExpressionBool
     | BoolUnion ExpressionBool ExpressionBool
-    | AssociationEnd ExpressionBool String
-    | AssociationStart String ExpressionBool
-    | AssociationStatement String ExpressionBool String
+    | AssociationEnd ExpressionBool String String
+    | AssociationStart String ExpressionBool String
+    | AssociationStatement String ExpressionBool String String
     | HasQuery Expression String
     deriving(Eq, Show)
 
