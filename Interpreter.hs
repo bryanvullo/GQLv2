@@ -194,6 +194,10 @@ interpretLink (Assert varType var, env) = case varType of
     GraphClass -> (var, G []) : env
     NodeClass -> (var, N []) : env
     _ -> (var, V Null) : env
+interpretLink (ClassArgumentStatement varType var expr, env) = (var, value) : env
+    where
+        value = interpretExprValue (expr, env)
+     
 interpretLink _ = runtimeError "Unsupported Expression Link Operation"
 
 interpretExprValue :: (Expression, Env) -> Data
@@ -248,7 +252,7 @@ getNodeValueComparison (ArgumentConstructor (Object x)) node =
         Nothing -> Null
 getNodeValueComparison _ _ = runtimeError "Unsupported Node Value"
 
---TODO below
+--TODO below 
 updateAttribute :: String -> String -> Data -> Env -> Env
 updateAttribute nodeName attr value env = updateEnv nodeName (N node') env
     where 
