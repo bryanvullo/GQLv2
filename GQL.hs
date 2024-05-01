@@ -17,5 +17,5 @@ main = do
     print result 
     putStrLn ""
 
-    -- interpret the query
+    -- interpret the query and format the output
     interpret result

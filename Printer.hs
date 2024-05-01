@@ -8,20 +8,17 @@ import qualified Data.Map as Map
 data GraphValue = S String | Ss [String] | I Int | B Bool | Null
     deriving (Eq, Show)
 
-printOutput :: Tables -> IO ()
-printOutput (t:tables) = do
-    printTable t
-    putStrLn ""
-    printOutput tables
-    return ()
-printOutput [] = return ()
+printOutput :: [[(String, GraphValue)]] -> IO ()
+printOutput nodes = do
+    let tables = groupNodesToTables nodes
+    mapM_ printTable (Map.elems tables)
 
-printTable :: [Row] -> IO ()
-printTable (r:rows) = do
-    printRow r
-    printTable rows
-    return ()
-printTable [] = return ()
+printTable :: [(String, String)] -> IO ()
+printTable rows = do
+    let header = fst (head rows)
+    putStrLn header
+    mapM_ (putStrLn . snd) rows
+    putStrLn ""
 
 printRow :: Row -> IO ()
 printRow (Header types) = 
@@ -104,13 +101,13 @@ printTables nodes = do
             putStrLn ""
 
 groupNodesToTables :: [[(String, GraphValue)]] -> Map String [(String, String)]
-groupNodesToTables nodes = Map.fromListWith (++) [(getHeader node, nodeToPairs node) | node <- nodes]
+groupNodesToTables nodes = Map.fromListWith (++) [(getHeader node, [(getHeader node, nodeToRow node)]) | node <- nodes]
     where
-        getHeader = intercalate "," . map fst . takeWhile (\(k, _) -> k /= "LABEL")
-        nodeToPairs node = [(k, valueToString v) | (k, v) <- node]
-        valueToString (I x) = show x 
+        getHeader = intercalate "," . map fst . takeWhile (\(k, _) -> k /= ":LABEL")
+        nodeToRow = intercalate "," . map (valueToString . snd)
+        valueToString (I x) = show x
         valueToString (S x) = x
-        valueToString (Ss xs) = intercalate "; " xs
+        valueToString (Ss xs) = intercalate ";" xs
         valueToString (B True) = "true"
         valueToString (B False) = "false"
         valueToString Null = "null"
