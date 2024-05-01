@@ -154,8 +154,24 @@ handlePrint var env = do
             Just (Reg regex) -> print regex
             _ -> runtimeError ("Variable " ++ var ++ " not found")
 
+updateEnv :: String -> Data -> Env -> Env
+updateEnv var value env = case lookup var env of 
+    Just _ -> map (\x -> if fst x == var then (var, value) else x) env --update
+    Nothing -> (var, value) : env --add
+
 interpretExpr :: (Expression, Env) -> Env
 interpretExpr (ExpressionLink sExpr, env) = interpretLink (sExpr, env)
+interpretExpr (AddQuery graphName nodeName, env) = updateEnv graphName (G graph') env
+    where
+        graph = case lookup graphName env of 
+            Just (G g) -> g
+            Just _ -> runtimeError ("Variable " ++ graphName ++ " is not a graph! unable to add node to it.")
+            _ -> runtimeError ("Variable " ++ graphName ++ " not found")
+        node = case lookup nodeName env of 
+            Just (N n) -> n
+            Just _ -> runtimeError ("Variable " ++ nodeName ++ " is not a node! unable to add it to graph.")
+            _ -> runtimeError ("Variable " ++ nodeName ++ " not found")
+        graph' = node : graph
 --TODO Complete this function
 interpretExpr (_, env) = env
 
@@ -166,6 +182,12 @@ interpretLink (Assign sExpr expr, env) = do
     case sExpr of 
         Object x -> (x, value) : env
         ArgumentAttribute x y -> updateAttribute x y value env
+interpretLink (Assert varType var, env) = case varType of 
+    GraphClass -> (var, G []) : env
+    NodeClass -> (var, N []) : env
+    _ -> (var, V Null) : env
+interpretLink _ = runtimeError "Unsupported Expression Link Operation"
+
 
 interpretExprValue :: (Expression, Env) -> Data
 interpretExprValue (String str, env) = V (S str)
@@ -176,7 +198,14 @@ interpretExprValue (CaseQuery str bExpr, env) =
         _ -> runtimeError ("Unable to use CASE on variable " ++ str)
     where 
         caseGraph bExpr graph = filter (caseNode bExpr) graph
-interpretExprValue (_, _) = runtimeError "Unsupported Expression Value Reduction"
+interpretExprValue (ArgumentConstructor (ArgumentAttribute node attr), env) = 
+    case lookup node env of 
+        Just (N node) -> case lookup attr node of 
+            Just value -> V value
+            Nothing -> V Null
+        Just x -> runtimeError ("Variable " ++ node ++ " is not a node! cannot access attribute " ++ attr)
+        _ -> runtimeError ("Variable " ++ node ++ " not found when accessing attribute " ++ attr)
+interpretExprValue (x, _) = runtimeError ("Unsupported Expression Value Reduction" ++ show x)
 
 caseNode :: ExpressionBool -> Node -> Bool
 caseNode (BoolUnion expr1 expr2) node = caseNode expr1 node || caseNode expr2 node
@@ -214,13 +243,34 @@ getNodeValueComparison _ _ = runtimeError "Unsupported Node Value"
 
 --TODO below
 updateAttribute :: String -> String -> Data -> Env -> Env
-updateAttribute x y value env = undefined
+updateAttribute nodeName attr value env = updateEnv nodeName (N node') env
+    where 
+        node' = case lookup nodeName env of
+            Just (N node) -> updateAttribute' node attr value env
+            Just _ -> runtimeError ("Variable " ++ nodeName ++ " is not a node!")
+            _ -> runtimeError ("Variable " ++ nodeName ++ " not found")
+
+updateAttribute' :: Node -> String -> Data -> Env -> Node
+updateAttribute' node attr value env = node'
+    where 
+        nodeValue = case value of 
+            V (S str) -> S str
+            V (Ss strs) -> Ss strs
+            V (I i) -> I i
+            V (B b) -> B b
+            V Null -> Null
+            x -> runtimeError ("Unsupported Value Type" ++ show x)
+        pair = (attr, nodeValue)
+        node' = case lookup attr node of
+            Just _ -> map (\x -> if fst x == attr then pair else x) node --update
+            Nothing -> pair : node --add
+        
 
 interpretBoolValue :: ExpressionBool -> Env -> Bool
 interpretBoolValue (Bool True) env = undefined
 
 runThroughBlock :: Class -> String -> String -> Program -> Env -> IO Env
-runThroughBlock varType var vars block env = runThroughBlock' vars nodes block env
+runThroughBlock varType var vars block env = runThroughBlock' var nodes block env
     where 
         nodes = case lookup vars env of 
             Just (G xs) -> xs
@@ -230,18 +280,11 @@ runThroughBlock varType var vars block env = runThroughBlock' vars nodes block e
 runThroughBlock' :: String -> [Node] -> Program -> Env -> IO Env
 runThroughBlock' var [] block env = return env
 runThroughBlock' var (node:nodes) block env = do 
-    let rmvPrevNodeEnv = filter (\x -> fst x /= var) env
-    let env' = (var, N node) : rmvPrevNodeEnv
+    -- let rmvPrevNodeEnv = filter (\x -> fst x /= var) env
+    -- let env' = (var, N node) : rmvPrevNodeEnv
+    let env' = updateEnv var (N node) env
     env'' <- interpretProgram (block, env')
     runThroughBlock' var nodes block env''
-    -- runThroughBlock' var nodes block env''
-    -- where 
-    --     env = filter (\x -> fst x /= var) env
-    --     env' = (var, N node) : env
-    --     env'' = interpretProgram (block, env')
-        
-
--- fetch the list of values and run the block for each value
 
 -- interpret' :: Control -> Control
 -- interpret' ([], env, kont) = ([], env, kont)

@@ -143,7 +143,7 @@ ArgumentConstructor
 
 ArgumentQuery
     : argument '.' CASE '(' ExpressionBool ')'                 { CaseQuery $1 $5         }  -- Match query, e.g., node.CASE(condition)
-    | argument '.' PLUS '(' Expression ')'                     { AddQuery $1 $5          }  -- Add query, e.g., graph.PLUS(node)
+    | argument '.' PLUS '(' argument ')'                     { AddQuery $1 $5          }  -- Add query, e.g., graph.PLUS(node)
     | argument '.' CALLASSOCIATION '(' ExpressionBool ')'      { AssociationQuery $1 $5  }  -- Get relation, e.g., node.CALLASSOCIATION(condition)
     | argument '.' NEGATE '(' ExpressionBool ')'                   { NegateData $1 $5        }  -- Exclusion expression, e.g., graph.NEGATE(expression)
 
@@ -194,7 +194,7 @@ data Expression
     | String String
     | RegularExpression String
     | CaseQuery String ExpressionBool
-    | AddQuery String Expression
+    | AddQuery String String
     | ExpressionBool ExpressionBool
     | AssociationQuery String ExpressionBool
     | NegateData String ExpressionBool
