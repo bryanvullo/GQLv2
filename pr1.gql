@@ -1,15 +1,16 @@
 # pr1.gql
 DataGraph graph = ACCESS("access.n4j")
+
+graph = graph.CASE(:LABEL.HAS("Visitor") OR age << 25)
+
 DataGraph result
 
 THROUGH (Node node : graph) {
-  CONDIF (node.CALLDATAPOINT(:LABEL) i== "Visitor" OR node.age << 25) {
     Node filteredNode
-    filteredNode = node
+    filteredNode.:ID = node.:ID
     filteredNode.age = node.age
-    filteredNode.:LABEL = node.CALLDATAPOINT(:LABEL)
+    filteredNode.:LABEL = node.:LABEL 
     result.PLUS(filteredNode)
-  }
 }
 
 STDOUT(result)
