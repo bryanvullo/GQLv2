@@ -107,8 +107,8 @@ getAttrTypePair :: [[(String, String, GraphValue)]] -> [(String, String)]
 getAttrTypePair nodes = pairs
     where
         pairs = [(attr, aType) | (attr, aType, value) <- concat nodes,
-            value /= Null,
-            not (any (\(a, _) -> a == attr) pairs)]
+            value /= Null]
+            --not (any (\(a, _) -> a == attr) pairs)
 
 groupNodesToTables :: [(String, String)] -> [[(String, GraphValue)]] -> Map String [(String, String)]
 groupNodesToTables typePairs nodes = Map.fromListWith (++) [(getHeader node typePairs, [(getHeader node typePairs, nodeToRow node)]) | node <- nodes]
@@ -125,7 +125,7 @@ groupNodesToTables typePairs nodes = Map.fromListWith (++) [(getHeader node type
         nodeToRow = intercalate ", " . map (valueToString . snd)
         valueToString (I x) = show x
         valueToString (S x) = x
-        valueToString (Ss xs) = intercalate ";" xs
+        valueToString (Ss xs) = intercalate "; " xs
         valueToString (B True) = "true"
         valueToString (B False) = "false"
         valueToString Null = "null"
