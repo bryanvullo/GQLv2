@@ -1,5 +1,5 @@
 # pr7.gql
-DataGraph citations = ACCESS("./input/citations.n4j")
+DataGraph citations = ACCESS("citations.n4j")
 DataGraph result
 
 THROUGH (Node author1 : citations) {

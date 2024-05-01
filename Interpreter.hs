@@ -85,14 +85,14 @@ rowToNode (Header types) (Data (Id id) values) =
         graphValues = map valueToGraphValue values
         nodeAttributes = zip typeNames graphValues
 rowToNode (LabeledHeader types) (LabeledData (Id id) values labels) = 
-    ("ID", S id) : ("LABEL", Ss labels) : nodeAttributes
+    ("ID", S id) : nodeAttributes ++ [("LABEL", Ss labels)]
     where
         typeNames = map getTypeName types
         graphValues = map valueToGraphValue values
         nodeAttributes = zip typeNames graphValues
 rowToNode (RelationshipHeader types) 
     (RelationshipData (Id start) values (Id end) relationship) = 
-    ("START_ID", S start) : ("END_ID", S end) : ("TYPE", S relationship) : nodeAttributes
+    ("START_ID", S start) : nodeAttributes ++ [("END_ID", S end), ("TYPE", S relationship)]
     where
         typeNames = map getTypeName types
         graphValues = map valueToGraphValue values
@@ -131,8 +131,8 @@ interpretProgram (CondElifQuery boolx block1 block2:stmts, env)
         interpretProgram (block1 ++ stmts, env)
     | otherwise = do 
         interpretProgram (block2 ++ stmts, env)
-interpretProgram (ThroughQuery varType var expr block:stmts, env) = do 
-    let env' = runForBlock varType var expr block env
+interpretProgram (ThroughQuery varType var vars block:stmts, env) = do 
+    let env' = runForBlock varType var vars block env
     interpretProgram (stmts, env')
 interpretProgram (Expression statement:stmts, env) = do 
     let env' = interpretExpr (statement, env)
@@ -204,10 +204,6 @@ caseNode _ _ = runtimeError "Unsupported Boolean Operation on Node"
 getNodeValueComparison :: Expression -> Node -> GraphValue
 getNodeValueComparison (ExpressionMathXAS (Num x)) _ = I x 
 getNodeValueComparison (String str) _ = S str
--- getNodeValueComparison (ArgumentConstructor (Object "LABEL")) node = 
---     case lookup x node of 
---         Just value -> value
---         Nothing -> Null
 getNodeValueComparison (ArgumentConstructor (Object x)) node = 
     case lookup x node of 
         Just value -> value
@@ -221,9 +217,11 @@ updateAttribute x y value env = undefined
 interpretBoolValue :: ExpressionBool -> Env -> Bool
 interpretBoolValue (Bool True) env = undefined
 
-runForBlock :: Class -> String -> Expression -> Program -> Env -> Env
-runForBlock varType var expr block env = undefined
-
+runForBlock :: Class -> String -> String -> Program -> Env -> Env
+runForBlock varType var vars block env = undefined
+    -- where 
+    --     values = interpretForValues vars env
+-- fetch the list of values and run the block for each value
 
 -- interpret' :: Control -> Control
 -- interpret' ([], env, kont) = ([], env, kont)

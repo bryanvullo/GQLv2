@@ -152,7 +152,7 @@ Conditional
     | CONDIF '(' ExpressionBool ')' '{' Program '}' CONDELIF '{' Program '}' { CondElifQuery $3 $6 $10  }  -- Conditional query with elif, e.g., CONDIF(condition1) { ... } CONDELIF(condition2) { ... }
 
 Through
-    : THROUGH '(' Class argument ':' Expression ')' '{' Program '}'          { ThroughQuery $3 $4 $6 $9 }  -- Through query, e.g., THROUGH(Node person : graph) { ... }
+    : THROUGH '(' Class argument ':' argument ')' '{' Program '}'          { ThroughQuery $3 $4 $6 $9 }  -- Through query, e.g., THROUGH(Node person : graph) { ... }
 
 Class
     : GraphClass         { GraphClass }  -- Graph class, e.g., DataGraph
@@ -185,7 +185,7 @@ data Statement
     = Expression Expression
     | CondIfQuery ExpressionBool Program
     | CondElifQuery ExpressionBool Program Program
-    | ThroughQuery Class String Expression Program
+    | ThroughQuery Class String String Program
     | Output String
     deriving(Eq, Show)
 

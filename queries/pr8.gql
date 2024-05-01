@@ -1,5 +1,5 @@
 # pr8.gql
-DataGraph space = ACCESS("./input/space.n4j")
+DataGraph space = ACCESS("space.n4j")
 DataGraph result
 
 THROUGH (Node faction : space) {

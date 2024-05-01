@@ -1,5 +1,5 @@
 # pr2.gql
-DataGraph tasks = ACCESS("tasks.n4j")
+DataGraph tasks = ACCESS("./input/tasks.n4j")
 DataGraph result = tasks
 
 THROUGH (Node nodef1 : tasks) {
