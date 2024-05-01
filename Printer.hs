@@ -10,7 +10,8 @@ data GraphValue = S String | Ss [String] | I Int | B Bool | Null
 
 printOutput :: [[(String, GraphValue)]] -> IO ()
 printOutput nodes = do
-    let tables = groupNodesToTables nodes
+    let typePairs = getAttrTypePair $ map (map (\(a, v) -> (a, "", v))) nodes
+    let tables = groupNodesToTables typePairs nodes
     mapM_ printTable (Map.elems tables)
 
 printTable :: [(String, String)] -> IO ()
@@ -91,28 +92,36 @@ labelsToString [] = ""
 
 printTables :: [[(String, String, GraphValue)]] -> IO ()
 printTables nodes = do
-    let tables = groupNodesToTables nodes
+    let typePairs = getAttrTypePair nodes
+    let originalNodes = map (map (\(a,_,v) -> (a,v))) nodes
+    let tables = groupNodesToTables typePairs originalNodes
     mapM_ printTable' (Map.elems tables)
     where
-        typePairs = getAttrTypePair $ concat nodes
-        originalNodes = map (map (\(a,t,v) -> (a,v))) nodes
         printTable' rows = do
             let header = fst $ head rows
             putStrLn header
             mapM_ (putStrLn . snd) rows
             putStrLn ""
 
-getAttrTypePair :: [(String, String, GraphValue)] -> [(String, String)]
-getAttrTypePair cells = pairs 
-    where 
-        pairs = [(attr, aType) | (attr, aType, value) <- cells, 
-            value /= Null, 
-            not (any (\(a, t) -> a == attr) pairs)]
-
-groupNodesToTables :: [[(String, GraphValue)]] -> Map String [(String, String)]
-groupNodesToTables nodes = Map.fromListWith (++) [(getHeader node, [(getHeader node, nodeToRow node)]) | node <- nodes]
+getAttrTypePair :: [[(String, String, GraphValue)]] -> [(String, String)]
+getAttrTypePair nodes = pairs
     where
-        getHeader node = intercalate ", " $ map (\(k, v) -> k ++ ":" ++ getType v) $ takeWhile (\(k, _) -> k /= ":LABEL") node
+        pairs = [(attr, aType) | (attr, aType, value) <- concat nodes,
+            value /= Null,
+            not (any (\(a, _) -> a == attr) pairs)]
+
+groupNodesToTables :: [(String, String)] -> [[(String, GraphValue)]] -> Map String [(String, String)]
+groupNodesToTables typePairs nodes = Map.fromListWith (++) [(getHeader node typePairs, [(getHeader node typePairs, nodeToRow node)]) | node <- nodes]
+    where
+        getHeader node typePairs = intercalate ", " $ map (\(k, v) -> k ++ ":" ++ getType k v typePairs) $ takeWhile (\(k, _) -> k /= ":LABEL") node
+        getType k v typePairs = case lookup k typePairs of
+            Just t -> t
+            Nothing -> case v of
+                I _ -> "integer"
+                S _ -> "string"
+                Ss _ -> "string"
+                B _ -> "boolean"
+                Null -> ""
         nodeToRow = intercalate ", " . map (valueToString . snd)
         valueToString (I x) = show x
         valueToString (S x) = x
