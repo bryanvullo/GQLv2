@@ -1,5 +1,5 @@
 # pr10.gql
-DataGraph game = ACCESS("./input/game.n4j") 
+DataGraph game = ACCESS("game.n4j") 
 DataGraph result
 
 THROUGH (Node player : game) {
