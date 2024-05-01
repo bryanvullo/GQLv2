@@ -17,9 +17,5 @@ main = do
     print result 
     putStrLn ""
 
-    -- test input parser
-    -- let inputResult = parseInput $ lexInput contents
-    -- print inputResult
-
     -- interpret the query
     interpret result
