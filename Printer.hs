@@ -15,8 +15,8 @@ printOutput nodes = do
     mapM_ printTable (Map.elems tables)
 
 printTable :: [(String, String)] -> IO ()
-printTable [] = return () -- Handle empty list case
-printTable rows@((header, _):_) = do -- Pattern match on non-empty list
+printTable [] = return ()
+printTable rows@((header, _):_) = do
     putStrLn header
     mapM_ (putStrLn . snd) rows
     putStrLn ""
@@ -97,8 +97,8 @@ printTables nodes = do
     let tables = groupNodesToTables typePairs originalNodes
     mapM_ printTable' (Map.elems tables)
     where
-        printTable' [] = return () -- Handle empty list case
-        printTable' rows@((header, _):_) = do -- Pattern match on non-empty list
+        printTable' [] = return ()
+        printTable' rows@((header, _):_) = do
             putStrLn header
             mapM_ (putStrLn . snd) rows
             putStrLn ""
