@@ -218,7 +218,12 @@ interpretExprValue (ArgumentConstructor (ArgumentAttribute node attr), env) =
             Nothing -> V Null
         Just x -> runtimeError ("Variable " ++ node ++ " is not a node! cannot access attribute " ++ attr)
         _ -> runtimeError ("Variable " ++ node ++ " not found when accessing attribute " ++ attr)
-interpretExprValue (x, _) = runtimeError ("Unsupported Expression Value Reduction" ++ show x)
+interpretExprValue (ArgumentConstructor (Object x), env) = case lookup x env of 
+    Just (N node) -> N node
+    Just (G graph) -> G graph
+    Just (V value) -> V value
+    _ -> runtimeError ("Variable " ++ x ++ " not found")
+interpretExprValue (x, env) = runtimeError ("Unsupported Expression Value Reduction " ++ show x ++ show env)
 
 caseNode :: ExpressionBool -> Node -> Bool
 caseNode (BoolUnion expr1 expr2) node = caseNode expr1 node || caseNode expr2 node
