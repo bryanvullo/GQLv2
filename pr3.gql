@@ -2,17 +2,19 @@
 DataGraph graph = ACCESS("table.n4j")  # Access the input graph from the file "table.n4j" representing a graph of sports teams with their season's results
 DataGraph result  # Create an empty graph called `result` to store the output
 
-THROUGH (Node n1 : graph) {  # Iterate through each node `n1` (representing the source team) in the `graph`
-  CONDIF ({:TYPE i== "Beat"}^ n1 : graph) {  # Check if `n1` has a "Beat" relationship with any node
-    Node n0 = n1 {:TYPE i== "Beat"}^ : graph  # Find the node `n0` (representing the team that `n1` beat) that `n1` has a "Beat" relationship with
-    THROUGH (Node n2 : graph) {  # Iterate through each node `n2` (representing another team) in the `graph`
-      CONDIF (n0.points !== null AND n2.points !== null AND n2.points i== n0.points AND  # Check if the `points` fields of `n0` and `n2` are not null and equal
-             (n2 {:TYPE i== "DrewWith"}^ n1 : graph AND n1 {:TYPE i== "Beat"}^ n0 : graph OR  # Check if `n2` has a "DrewWith" relationship with `n1` and `n1` has a "Beat" relationship with `n0` (i.e., n2-DrewWith-> n1-Beat-> n0)
-              n1 {:TYPE i== "DrewWith"}^ n2 : graph AND n1 {:TYPE i== "Beat"}^ n0 : graph)) {  # or `n1` has a "DrewWith" relationship with `n2` and `n1` has a "Beat" relationship with `n0` (i.e., n1-DrewWith-> n2 and n1-Beat-> n0)
-        Node filteredNode  # Create a new node called `filteredNode` to represent team n0 in the output graph
-        filteredNode.:ID = n0.:ID  # Assign the `:ID` field of `n0` to the `:ID` field of `filteredNode`
-        filteredNode.points = n0.points  # Assign the `points` field of `n0` to the `points` field of `filteredNode`
-        result.PLUS(filteredNode)  # Add `filteredNode` to the `result` graph
+THROUGH (Node nodef1 : table) {
+  THROUGH (Node nodef2 : table) {
+    THROUGH (Node nodef3 : table) { 
+      CONDIF (
+        nodef1.points !== null AND nodef1.points i== nodef3.points AND
+          ( (nodef3{:TYPE i== "DrewWith"}^nodef2 : table AND 
+            nodef2{:TYPE i== "Beat"}^nodef1 : table)
+            OR
+            (nodef2{:TYPE i== "DrewWith"}^nodef3 : table AND 
+            nodef2{:TYPE i== "Beat"}^nodef1 : table)
+            )
+            ) {
+        output.PLUS(nodef1)
       }
     }
   }

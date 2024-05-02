@@ -149,6 +149,7 @@ interpretProgram (Expression statement:stmts, env) = do
 handlePrint :: String -> Env -> IO ()
 handlePrint var env = do
     case lookup var env of
+        -- Just (G graph) -> print env
         Just (G graph) -> printTables graph
         Just (N node) -> print node
         Just (V (I i)) -> print i
@@ -189,7 +190,8 @@ interpretLink (Assert varType var, env) = case varType of
     NodeClass -> (var, N []) : env
     RelationClass -> (var, N []) : env
     _ -> (var, V Null) : env
-interpretLink (ClassArgumentStatement varType var expr, env) = (var, value) : env
+interpretLink (ClassArgumentStatement varType var expr, env) = updateEnv var value env
+    -- (var, value) : env
     where
         value = interpretExprValue (expr, env)
 interpretLink _ = runtimeError "Unsupported Expression Link Operation"
@@ -225,6 +227,7 @@ interpretExprValue (ArgumentConstructor (Object x), env) = case lookup x env of
     Just (G graph) -> G graph
     Just (V value) -> V value
     _ -> runtimeError ("Variable " ++ x ++ " not found")
+interpretExprValue (AssociationQuery str bExpr, env) = error "Association Query not implemented"
 interpretExprValue (x, env) = runtimeError ("Unsupported Expression Value Reduction " ++ show x ++ show env)
 
 caseNode :: ExpressionBool -> Node -> Bool
@@ -355,7 +358,8 @@ interpretPredicateOnAssociation (StrictLesserQuery (ArgumentConstructor (Object 
         Just (I i) -> i < n
         _ -> False) assocs
 interpretPredicateOnAssociation (StrictEqualityQuery (ArgumentConstructor (Object x)) exprToCompare) assocs env = 
-    any (\node -> case lookupNode x node of 
+    any (\node -> case lookupNode x node of
+        Just (ID id) -> V (S id) == valueToCompare
         Just value -> V value == valueToCompare
         _ -> False) assocs
     where 
@@ -374,7 +378,7 @@ findAssocs graph startNode endNode = filter (isAssoc startID endID) graph
 
 isAssoc :: String -> String -> Node -> Bool
 isAssoc startID endID node = case (lookupNode "START_ID" node, lookupNode "END_ID" node) of 
-    (Just (ID sID), Just (ID eID)) -> sID == startID && eID == endID
+    (Just (ID sID), Just (ID eID)) -> (sID == startID) && (eID == endID)
     _ -> False
 
 findStartAssocs :: Graph -> Node -> [Node]

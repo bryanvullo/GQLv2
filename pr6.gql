@@ -3,7 +3,7 @@ DataGraph gems = ACCESS("gems.n4j")
 DataGraph result
 
 THROUGH (Node customer : gems) {
-  CONDIF (customer.CALLDATAPOINT(:LABEL) i== "Customer") {
+  CONDIF (customer.:LABEL i== "Customer") {
     Integer wealth = customer.wealth
     String preferredColor = customer.:LABEL
     
@@ -11,7 +11,7 @@ THROUGH (Node customer : gems) {
     Integer maxValue = 0
     
     THROUGH (Node gem : gems) {
-      CONDIF (gem.CALLDATAPOINT(:LABEL) i== preferredColor AND gem.value << wealth) {
+      CONDIF (gem.:LABEL i== preferredColor AND gem.value << wealth) {
         CONDIF (gem.value >> maxValue) {
           selectedGem = gem
           maxValue = gem.value
