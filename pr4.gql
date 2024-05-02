@@ -4,7 +4,7 @@ DataGraph result
 
 THROUGH (Node person : network) {
   String firstName = person.firstName
-  CONDIF (firstName i== r"[ABC].*") {
+  CONDIF (firstName i== "Jennifer") { # TESTING WITHOUT REGEX
     Boolean hasOlderFriendNotInCafe = False
     THROUGH (Node friend : network) {
       CONDIF (friend{age >> person.age AND :TYPE i== "IsFriend"}^person : network) {
