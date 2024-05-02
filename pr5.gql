@@ -11,14 +11,8 @@ THROUGH (Node person : loyalty) {
           Association personCustomerOf = person.CALLASSOCIATION({:TYPE i== "CustomerOf"}^business : loyalty)
           Association otherPersonCustomerOf = otherPerson.CALLASSOCIATION({:TYPE i== "CustomerOf"}^business : loyalty)
 
-          STDOUT(personCustomerOf)
-          STDOUT(otherPersonCustomerOf)
-
           personCustomerOf.reward = personCustomerOf.reward ++ business.bonus
           otherPersonCustomerOf.reward = otherPersonCustomerOf.reward ++ business.bonus
-
-          STDOUT(personCustomerOf)
-          STDOUT(otherPersonCustomerOf)
           
           output.PLUS(personCustomerOf)
           output.PLUS(otherPersonCustomerOf)
