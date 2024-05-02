@@ -3,7 +3,7 @@ DataGraph gems = ACCESS("gems.n4j")
 DataGraph result
 
 THROUGH (Node customer : gems) {
-  CONDIF (customer.:LABEL i== "Customer") {
+  CONDIF (customer.name !== null) {
     Integer wealth = customer.wealth
     String preferredColor = customer.:LABEL
     
