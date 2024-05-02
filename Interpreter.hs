@@ -215,6 +215,7 @@ interpretLink (Assert varType var, env) = case varType of
     GraphClass -> (var, G []) : env
     NodeClass -> (var, N []) : env
     RelationClass -> (var, N []) : env
+    IntegerClass -> (var, V (I 0)) : env
     _ -> (var, V Null) : env
 interpretLink (ClassArgumentStatement varType var expr, env) = updateEnv var value env
     where
