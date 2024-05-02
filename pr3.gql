@@ -3,16 +3,15 @@ DataGraph graph = ACCESS("table.n4j")
 DataGraph result
 
 THROUGH (Node nodef1 : graph) {
-  CONDIF ({:TYPE i== "Beat"}^ nodef1 : graph) {
-    Node nodef2 = nodef1.CALLASSOCIATION({:TYPE i== "Beat"}^ nodef1 : graph)
+  CONDIF (nodef1{:TYPE i== "Beat"}^ nodef1 : graph AND nodef1.points !== null) {
+    Node nodef2 = nodef1{:TYPE i== "Beat"}^ : graph
     THROUGH (Node nodef3 : graph) {
-      CONDIF (nodef3 {:TYPE i== "DrewWith"}^ nodef2 : graph OR nodef2 {:TYPE i== "DrewWith"}^ nodef3 : graph) {
-        CONDIF (nodef3.points !== null AND nodef3.points i== nodef1.points) {
-          Node filteredNode
-          filteredNode.:ID = nodef3.:ID
-          filteredNode.points = nodef3.points
-          result.PLUS(filteredNode)
-        }
+      CONDIF ((nodef3{:TYPE i== "DrewWith"}^ nodef2 : graph OR nodef2{:TYPE i== "DrewWith"}^ nodef3 : graph) AND 
+             nodef3.points !== null AND nodef3.points i== nodef1.points) {
+        Node filteredNode
+        filteredNode.:ID = nodef3.:ID
+        filteredNode.points = nodef3.points
+        result.PLUS(filteredNode)
       }
     }
   }
