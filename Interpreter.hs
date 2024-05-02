@@ -227,8 +227,69 @@ interpretExprValue (ArgumentConstructor (Object x), env) = case lookup x env of
     Just (G graph) -> G graph
     Just (V value) -> V value
     _ -> runtimeError ("Variable " ++ x ++ " not found")
-interpretExprValue (AssociationQuery str bExpr, env) = error "Association Query not implemented"
+interpretExprValue (AssociationQuery str e@(AssociationEnd _ _ _), env) = N assoc
+    where 
+        id = case lookup str env of 
+            Just (N node) -> case lookupNode "ID" node of 
+                Just (ID id) -> id
+                _ -> runtimeError ("Node " ++ str ++ " does not have an ID attribute")
+            _ -> runtimeError ("Variable " ++ str ++ " not found")
+        assoc = head $ filter (isStartOfAssoc id) assocs
+        assocs = getAssocs e env 
+interpretExprValue (AssociationQuery str e@(AssociationStart _ _ _), env) = N assoc
+    where 
+        id = case lookup str env of 
+            Just (N node) -> case lookupNode "ID" node of 
+                Just (ID id) -> id
+                _ -> runtimeError ("Node " ++ str ++ " does not have an ID attribute")
+            _ -> runtimeError ("Variable " ++ str ++ " not found")
+        assoc = head $ filter (isEndOfAssoc id) assocs
+        assocs = getAssocs e env
+interpretExprValue (ExpressionLink (ArgumentIncrement arg expr), env) = V (I (v1 + v2))
+    where 
+        v1 = case arg of 
+            Object x -> case lookup x env of 
+                Just (V (I i)) -> i
+                _ -> runtimeError "Increment Value is not an Integer"
+            ArgumentAttribute x y -> case getNodeAttribute y node of 
+                I i -> i
+                _ -> runtimeError "Increment Value is not an Integer"
+                where 
+                    node = case lookup x env of 
+                        Just (N n) -> n
+                        _ -> runtimeError ("Variable " ++ x ++ " is not a node!")
+        v2 = case interpretExprValue (expr, env) of 
+            V (I i) -> i
+            _ -> runtimeError "Increment Value is not an Integer"
 interpretExprValue (x, env) = runtimeError ("Unsupported Expression Value Reduction " ++ show x ++ show env)
+
+getNodeAttribute :: String -> Node -> GraphValue
+getNodeAttribute attr node = case lookupNode attr node of 
+    Just value -> value
+    Nothing -> Null
+
+getAssocs :: ExpressionBool -> Env -> [Node]
+getAssocs (AssociationEnd bExpr str valueStr) env = findEndAssocs graph node
+    where 
+        graph = case lookup valueStr env of 
+            Just (G g) -> g
+            Just _ -> runtimeError ("Variable " ++ valueStr ++ " is not a graph!")
+            _ -> runtimeError ("Variable " ++ valueStr ++ " not found")
+        node = case lookup str env of 
+            Just (N n) -> n
+            Just _ -> runtimeError ("Variable " ++ str ++ " is not a node!")
+            _ -> runtimeError ("Variable " ++ str ++ " not found")
+getAssocs (AssociationStart str bExpr valueStr) env = findStartAssocs graph node
+    where 
+        graph = case lookup valueStr env of 
+            Just (G g) -> g
+            Just _ -> runtimeError ("Variable " ++ valueStr ++ " is not a graph!")
+            _ -> runtimeError ("Variable " ++ valueStr ++ " not found")
+        node = case lookup str env of 
+            Just (N n) -> n
+            Just _ -> runtimeError ("Variable " ++ str ++ " is not a node!")
+            _ -> runtimeError ("Variable " ++ str ++ " not found")
+getAssocs _ _ = runtimeError "Unsupported Association Query"
 
 caseNode :: ExpressionBool -> Node -> Bool
 caseNode (BoolUnion expr1 expr2) node = caseNode expr1 node || caseNode expr2 node

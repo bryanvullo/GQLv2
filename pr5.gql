@@ -8,8 +8,8 @@ THROUGH (Node person : loyalty) {
       THROUGH (Node otherPerson : loyalty) {
         CONDIF (person{:TYPE i== "Recommended"}^otherPerson : loyalty AND 
                 otherPerson{:TYPE i== "CustomerOf"}^business : loyalty) {
-          Association personCustomerOf = person.CALLASSOCIATION(:TYPE i== "CustomerOf")
-          Association otherPersonCustomerOf = otherPerson.CALLASSOCIATION(:TYPE i== "CustomerOf")
+          Association personCustomerOf = person.CALLASSOCIATION({:TYPE i== "CustomerOf"}^business : loyalty)
+          Association otherPersonCustomerOf = otherPerson.CALLASSOCIATION({:TYPE i== "CustomerOf"}^business : loyalty)
           
           personCustomerOf.reward = personCustomerOf.reward ++ business.bonus
           otherPersonCustomerOf.reward = otherPersonCustomerOf.reward ++ business.bonus
