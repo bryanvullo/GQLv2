@@ -14,7 +14,10 @@ THROUGH (Node nodef1 : table) {
             nodef2{:TYPE i== "Beat"}^nodef1 : table)
             )
             ) {
-        output.PLUS(nodef1)
+        Node new 
+        new.:ID = nodef1.:ID
+        new.points = nodef1.points
+        output.PLUS(new)
       }
     }
   }

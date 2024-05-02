@@ -1,7 +1,7 @@
 module Printer (printOutput, printTables, printRow, groupNodesToTables, GraphValue(..)) where
 
 import InputParser
-import Data.List (intercalate)
+import Data.List (intercalate, nub)
 import Data.Map (Map)
 import qualified Data.Map as Map
 
@@ -92,8 +92,9 @@ labelsToString [] = ""
 
 printTables :: [[(String, String, GraphValue)]] -> IO ()
 printTables nodes = do
+    let noDupeNodes = nub nodes
     let typePairs = getAttrTypePair nodes
-    let originalNodes = map (map (\(a,_,v) -> (a,v))) nodes
+    let originalNodes = map (map (\(a,_,v) -> (a,v))) noDupeNodes
     let tables = groupNodesToTables typePairs originalNodes
     mapM_ printTable' (Map.elems tables)
     where
