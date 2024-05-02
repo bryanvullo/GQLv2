@@ -113,15 +113,7 @@ getAttrTypePair nodes = pairs
 groupNodesToTables :: [(String, String)] -> [[(String, GraphValue)]] -> Map String [(String, String)]
 groupNodesToTables typePairs nodes = Map.fromListWith (++) [(getHeader node typePairs, [(getHeader node typePairs, nodeToRow node)]) | node <- nodes]
     where
-        getHeader node typePairs = intercalate ", " $ map (\(k, v) -> k ++ ":" ++ getType k v typePairs) $ takeWhile (\(k, _) -> k /= ":LABEL") node
-        getType k v typePairs = case lookup k typePairs of
-            Just t -> t
-            Nothing -> case v of
-                I _ -> "integer"
-                S _ -> "string"
-                Ss _ -> "string"
-                B _ -> "boolean"
-                Null -> ""
+        getHeader node typePairs = intercalate ", " $ map (\(k, v) -> makeHeaderString k v typePairs) node -- $ takeWhile (\(k, _) -> k /= ":LABEL")
         nodeToRow = intercalate ", " . map (valueToString . snd)
         valueToString (I x) = show x
         valueToString (S x) = x
@@ -129,3 +121,21 @@ groupNodesToTables typePairs nodes = Map.fromListWith (++) [(getHeader node type
         valueToString (B True) = "true"
         valueToString (B False) = "false"
         valueToString Null = "null"
+
+getType :: String -> GraphValue -> [(String, String)] -> String
+getType k v typePairs = case lookup k typePairs of
+            Just t -> t
+            Nothing -> case v of
+                I _ -> "integer"
+                S _ -> "string"
+                Ss _ -> "string"
+                B _ -> "boolean"
+                Null -> ""
+
+makeHeaderString :: String -> GraphValue -> [(String, String)] -> String 
+makeHeaderString "LABEL" _ _ = ":LABEL"
+makeHeaderString "TYPE" _ _ = ":TYPE"
+makeHeaderString "ID" _ _ = ":ID"
+makeHeaderString "START_ID" _ _ = ":START_ID"
+makeHeaderString "END_ID" _ _ = ":END_ID"
+makeHeaderString k v typePairs = getType k v typePairs
