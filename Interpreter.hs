@@ -89,20 +89,20 @@ tableToGraph table = map (rowToNode header) rows
 
 rowToNode :: Row -> Row -> Node
 rowToNode (Header types) (Data (Id id) values) = 
-    ("ID","", S id) : nodeAttributes
+    ("ID","", ID id) : nodeAttributes
     where
         typeNames = map getTypeName types
         graphValues = map valueToGraphValue values
         nodeAttributes = map (\((tn,t),v) -> (tn, t, v)) $ zip typeNames graphValues
 rowToNode (LabeledHeader types) (LabeledData (Id id) values labels) = 
-    ("ID","", S id) : nodeAttributes ++ [("LABEL","", Ss labels)]
+    ("ID","", ID id) : nodeAttributes ++ [("LABEL","", Ss labels)]
     where
         typeNames = map getTypeName types
         graphValues = map valueToGraphValue values
         nodeAttributes = map (\((tn,t),v) -> (tn, t, v)) $ zip typeNames graphValues
 rowToNode (RelationshipHeader types) 
     (RelationshipData (Id start) values (Id end) relationship) = 
-    ("START_ID","", S start) : nodeAttributes ++ [("END_ID","", S end), ("TYPE","", S relationship)]
+    ("START_ID","", ID start) : nodeAttributes ++ [("END_ID","", ID end), ("TYPE","", ID relationship)]
     where
         typeNames = map getTypeName types
         graphValues = map valueToGraphValue values
@@ -273,6 +273,7 @@ updateAttribute' node attr value env = node'
     where 
         (nodeValue,t) = case value of 
             V (S str) -> (S str, "string")
+            V (ID str) -> (ID str, "")
             V (Ss strs) -> (Ss strs, "")
             V (I i) -> (I i, "integer")
             V (B b) -> (B b, "boolean")

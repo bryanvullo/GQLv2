@@ -5,7 +5,7 @@ import Data.List (intercalate)
 import Data.Map (Map)
 import qualified Data.Map as Map
 
-data GraphValue = S String | Ss [String] | I Int | B Bool | Null
+data GraphValue = S String | Ss [String] | I Int | B Bool | Null | ID String
     deriving (Eq, Show)
 
 printOutput :: [[(String, GraphValue)]] -> IO ()
@@ -116,7 +116,8 @@ groupNodesToTables typePairs nodes = Map.fromListWith (++) [(getHeader node type
         getHeader node typePairs = intercalate ", " $ map (\(k, v) -> makeHeaderString k v typePairs) node -- $ takeWhile (\(k, _) -> k /= ":LABEL")
         nodeToRow = intercalate ", " . map (valueToString . snd)
         valueToString (I x) = show x
-        valueToString (S x) = x
+        valueToString (S x) = "\"" ++ x ++ "\""
+        valueToString (ID x) = x
         valueToString (Ss xs) = intercalate "; " xs
         valueToString (B True) = "true"
         valueToString (B False) = "false"
