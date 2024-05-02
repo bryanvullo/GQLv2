@@ -166,7 +166,18 @@ updateEnv var value env = case lookup var env of
 
 interpretExpr :: (Expression, Env) -> Env
 interpretExpr (ExpressionLink sExpr, env) = interpretLink (sExpr, env)
-interpretExpr (AddQuery graphName nodeName, env) = updateEnv graphName (G graph') env
+interpretExpr (RemoveQuery graphName nodeName, env) = updateEnv graphName (G graph') env
+    where
+        graph = case lookup graphName env of 
+            Just (G g) -> g
+            Just _ -> runtimeError ("Variable " ++ graphName ++ " is not a graph! unable to remove node from it.")
+            _ -> runtimeError ("Variable " ++ graphName ++ " not found")
+        node = case lookup nodeName env of 
+            Just (N n) -> n
+            Just _ -> runtimeError ("Variable " ++ nodeName ++ " is not a node! unable to add it to graph.")
+            _ -> runtimeError ("Variable " ++ nodeName ++ " not found")
+        graph' = filter ( == node) graph
+interpretExpr (AddQuery graphName nodeName, env) = updateEnv graphName (G graph'') env
     where
         graph = case lookup graphName env of 
             Just (G g) -> g
@@ -176,14 +187,29 @@ interpretExpr (AddQuery graphName nodeName, env) = updateEnv graphName (G graph'
             Just (N n) -> n
             Just _ -> runtimeError ("Variable " ++ nodeName ++ " is not a node! unable to add it to graph.")
             _ -> runtimeError ("Variable " ++ nodeName ++ " not found")
-        graph' = node : graph
+        graph' = filter (not . hasSameNodeSignature node) graph
+        graph'' = node : graph'
 interpretExpr (_, env) = env
+
+hasSameNodeSignature :: Node -> Node -> Bool
+hasSameNodeSignature node1 node2 
+    | any (\(x,_,_) -> x == "ID") node1 = case (lookupNode "ID" node1, lookupNode "ID" node2) of 
+        (Just (ID id1), Just (ID id2)) -> id1 == id2
+        _ -> False
+    | any (\(x,_,_) -> x == "TYPE") node1 = case 
+        (lookupNode "START_ID" node1, lookupNode "END_ID" node1, lookupNode "TYPE" node1,
+         lookupNode "START_ID" node2, lookupNode "END_ID" node2, lookupNode "TYPE" node2) of
+            (Just (ID start1), Just (ID end1), Just (ID type1), Just (ID start2), Just (ID end2), Just (ID type2)) -> 
+                (start1 == start2) && (end1 == end2) && (type1 == type2) 
+            _ -> False
+    | otherwise = False
+
 
 interpretLink :: (ExpressionLink, Env) -> Env
 interpretLink (Assign sExpr expr, env) = do 
     let value = interpretExprValue (expr, env)
     case sExpr of 
-        Object x -> (x, value) : env
+        Object x -> updateEnv x value env 
         ArgumentAttribute x y -> updateAttribute x y value env
 interpretLink (Assert varType var, env) = case varType of 
     GraphClass -> (var, G []) : env
@@ -191,7 +217,6 @@ interpretLink (Assert varType var, env) = case varType of
     RelationClass -> (var, N []) : env
     _ -> (var, V Null) : env
 interpretLink (ClassArgumentStatement varType var expr, env) = updateEnv var value env
-    -- (var, value) : env
     where
         value = interpretExprValue (expr, env)
 interpretLink _ = runtimeError "Unsupported Expression Link Operation"
