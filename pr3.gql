@@ -1,20 +1,20 @@
 # pr3.gql
-DataGraph graph = ACCESS("table.n4j")
-DataGraph result
+DataGraph graph = ACCESS("table.n4j")  # Access the input graph from the file "table.n4j" representing a graph of sports teams with their season's results
+DataGraph result  # Create an empty graph called `result` to store the output
 
-THROUGH (Node nodef1 : graph) {
-  CONDIF (nodef1{:TYPE i== "Beat"}^ nodef1 : graph AND nodef1.points !== null) {
-    Node nodef2 = nodef1{:TYPE i== "Beat"}^ : graph
-    THROUGH (Node nodef3 : graph) {
-      CONDIF ((nodef3{:TYPE i== "DrewWith"}^ nodef2 : graph OR nodef2{:TYPE i== "DrewWith"}^ nodef3 : graph) AND 
-             nodef3.points !== null AND nodef3.points i== nodef1.points) {
-        Node filteredNode
-        filteredNode.:ID = nodef3.:ID
-        filteredNode.points = nodef3.points
-        result.PLUS(filteredNode)
+THROUGH (Node nodef1 : graph) {  # Iterate through each node `nodef1` (representing team n') in the `graph`
+  CONDIF (nodef1{:TYPE i== "Beat"}^ nodef1 : graph AND nodef1.points !== null) {  # Check if `nodef1` has a "Beat" relationship with itself (i.e., find n such that n'-Beat->n) and if its `points` field is not null
+    Node nodef2 = nodef1{:TYPE i== "Beat"}^ : graph  # Assign the node `nodef2` (representing team n) that `nodef1` has a "Beat" relationship with
+    THROUGH (Node nodef3 : graph) {  # Iterate through each node `nodef3` (representing team n'') in the `graph`
+      CONDIF ((nodef3{:TYPE i== "DrewWith"}^ nodef2 : graph OR nodef2{:TYPE i== "DrewWith"}^ nodef3 : graph) AND  # Check if either `nodef3` has a "DrewWith" relationship with `nodef2` (i.e., n''-DrewWith-> n'-Beat-> n) or `nodef2` has a "DrewWith" relationship with `nodef3` (i.e., n'-DrewWith-> n'' and n'-Beat-> n)
+             nodef3.points !== null AND nodef3.points i== nodef1.points) {  # Check if the `points` field of `nodef3` is not null and equal to the `points` field of `nodef1`
+        Node filteredNode  # Create a new node called `filteredNode` to represent team n in the output graph
+        filteredNode.:ID = nodef3.:ID  # Assign the `:ID` field of `nodef3` to the `:ID` field of `filteredNode`
+        filteredNode.points = nodef3.points  # Assign the `points` field of `nodef3` to the `points` field of `filteredNode`
+        result.PLUS(filteredNode)  # Add `filteredNode` to the `result` graph
       }
     }
   }
 }
 
-STDOUT(result)
+STDOUT(result)  # Output the `result` graph consisting of nodes n whose `points` field value is non-null and equal to the `points` field value of n''
