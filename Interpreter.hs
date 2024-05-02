@@ -205,6 +205,13 @@ interpretExprValue (CaseQuery str bExpr, env) =
         _ -> runtimeError ("Unable to use CASE on variable " ++ str)
     where 
         caseGraph bExpr graph = filter (caseNode bExpr) graph
+interpretExprValue (NegateData str bExpr, env) = 
+        case lookup str env of 
+        Just (G graph) -> G (negateGraph bExpr graph)
+        Just (N node) -> if caseNode bExpr node then N node else V Null
+        _ -> runtimeError ("Unable to use CASE on variable " ++ str)
+    where 
+        negateGraph bExpr graph = filter (\x -> not (caseNode bExpr x)) graph
 interpretExprValue (ArgumentConstructor (ArgumentAttribute node attr), env) = 
     case lookup node env of 
         Just (N node) -> case lookupNode attr node of 
@@ -250,6 +257,7 @@ getNodeValueComparison (ExpressionMathXAS (Num x)) _ = I x
 getNodeValueComparison (String str) _ = S str
 getNodeValueComparison (ArgumentConstructor (Object x)) node = 
     case lookupNode x node of 
+        Just (ID id) -> S id
         Just value -> value
         Nothing -> Null
 getNodeValueComparison _ _ = runtimeError "Unsupported Node Value"
