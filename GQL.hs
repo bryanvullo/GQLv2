@@ -4,18 +4,13 @@ import Lexer
 import InputParser (parseInput, Tables, Table, Row, ID, Labels)
 import InputLexer (lexInput, Token(..))
 import Interpreter (interpret)
-import Printer (printOutput)
 
 main :: IO ()
 main = do
     (filename:_) <- getArgs
-    contents <- readFile filename
-    let tokens = alexScanTokens contents
-    let result = parser tokens
-
-    --comment these out for Submission
-    -- print result 
-    -- putStrLn ""
+    contents <- readFile filename -- read the file
+    let tokens = alexScanTokens contents -- lex the file
+    let result = parser tokens -- parse the tokens
 
     -- interpret the query and format the output
     interpret result

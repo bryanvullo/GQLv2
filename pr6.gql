@@ -1,8 +1,11 @@
 # pr6.gql
-DataGraph gems = ACCESS("gems.n4j")
+DataGraph file = ACCESS("gems.n4j")
 DataGraph result
+DataGraph gems = file.CASE(gem !== null)
+DataGraph people = file.CASE(name !== null)
 
-THROUGH (Node customer : gems) {
+
+THROUGH (Node customer : people) {
   CONDIF (customer.name !== null) {
     Integer wealth = customer.wealth
     String preferredColor = customer.:LABEL

@@ -4,7 +4,7 @@ module Interpreter (interpret) where
 import InputParser (parseInput, Tables, Table, Row(..), ID(..), Value(..), Labels, Relationship, Type(..), Types)
 import Parser
 import InputLexer (lexInput, Token(..))
-import Printer (printOutput, printRow, groupNodesToTables, printTables, GraphValue(..))
+import Printer (groupNodesToTables, printTables, GraphValue(..))
 import GHC.Base (undefined)
 
 
@@ -309,6 +309,12 @@ caseNode (HasQuery expr1 label) node
         labels = case r of 
             Ss labels -> labels
             _ -> []
+caseNode (StrictInqualityQuery expr1 expr2) node 
+    | r1 == Null || r2 == Null = False
+    | otherwise = r1 /= r2
+    where 
+        r1 = getNodeValueComparison expr1 node
+        r2 = getNodeValueComparison expr2 node
 caseNode _ _ = runtimeError "Unsupported Boolean Operation on Node"
 
 getNodeValueComparison :: Expression -> Node -> GraphValue
@@ -394,8 +400,51 @@ interpretBoolValue (StrictEqualityQuery expr1 expr2) env = result1 == result2
     where 
         result1 = interpretExprValue (expr1, env)
         result2 = interpretExprValue (expr2, env)
-interpretBoolValue (SlackLesserQuery expr1 expr2) env = undefined
+interpretBoolValue (SlackLesserQuery expr1 expr2) env = result1 <= result2
+    where 
+        result1 = case getArgValue expr1 env of 
+            I i -> i
+            _ -> runtimeError "Unsupported Expression in Slack Lesser Query"
+        result2 = case getArgValue expr2 env of 
+            I i -> i
+            _ -> runtimeError "Unsupported Expression in Slack Lesser Query"
+interpretBoolValue (StrictLesserQuery expr1 expr2) env = result1 < result2
+    where 
+        result1 = case getArgValue expr1 env of 
+            I i -> i
+            _ -> runtimeError "Unsupported Expression in Slack Lesser Query"
+        result2 = case getArgValue expr2 env of 
+            I i -> i
+            _ -> runtimeError "Unsupported Expression in Slack Lesser Query"
+interpretBoolValue (SlackGreaterQuery expr1 expr2) env = result1 >= result2
+    where 
+        result1 = case getArgValue expr1 env of 
+            I i -> i
+            _ -> runtimeError "Unsupported Expression in Slack Lesser Query"
+        result2 = case getArgValue expr2 env of 
+            I i -> i
+            _ -> runtimeError "Unsupported Expression in Slack Lesser Query"
+interpretBoolValue (StrictGreaterQuery expr1 expr2) env = result1 > result2
+    where 
+        result1 = case getArgValue expr1 env of 
+            I i -> i
+            _ -> runtimeError "Unsupported Expression in Slack Lesser Query"
+        result2 = case getArgValue expr2 env of 
+            I i -> i
+            _ -> runtimeError "Unsupported Expression in Slack Lesser Query"
 interpretBoolValue b _ = runtimeError ("Unsupported Boolean Value Reduction " ++ show b)
+
+getArgValue :: Expression -> Env -> GraphValue
+getArgValue arg env = case arg of 
+    ArgumentConstructor (Object x) -> case lookup x env of 
+        Just (V x) -> x
+        _ -> runtimeError ("Unable to find Variable " ++ x)
+    ArgumentConstructor (ArgumentAttribute x y) -> case lookup x env of 
+        Just (N node) -> case lookupNode y node of 
+            Just x -> x
+            _ -> runtimeError ("Unable to find Attribute " ++ y)
+        _ -> runtimeError ("Variable " ++ x ++ " is not a node!")
+    _ -> runtimeError "Unsupported Arguement Constructor Reduction"
 
 interpretPredicateOnAssociation :: ExpressionBool -> [Node] -> Env -> Bool
 interpretPredicateOnAssociation (SlackGreaterQuery (ArgumentConstructor (Object x)) (ExpressionMathXAS (Num n))) assocs env = 
