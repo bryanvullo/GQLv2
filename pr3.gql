@@ -1,6 +1,6 @@
 # pr3.gql
-DataGraph graph = ACCESS("table.n4j")  # Access the input graph from the file "table.n4j" representing a graph of sports teams with their season's results
-DataGraph result  # Create an empty graph called `result` to store the output
+DataGraph table = ACCESS("table.n4j")
+DataGraph output
 
 THROUGH (Node nodef1 : table) {
   THROUGH (Node nodef2 : table) {
@@ -20,4 +20,4 @@ THROUGH (Node nodef1 : table) {
   }
 }
 
-STDOUT(result)  # Output the `result` graph consisting of nodes n0 whose `points` field value is non-null and equal to the `points` field value of n2
+STDOUT (output)
