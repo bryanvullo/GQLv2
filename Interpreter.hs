@@ -7,6 +7,7 @@ import InputLexer (lexInput, Token(..))
 import Printer (printOutput, printRow, groupNodesToTables, printTables, GraphValue(..))
 import GHC.Base (undefined)
 import Data.Text.Array (run)
+import Data.ByteString (find)
 
 
 -- Environment
@@ -152,7 +153,6 @@ handlePrint :: String -> Env -> IO ()
 handlePrint var env = do
     case lookup var env of
             Just (G graph) -> printTables graph
-            -- Just (G graph) -> print graph --use above
             Just (N node) -> print node
             Just (V (I i)) -> print i
             Just (V (S str)) -> print str
@@ -192,6 +192,7 @@ interpretLink (Assign sExpr expr, env) = do
 interpretLink (Assert varType var, env) = case varType of 
     GraphClass -> (var, G []) : env
     NodeClass -> (var, N []) : env
+    RelationClass -> (var, N []) : env
     _ -> (var, V Null) : env
 interpretLink (ClassArgumentStatement varType var expr, env) = (var, value) : env
     where
@@ -201,6 +202,8 @@ interpretLink _ = runtimeError "Unsupported Expression Link Operation"
 
 interpretExprValue :: (Expression, Env) -> Data
 interpretExprValue (String str, env) = V (S str)
+interpretExprValue (ExpressionMathXAS (Num x), env) = V (I x)
+interpretExprValue (ExpressionBool (Bool b), env) = V (B b)
 interpretExprValue (CaseQuery str bExpr, env) =
     case lookup str env of 
         Just (G graph) -> G (caseGraph bExpr graph)
@@ -277,10 +280,79 @@ updateAttribute' node attr value env = node'
 
 interpretBoolValue :: ExpressionBool -> Env -> Bool
 interpretBoolValue (Bool True) env = undefined
-interpretBoolValue (AssociationEnd bExpr str values) env = undefined 
-interpretBoolValue (AssociationStart str bExpr values) env = undefined
+interpretBoolValue (AssociationEnd bExpr str valueStr) env = interpretPredicateOnAssociation bExpr assocs env
+    where 
+        graph = case lookup valueStr env of 
+            Just (G g) -> g
+            Just _ -> runtimeError ("Variable " ++ valueStr ++ " is not a graph!")
+            _ -> runtimeError ("Variable " ++ valueStr ++ " not found")
+        node = case lookup str env of 
+            Just (N n) -> n
+            Just _ -> runtimeError ("Variable " ++ str ++ " is not a node!")
+            _ -> runtimeError ("Variable " ++ str ++ " not found")
+        assocs = findEndAssocs graph node
+interpretBoolValue (AssociationStart str bExpr valueStr) env = interpretPredicateOnAssociation bExpr assocs env
+    where 
+        graph = case lookup valueStr env of 
+            Just (G g) -> g
+            Just _ -> runtimeError ("Variable " ++ valueStr ++ " is not a graph!")
+            _ -> runtimeError ("Variable " ++ valueStr ++ " not found")
+        node = case lookup str env of 
+            Just (N n) -> n
+            Just _ -> runtimeError ("Variable " ++ str ++ " is not a node!")
+            _ -> runtimeError ("Variable " ++ str ++ " not found")
+        assocs = findStartAssocs graph node
 interpretBoolValue (AssociationStatement str1 bExpr str2 values) env = undefined
 interpretBoolValue _ _ = runtimeError "Unsupported Boolean Value Reduction"
+
+interpretPredicateOnAssociation :: ExpressionBool -> [Node] -> Env -> Bool
+interpretPredicateOnAssociation (SlackGreaterQuery (ArgumentConstructor (Object x)) (ExpressionMathXAS (Num n))) assocs env = 
+    any (\node -> case lookupNode x node of 
+        Just (I i) -> i >= n
+        _ -> False) assocs
+interpretPredicateOnAssociation (StrictGreaterQuery (ArgumentConstructor (Object x)) (ExpressionMathXAS (Num n))) assocs env = 
+    any (\node -> case lookupNode x node of 
+        Just (I i) -> i > n
+        _ -> False) assocs
+interpretPredicateOnAssociation (SlackLesserQuery (ArgumentConstructor (Object x)) (ExpressionMathXAS (Num n))) assocs env = 
+    any (\node -> case lookupNode x node of 
+        Just (I i) -> i <= n
+        _ -> False) assocs
+interpretPredicateOnAssociation (StrictLesserQuery (ArgumentConstructor (Object x)) (ExpressionMathXAS (Num n))) assocs env = 
+    any (\node -> case lookupNode x node of 
+        Just (I i) -> i < n
+        _ -> False) assocs
+interpretPredicateOnAssociation (StrictEqualityQuery (ArgumentConstructor (Object x)) exprToCompare) assocs env = 
+    any (\node -> case lookupNode x node of 
+        Just value -> V value == valueToCompare
+        _ -> False) assocs
+    where 
+        valueToCompare = interpretExprValue (exprToCompare, env)
+interpretPredicateOnAssociation _ _ _ = runtimeError "Unsupported Predicate on Association"
+
+findStartAssocs :: Graph -> Node -> [Node]
+findStartAssocs graph node = filter (isStartOfAssoc nodeID) graph
+    where 
+        nodeID = case lookupNode "ID" node of 
+            Just (S id) -> id
+            _ -> ""
+
+isStartOfAssoc :: String -> Node -> Bool
+isStartOfAssoc id node = case lookupNode "START_ID" node of 
+    Just (S startID) -> startID == id
+    _ -> False
+
+findEndAssocs :: Graph -> Node -> [Node]
+findEndAssocs graph node = filter (isEndOfAssoc nodeID) graph
+    where 
+        nodeID = case lookupNode "ID" node of 
+            Just (S id) -> id
+            _ -> ""
+
+isEndOfAssoc :: String -> Node -> Bool
+isEndOfAssoc id node = case lookupNode "END_ID" node of 
+    Just (S endID) -> endID == id
+    _ -> False
 
 runThroughBlock :: Class -> String -> String -> Program -> Env -> IO Env
 runThroughBlock varType var vars block env = runThroughBlock' var nodes block env

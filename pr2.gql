@@ -8,8 +8,8 @@ THROUGH (Node nodef1 : tasks) {
       CONDIF (nodef2 {available i== True}^ : tasks) {
         Association association
         association.:TYPE = "PossiblyAllocated"
-        association.:START_ID = nodef2
-        association.:END_ID = nodef1
+        association.:START_ID = nodef2.:ID
+        association.:END_ID = nodef1.:ID
         result.PLUS(association)
       }
     }
