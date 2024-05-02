@@ -138,4 +138,4 @@ makeHeaderString "TYPE" _ _ = ":TYPE"
 makeHeaderString "ID" _ _ = ":ID"
 makeHeaderString "START_ID" _ _ = ":START_ID"
 makeHeaderString "END_ID" _ _ = ":END_ID"
-makeHeaderString k v typePairs = getType k v typePairs
+makeHeaderString k v typePairs = k ++ ":" ++ getType k v typePairs
