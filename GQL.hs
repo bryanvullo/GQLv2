@@ -14,8 +14,8 @@ main = do
     let result = parser tokens
 
     --comment these out for Submission
-    print result 
-    putStrLn ""
+    -- print result 
+    -- putStrLn ""
 
     -- interpret the query and format the output
     interpret result
