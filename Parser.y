@@ -35,6 +35,7 @@ import Lexer
   AND                   { Key XLogicalAND             _ }  -- "AND" logical operator, e.g., condition1 AND condition2
   OR                    { Key XLogicalOR              _ }  -- "OR" logical operator, e.g., condition1 OR condition2
   PLUS                  { Key XPlus                   _ }  -- "+" operator, e.g., graph.PLUS(node)
+  REMOVE                { Key XRemove                 _ }  -- "REMOVE" keyword, e.g., graph.REMOVE(node) 
   SUBT                  { Key XSubtract               _ }  -- "-" operator, e.g., a - b
   MULT                  { Key XMultiply               _ }  -- "*" operator, e.g., a * b
   DIV                   { Key XDivide                 _ }  -- "/" operator, e.g., a / b
@@ -144,6 +145,7 @@ ArgumentConstructor
 ArgumentQuery
     : argument '.' CASE '(' ExpressionBool ')'                 { CaseQuery $1 $5         }  -- Match query, e.g., node.CASE(condition)
     | argument '.' PLUS '(' argument ')'                     { AddQuery $1 $5          }  -- Add query, e.g., graph.PLUS(node)
+    | argument '.' REMOVE '(' argument ')'                   { RemoveQuery $1 $5        }  -- Remove query, e.g., graph.REMOVE(node)
     | argument '.' CALLASSOCIATION '(' ExpressionBool ')'      { AssociationQuery $1 $5  }  -- Get relation, e.g., node.CALLASSOCIATION(condition)
     | argument '.' NEGATE '(' ExpressionBool ')'                   { NegateData $1 $5        }  -- Exclusion expression, e.g., graph.NEGATE(expression)
 
@@ -195,6 +197,7 @@ data Expression
     | RegularExpression String
     | CaseQuery String ExpressionBool
     | AddQuery String String
+    | RemoveQuery String String
     | ExpressionBool ExpressionBool
     | AssociationQuery String ExpressionBool
     | NegateData String ExpressionBool

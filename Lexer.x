@@ -37,6 +37,7 @@ tokens :-
   CALLDATAPOINT                 { \x _ -> Key XDataNodeCheck    x }  -- CallDataPoint keyword
   CHARS                         { \x _ -> Key XCharsType        x }  -- Chars keyword
   PLUS                          { \x _ -> Key XPlus             x }  -- Plus keyword
+  REMOVE                        { \x _ -> Key XRemove           x }  -- Remove keyword      
   SUBT                          { \x _ -> Key XSubtract         x }  -- Subtract keyword
   MULT                          { \x _ -> Key XMultiply         x }  -- Multiply keyword
   DIV                           { \x _ -> Key XDivide           x }  -- Divide keyword
@@ -99,6 +100,7 @@ data TokenType
   | XDataNodeCheck
   | XCharsType
   | XPlus
+  | XRemove
   | XSubtract
   | XMultiply
   | XDivide
