@@ -394,6 +394,7 @@ interpretBoolValue (StrictEqualityQuery expr1 expr2) env = result1 == result2
     where 
         result1 = interpretExprValue (expr1, env)
         result2 = interpretExprValue (expr2, env)
+interpretBoolValue (SlackLesserQuery expr1 expr2) env = undefined
 interpretBoolValue b _ = runtimeError ("Unsupported Boolean Value Reduction " ++ show b)
 
 interpretPredicateOnAssociation :: ExpressionBool -> [Node] -> Env -> Bool
