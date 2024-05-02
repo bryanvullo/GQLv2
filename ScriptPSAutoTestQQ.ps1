@@ -44,10 +44,6 @@ Write-Host "Start Testing PR10" -ForegroundColor Blue
 .\GQL pr10.gql
 Write-Host "End Testing PR10" -ForegroundColor Blue
 
-Write-Host "Start Testing PR11TEST" -ForegroundColor Blue
-.\GQL pr11TEST.gql
-Write-Host "End Testing PR11TEST" -ForegroundColor Blue
-
 Write-Host "Start Cleaning Process" -ForegroundColor Blue
 .\ScriptPSClean.ps1
 Write-Host "End Cleaning Process" -ForegroundColor Blue
